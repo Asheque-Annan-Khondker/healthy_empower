@@ -1,23 +1,16 @@
-import { Stack } from "expo-router";
+import {Drawer} from "expo-router/drawer";
+import 'react-native-gesture-handler'
+import {GestureHandlerRootView} from "react-native-gesture-handler";
 
 export default function RootLayout() {
   return (
-    <Stack screenOptions={{
-  headerStyle: {
-    backgroundColor: 'black'
-  },
-  headerTintColor: '#fff',
-  headerTitleStyle:{
-    fontWeight: 'bold'
-  }}}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="home_screen" /> 
-    </Stack>
+    <GestureHandlerRootView style={{flex:1}}>
+      <Drawer>
+          <Drawer.Screen name={'/screens/guide_selection'} options={{drawerLabel: 'Guide Selection'}} />
+        <Drawer.Screen name={'index'} options={{drawerLabel: 'Home'}} />
+      </Drawer>
+    </GestureHandlerRootView>
   );
 }
 
 
-const styles = [
-
-
-]
