@@ -1,0 +1,44 @@
+name: Unit Testing
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  unit-tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    #timeout-minutes: 1 # Timeout for job
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'  # Use the version required by your project
+
+      
+      - name: Print current directory
+        run: pwd
+        
+      - name: list all files and directories
+        run: ls -la
+
+      # Step 3: Install dependencies using Yarn
+      - name: Install dependencies
+        run: yarn install
+        working-directory: healthy_empowerer
+        
+
+      # Step 4: Run Jest tests (Override default test script)
+      - name: Run unit tests
+        run: yarn jest --ci
+        working-directory: healthy_empowerer
