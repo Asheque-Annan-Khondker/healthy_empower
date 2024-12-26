@@ -23,12 +23,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Use the version required by your project
+          node-version: '18'  # Used the version provided in package.json
 
-      
+      # for debugging purpose
       - name: Print current directory
         run: pwd
-        
+
+      # for debugging purpose
       - name: list all files and directories
         run: ls -la
 
