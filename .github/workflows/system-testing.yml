@@ -51,3 +51,11 @@ jobs:
       with:
         name: system-test-results
         path: test-results/
+        
+    - name: Clear Yarn Cache
+      run: yarn cache clean
+      working-directory: healthy_empowerer
+
+    - name: Debug package.json
+      run: cat package.json
+      working-directory: healthy_empowerer
