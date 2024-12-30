@@ -3,4 +3,3 @@ module.exports = {
   testMatch: ["**/__tests__/system/**/*.test.[jt]s?(x)"],
   verbose: true,
 };
-}
