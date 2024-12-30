@@ -5,8 +5,5 @@
   },
   "devDependencies": {
     "jest": "^29.7.0"
-  },
-  "scripts": {
-  "test:system": "jest --config jest.system.config.js"
   }
 }
