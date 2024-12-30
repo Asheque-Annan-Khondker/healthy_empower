@@ -1,6 +1,6 @@
 module.exports = {
   preset: "jest-expo",
-  testMatch: ["**/*.test.[jt]s?(x)"],
+  testMatch: ["**/__tests__/system/**/*.test.[jt]s?(x)"],
   verbose: true,
   reporters: [
     "default",
