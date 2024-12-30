@@ -58,6 +58,9 @@
   "ios": "expo start --ios",
   "web": "expo start --web",
   "test": "jest --watchAll",
+  "start": "expo start",
+  "build": "expo build",
+  "test": "jest",
   "test:system": "jest --config jest.system.config.js",
   "lint": "expo lint",
   "build": "expo export"
