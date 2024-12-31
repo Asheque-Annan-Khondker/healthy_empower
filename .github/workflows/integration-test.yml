@@ -33,3 +33,11 @@ jobs:
       - name: Run integration tests
         run: yarn test:integration
         working-directory: healthy_empowerer
+        
+      - name: Clear Yarn Cache
+        run: yarn cache clean
+        working-directory: healthy_empowerer
+        
+      - name: Debug package.json
+        run: cat package.json
+        working-directory: healthy_empowerer
