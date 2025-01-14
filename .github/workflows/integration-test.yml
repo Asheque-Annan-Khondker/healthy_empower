@@ -3,10 +3,10 @@ name: Integration Testing
 on:
   push:
     branches:
-      - pipeline/test-build
+      - main
   pull_request:
     branches:
-      - pipeline/test-build
+      - main
 
 jobs:
   integration-tests:

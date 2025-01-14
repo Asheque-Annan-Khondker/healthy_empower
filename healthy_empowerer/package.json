@@ -70,6 +70,7 @@
   "build": "expo build",
   "test": "jest",
   "test:system": "jest --config jest.system.config.js",
+  "test:integration": "jest --config jest.integration.config.js",
   "lint": "expo lint",
   "build": "expo export"
   },
