@@ -56,7 +56,22 @@
     "jest-expo": "~51.0.3",
     "metro-react-native-babel-preset": "^0.77.0",
     "react-test-renderer": "18.2.0",
+    "jest-junit": "^12.0.0",
     "typescript": "~5.3.3"
+  },
+  "scripts": {
+  "weave": "expo start",
+  "reset-project": "node ./scripts/reset-project.js",
+  "android": "expo start --android",
+  "ios": "expo start --ios",
+  "web": "expo start --web",
+  "test": "jest --watchAll",
+  "start": "expo start",
+  "build": "expo build",
+  "test": "jest",
+  "test:system": "jest --config jest.system.config.js",
+  "lint": "expo lint",
+  "build": "expo export"
   },
   "private": true
 }

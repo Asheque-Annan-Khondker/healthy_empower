@@ -1,0 +1,61 @@
+name: System Testing
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  system-test:
+    name: Run System Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Check out the repository
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Step 2: Set up Node.js environment
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    # Step 3: Install dependencies using Yarn
+    - name: Install dependencies
+      run: yarn install
+      working-directory: healthy_empowerer
+
+    - name: List Installed Dependencies
+      run: yarn list
+      working-directory: healthy_empowerer
+
+
+    # Step 4: Build the application
+    - name: Build the application
+      run: yarn build
+      working-directory: healthy_empowerer
+
+    # Step 5: Run system tests
+    - name: Run System Tests
+      run: yarn test:system
+      working-directory: healthy_empowerer
+
+    # Step 6: Upload system test results
+    - name: Upload System Test Results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: system-test-results
+        path: test-results/
+        
+    - name: Clear Yarn Cache
+      run: yarn cache clean
+      working-directory: healthy_empowerer
+
+    - name: Debug package.json
+      run: cat package.json
+      working-directory: healthy_empowerer
