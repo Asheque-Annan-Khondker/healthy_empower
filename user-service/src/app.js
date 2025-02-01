@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors'); 
-
+const { encrypt_user_password } = require('./password-utils'); 
 
 const app = express(); 
 const port = 3000; 
@@ -27,7 +27,7 @@ app.post(
          id: Date.now().toString(), 
          username, 
          email, 
-         password: hash_user_password(password),
+         password: encrypt_user_password(password),
          date_of_birth,
          gender, 
          timezone, 
@@ -51,13 +51,4 @@ app.post(
 app.listen(port, () => {
   console.log(`user-service listening on port ${port}`)
 }); 
-
-
-function hash_user_password(password) {
-  password += "hello"; 
-
-  return password;
-}
-
-
 
