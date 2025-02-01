@@ -20,14 +20,14 @@ app.post(
   '/api/users', (req, res) => {
     try {
       // password is currently unhashed
-      const { username, email, password_hash, date_of_birth, gender, timezone } = req.body; 
+      const { id,username, email, password, date_of_birth, gender, timezone } = req.body; 
       
       
       const newUser = { 
-         id: Date.now().toString(); 
+         id: Date.now().toString(), 
          username, 
          email, 
-         password_hash,
+         password: hash_user_password(password),
          date_of_birth,
          gender, 
          timezone, 
@@ -36,7 +36,7 @@ app.post(
        }; 
 
 
-      users.set(userId, newUser); 
+      users.set(id, newUser); 
       // omit password_hash from response
       const { password_hash: _, ...userResponse} = newUser; 
 
@@ -50,5 +50,14 @@ app.post(
 
 app.listen(port, () => {
   console.log(`user-service listening on port ${port}`)
-})
+}); 
+
+
+function hash_user_password(password) {
+  password += "hello"; 
+
+  return password;
+}
+
+
 
