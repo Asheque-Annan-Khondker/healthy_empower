@@ -3,10 +3,10 @@ name: Build Application
 on:
   push:
     branches:
-      - main
+      - pipeline/test-build
   pull_request:
     branches:
-      - main
+      - pipeline/test-build
 
 jobs:
   build:
