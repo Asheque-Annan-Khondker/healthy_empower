@@ -1,0 +1,43 @@
+name: Integration Testing
+
+on:
+  push:
+    branches:
+      - CI/CD-Pipeline
+  pull_request:
+    branches:
+      - CI/CD-Pipeline
+
+jobs:
+  integration-tests:
+    name: Run Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'  
+
+      # Step 3: Install dependencies using Yarn
+      - name: Install dependencies
+        run: yarn install
+        working-directory: healthy_empowerer
+
+      # Step 4: Run integration tests
+      - name: Run integration tests
+        run: yarn test:integration
+        working-directory: healthy_empowerer
+        
+      - name: Clear Yarn Cache
+        run: yarn cache clean
+        working-directory: healthy_empowerer
+        
+      - name: Debug package.json
+        run: cat package.json
+        working-directory: healthy_empowerer
