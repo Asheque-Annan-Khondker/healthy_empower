@@ -47,7 +47,7 @@ jobs:
     # Step 6: Upload system test results
     - name: Upload System Test Results
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: system-test-results
         path: test-results/
