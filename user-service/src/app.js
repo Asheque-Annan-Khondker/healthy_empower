@@ -19,12 +19,14 @@ const healthProfiles = new Map();
 app.post(
   '/api/users', (req, res) => {
     try {
+      console.log('request body', req.body);
       // password is currently unhashed
-      const { id,username, email, password, date_of_birth, gender, timezone } = req.body; 
+      const { username, email, password, date_of_birth, gender, timezone } = req.body; 
       
+      const id = Date.now().toString();
       
       const newUser = { 
-         id: Date.now().toString(), 
+         id, 
          username, 
          email, 
          password: encrypt_user_password(password),
@@ -35,14 +37,24 @@ app.post(
          last_login: new Date()
        }; 
 
-
+      console.log("create new user", newUser);
       users.set(id, newUser); 
       // omit password_hash from response
-      const { password_hash: _, ...userResponse} = newUser; 
+      const userResponse = {
+        id: newUser.id, 
+        username: newUser.username,
+        email: newUser.email,
+        date_of_birth: newUser.date_of_birth,
+        gender: newUser.gender, 
+        timezone: newUser.timezone, 
+        created_at: newUser.created_at,
+        last_login: newUser.last_login
+      };
 
       // send the data back 
       res.status(201).json(userResponse);
       } catch (error) {
+        console.error("error creating user ", error)
         res.status(500).json({error: error.message });
         }
       }
@@ -52,3 +64,5 @@ app.listen(port, () => {
   console.log(`user-service listening on port ${port}`)
 }); 
 
+
+module.exports = { app, users };

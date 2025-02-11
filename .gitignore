@@ -1,2 +1,8 @@
-user-service/node-modules
+user-service/node_modules
+
+../user-service/node_modules
+node_modules/
+**/node_modules/
+user-service/node_modules/
+user-service/src/.env
 user-service/src/.env
