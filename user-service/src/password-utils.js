@@ -9,5 +9,9 @@ function encrypt_user_password(password) {
   return encrypt_password;
 }
 
+function isValidEmail(email) {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailPattern.test(email);
+}
 
-module.exports = { encrypt_user_password };
+module.exports = { encrypt_user_password, isValidEmail };
