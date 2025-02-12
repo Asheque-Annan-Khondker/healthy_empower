@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors'); 
-const { encrypt_user_password } = require('./password-utils'); 
+const { encrypt_user_password, isValidEmail } = require('./password-utils'); 
 
 const app = express(); 
 const port = 3000; 
@@ -23,6 +23,21 @@ app.post(
       // password is currently unhashed
       const { username, email, password, date_of_birth, gender, timezone } = req.body; 
       
+      if (!username || !email || !password || !date_of_birth || !gender || !timezone) {
+        return res.status(400).json({error: 'Missing Required Fields'});
+      }
+      
+      if (!isValidEmail(email)) {
+        return res.status(400).json({error: 'Invalid Email Format'});
+      }
+
+      const existingUsers = Array.from(users.values());
+      const takenEmail = existingUsers.some(user => user.email === email); 
+      if (takenEmail) {
+        return res.status(409).json({error: 'Email Already Exists'});
+      }
+
+
       const id = Date.now().toString();
       
       const newUser = { 

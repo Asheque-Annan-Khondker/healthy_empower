@@ -58,7 +58,7 @@ describe('POST /api/users', () => {
       .post('/api/users')
       .send(userData)
     expect(response.status).toBe(400)
-    expect((response.body.error).toContain('required fields'));
+    expect(response.body.error).toContain('Missing Required Fields');
   })
 
 test('should return 409 when email already exists', async() => {
@@ -81,7 +81,7 @@ test('should return 409 when email already exists', async() => {
     .send(userData);
 
   expect(response.status).toBe(409);
-  expect(response.body.error).toContain('email already exists');
+  expect(response.body.error).toContain('Email Already Exists');
 
   });
 });
