@@ -12,7 +12,17 @@ app.use(cors());
 const users = new Map();
 const healthProfiles = new Map(); 
 
-// TODO 1/2/25 write endpoint test, hash_password, ensure post validation, handle email validation, and handle duplicates
+
+// create user helper functions in order to clean up /api/users POST 
+function hasRequiredFields(userData) { 
+    const { username, email, password, date_of_birth, gender, timezone } = userData; 
+    return username && email && password && date_of_birth && gender && timezone; 
+}
+
+const isEmailAlreadyRegistered = (email, users) => {
+  const existingUsers = Array.from(users.values());
+  return existingUsers.some(user => user.email === email);
+} 
 
 
 // create a user with non-health information 
@@ -23,7 +33,7 @@ app.post(
       // password is currently unhashed
       const { username, email, password, date_of_birth, gender, timezone } = req.body; 
       
-      if (!username || !email || !password || !date_of_birth || !gender || !timezone) {
+      if (!hasRequiredFields(req.body)) {
         return res.status(400).json({error: 'Missing Required Fields'});
       }
       
@@ -31,9 +41,7 @@ app.post(
         return res.status(400).json({error: 'Invalid Email Format'});
       }
 
-      const existingUsers = Array.from(users.values());
-      const takenEmail = existingUsers.some(user => user.email === email); 
-      if (takenEmail) {
+      if (isEmailAlreadyRegistered(req.body.email, users)) {
         return res.status(409).json({error: 'Email Already Exists'});
       }
 
@@ -52,7 +60,6 @@ app.post(
          last_login: new Date()
        }; 
 
-      console.log("create new user", newUser);
       users.set(id, newUser); 
       // omit password_hash from response
       const userResponse = {
@@ -69,7 +76,6 @@ app.post(
       // send the data back 
       res.status(201).json(userResponse);
       } catch (error) {
-        console.error("error creating user ", error)
         res.status(500).json({error: error.message });
         }
       }
