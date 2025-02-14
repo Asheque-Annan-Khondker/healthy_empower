@@ -8,3 +8,8 @@ it(`renders correctly`, () => {
 
   expect(tree).toMatchSnapshot();
 });
+
+it('renders correctly with styling props', () => {
+    const tree = renderer.create(<ThemedText style={{ fontSize: 20, color: 'blue' }}>Styled text</ThemedText>).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
