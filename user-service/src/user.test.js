@@ -85,3 +85,98 @@ test('should return 409 when email already exists', async() => {
 
   });
 });
+
+
+describe('GET /api/users', () => {
+  beforeEach(() => {
+    users.clear();
+  });
+  
+  test('should return an empty array when no users exist', async() => {
+    const response = await response(app)
+      .get('/api/users');
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([]);
+  });
+  
+  test('should return all users without the password, date_of_birth, gender, and health information', async() => {
+    const testUsers = [
+      {
+        username: 'user',
+        email: 'ld277@uowmail.edu.au',
+        password: 'hellosadness',
+        date_of_birth: '23-11-1997',
+        gender: 'male',
+        timezone: 'UTC'
+      },
+      {
+        username: 'lue',
+        email: 'lukedunn011@gmail.com',
+        password: 'whatsmypass',
+        date_of_birth: '25-05-2004',
+        gender: 'male',
+        timezone: 'UTC'
+      }
+    ]
+    for (const userData of testUsers) {
+      await request(app)
+         .post('/api/users')
+         .send(userData); 
+    }
+
+    const response = await request(app)
+      .get('api/users');
+    
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true); 
+    expect(response.body.length).toBe(2);
+    response.body.forEach(element => {
+      expect(user).toHaveProperty('id');
+      expect(user).toHaveProperty('username');
+      expect(user).toHaveProperty('email');
+      expect(user).not.toHaveProperty('password');
+    });
+
+
+  });
+});
+
+describe('GET /api/users/:id', () => {
+  beforeEach(() => {
+    users.clear();
+  })
+
+  test('should return specific user when valid id is provided', async() => {
+    const userData = {
+        username: 'user',
+        email: 'ld277@uowmail.edu.au',
+        password: 'hellosadness',
+        date_of_birth: '23-11-1997',
+        gender: 'male',
+        timezone: 'UTC'
+      };
+
+    const createResponse = await request(app)
+      .post('/api/users')
+      .send(userData);
+
+    const userId = createResponse.body.id; 
+
+    const response = await request(app)
+      .get(`/api/users/${userId}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('id', userId); 
+    expect(response.body).toHaveProperty('username', userData.username); 
+    expect(response.body).not.toHaveProperty('password'); 
+  });
+
+  test('should return 404 when no user found', async() => {
+    const response = await request(app)
+      .get('/api/users/xyz');
+
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty('error');
+  })
+})
+

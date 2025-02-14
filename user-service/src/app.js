@@ -13,6 +13,8 @@ const users = new Map();
 const healthProfiles = new Map(); 
 
 
+// TODO make get user endpoint and delete user endpoint, tests, and also user health data endpoint. 
+
 // create user helper functions in order to clean up /api/users POST 
 function hasRequiredFields(userData) { 
     const { username, email, password, date_of_birth, gender, timezone } = userData; 
