@@ -21,8 +21,6 @@ describe('POST /api/users', () => {
       .post('/api/users')
       .send(userData);
 
-    console.log('test response', response.body);
-    console.log('test status', response.status);
 
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty('id');
@@ -93,7 +91,7 @@ describe('GET /api/users', () => {
   });
   
   test('should return an empty array when no users exist', async() => {
-    const response = await response(app)
+    const response = await request(app)
       .get('/api/users');
     expect(response.status).toBe(200);
     expect(response.body).toEqual([]);
@@ -125,12 +123,12 @@ describe('GET /api/users', () => {
     }
 
     const response = await request(app)
-      .get('api/users');
+      .get('/api/users');
     
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body)).toBe(true); 
     expect(response.body.length).toBe(2);
-    response.body.forEach(element => {
+    response.body.forEach(user => {
       expect(user).toHaveProperty('id');
       expect(user).toHaveProperty('username');
       expect(user).toHaveProperty('email');
@@ -168,6 +166,7 @@ describe('GET /api/users/:id', () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('id', userId); 
     expect(response.body).toHaveProperty('username', userData.username); 
+    expect(response.body).toHaveProperty('email', userData.email);
     expect(response.body).not.toHaveProperty('password'); 
   });
 

@@ -83,6 +83,47 @@ app.post(
       }
 );
 
+app.get('/api/users', (req, res) => {
+  try {
+    const userList = Array.from(users.values()).map(user => ({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+    }));
+
+    res.status(200).json(userList);
+  } catch (error) {
+    res.status(500).json({error: error.message });
+  }
+})
+
+
+app.get('/api/users/:id', (req, res) => {
+  try {
+    const userId = req.params.id; 
+    console.log('looking for user with ID: ', userId);
+    const user = users.get(userId);
+    console.log('Found user', user);
+
+    if (!user) {
+      return res.status(404).json({error: 'User Not Found' });
+    }
+
+    const userResponse = {
+      id: user.id,
+      username: user.username,
+      email: user.email
+    }
+
+    res.status(200).json(userResponse);
+  } catch (error) {
+    console.error('error: ', error);
+    res.status(500).json({error: error.message });
+  }
+})
+
+
+
 app.listen(port, () => {
   console.log(`user-service listening on port ${port}`)
 }); 
