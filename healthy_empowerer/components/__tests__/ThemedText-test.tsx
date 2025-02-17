@@ -21,4 +21,9 @@ it('renders correctly with styling props', () => {
     ).toJSON();
     expect(tree).toMatchSnapshot();
   }); 
+ it('renders correctly with different text', () => {
+    const tree = renderer.create(<ThemedText>Another test case</ThemedText>).toJSON();
+    expect(tree).toMatchSnapshot();
+  }); 
+ 
   
