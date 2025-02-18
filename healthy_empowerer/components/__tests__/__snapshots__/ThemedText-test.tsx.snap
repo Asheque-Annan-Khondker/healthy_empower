@@ -22,3 +22,77 @@ exports[`renders correctly 1`] = `
   Snapshot test!
 </Text>
 `;
+
+exports[`renders correctly with different text 1`] = `
+<Text
+  style={
+    [
+      {
+        "color": "#11181C",
+      },
+      {
+        "fontSize": 16,
+        "lineHeight": 24,
+      },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    ]
+  }
+>
+  Another test case
+</Text>
+`;
+
+exports[`renders correctly with nested elements 1`] = `
+<Text
+  style={
+    [
+      {
+        "color": "#11181C",
+      },
+      {
+        "fontSize": 16,
+        "lineHeight": 24,
+      },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    ]
+  }
+>
+  <span>
+    Nested Element
+  </span>
+</Text>
+`;
+
+exports[`renders correctly with styling props 1`] = `
+<Text
+  style={
+    [
+      {
+        "color": "#11181C",
+      },
+      {
+        "fontSize": 16,
+        "lineHeight": 24,
+      },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      {
+        "color": "blue",
+        "fontSize": 20,
+      },
+    ]
+  }
+>
+  Styled text
+</Text>
+`;

@@ -1,4 +1,4 @@
-name: Unit Testing
+name: Integration Testing
 
 on:
   push:
@@ -9,10 +9,9 @@ on:
       - CI/CD-Pipeline
 
 jobs:
-  unit-tests:
-    name: Run Unit Tests
+  integration-tests:
+    name: Run Integration Tests
     runs-on: ubuntu-latest
-    #timeout-minutes: 1 # Timeout for job
 
     steps:
       # Step 1: Check out the repository
@@ -23,23 +22,22 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Used the version provided in package.json
-
-      # for debugging purpose
-      - name: Print current directory
-        run: pwd
-
-      # for debugging purpose
-      - name: list all files and directories
-        run: ls -la
+          node-version: '18'  
 
       # Step 3: Install dependencies using Yarn
       - name: Install dependencies
         run: yarn install
         working-directory: healthy_empowerer
-        
 
-      # Step 4: Run Jest tests (Override default test script)
-      - name: Run unit tests
-        run: yarn jest --ci
+      # Step 4: Run integration tests
+      - name: Run integration tests
+        run: yarn test:integration
+        working-directory: healthy_empowerer
+        
+      - name: Clear Yarn Cache
+        run: yarn cache clean
+        working-directory: healthy_empowerer
+        
+      - name: Debug package.json
+        run: cat package.json
         working-directory: healthy_empowerer
