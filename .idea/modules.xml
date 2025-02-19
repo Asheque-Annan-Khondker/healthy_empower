@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/healthy_empower.iml" filepath="$PROJECT_DIR$/.idea/healthy_empower.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/healthy_empowerer.iml" filepath="$PROJECT_DIR$/.idea/healthy_empowerer.iml" />
     </modules>
   </component>
 </project>
