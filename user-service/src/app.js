@@ -122,11 +122,27 @@ app.get('/api/users/:id', (req, res) => {
   }
 })
 
+app.delete('/api/users/:id', (req, res) => {
+  try {
+    const userId = req.params.id; 
+    const user = users.get(userId);
 
+    if (!user) {
+      return res.status(404).json({ error: 'User not found'});
+    }
+
+    users.delete(userId);
+
+    res.status(200).json({ message: 'User successfully deleted'});
+  } catch (error) {
+    console.error('error: ', error); 
+    res.status(500).json({ error: error.message });
+  }
+});
 
 app.listen(port, () => {
   console.log(`user-service listening on port ${port}`)
 }); 
 
 
-module.exports = { app, users };
+module.exports = { app, users, healthProfiles };
