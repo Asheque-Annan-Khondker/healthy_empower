@@ -145,4 +145,4 @@ app.listen(port, () => {
 }); 
 
 
-module.exports = { app, users };
+module.exports = { app, users, healthProfiles };

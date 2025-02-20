@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app, users } = require('../../user-service/src/app.js')
+const { app, users, healthProfiles } = require('../../user-service/src/app.js')
 
 
 describe('POST /api/users', () => {
@@ -231,4 +231,118 @@ describe('DELETE /api/users/:id', () => {
 
 })
 
+describe('POST /api/users/:id/health-profile', () => {
+  beforeEach(() => {
+    users.clear();
+    healthProfiles.clear();
+  });
+  
+  test('should create health profile for existing user', async () => {
+    const userData = {
+      username: 'fuck',
+      email: 'healthTest@gmail.com',
+      password: 'healthtest',
+      date_of_birth: '01-01-2003',
+      gender: 'male',
+      timezone: 'UTC'
+    };
 
+  const createUserResponse = await request(app)
+    .post('/api/users')
+    .send(userData);
+  
+  const userId = createUserResponse.body.id; 
+
+  const healthData = {
+    height: 180.5,
+    weight: 82.3
+  };
+  
+  const response = await request(app)
+    .post(`/api/users/${userId}/health-profile`)
+    .send(healthData);
+  
+
+  expect(response.status).toBe(201);
+  expect(response.body).toHaveProperty('user_id', userId);
+  expect(response.body).toHaveProperty('height', healthData.height);
+  expect(response.body).toHaveProperty('weight', healthData.weight);  
+  });
+
+  test('should return 404 when user does not exist', async() => {
+    const fakeUserId = 'notreal'; 
+
+    const healthData = { 
+      height: 180, 
+      weight: 82.5
+    };
+
+    const response = await request(app)
+      .post(`/api/users/${fakeUserId}/health-profile`)
+      .send(healthData);
+
+    expect(response.status).toBe(404);
+    expect(resposne.body).toHaveProperty('error', 'User not found');
+  });
+
+  test('should return 400 when required fields are missing', async() => {
+    const userData = {
+      username: 'fuck', 
+      email: 'healthTest@gmail.com', 
+      password: 'healthpass',
+      date_of_birth: '01-01-2003',
+      gender: 'male',
+      timezone: 'UTC'
+    };
+
+    const createUserResponse = await request(app)
+      .post('/api/users')
+      .send(userData);
+
+    const userId = createUserResponse.body.id; 
+
+    const invalidHealthData = { 
+      height: 179.5 
+      // weight: victim weight
+    }
+
+    const response = await request(app)
+      .post(`/api/users/${userId}/health-profile`)
+      .send(invalidHealthData);
+
+    expect(response.status).toBe(400);  
+    expect(response.body).toHaveProperty('error', 'Missing required fields');
+  });
+
+  test('return 400 when field values are invalid', async() => { 
+    const userData = {
+      username: 'fuck',
+      email: 'healthTest@gmail.com', 
+      password: 'healthpass', 
+      date_of_birth: '01-01-2003',
+      gender: 'male',
+      timezone: 'UTC'
+    }; 
+
+    const createUserResponse = await request(app)
+      .post('/api/users')
+      .send(userData);
+
+    const userId = createUserResponse.body.id; 
+
+    const invalidHealthData = { 
+      height: -179,
+      weight: -80 
+    };
+
+    const response = await request(app)
+      .post(`/api/users/${userId}/health-profile`)
+      .send(invalidHealthData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error', 'Invalid Height or Weight Values'); 
+  });
+
+
+
+})
