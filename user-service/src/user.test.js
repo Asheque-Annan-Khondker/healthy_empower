@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app, users, healthProfiles } = require('../../user-service/src/app.js')
+const { app, users, healthProfiles, goals } = require('../../user-service/src/app.js')
 
 
 describe('POST /api/users', () => {
@@ -221,15 +221,8 @@ describe('DELETE /api/users/:id', () => {
 
     expect(deleteResponse.status).toBe(404);
     expect(deleteResponse.body).toHaveProperty('error', 'User not found');
-  })
-
-  
-
-
-
-
-
-})
+  });
+});
 
 describe('POST /api/users/:id/health-profile', () => {
   beforeEach(() => {
@@ -342,7 +335,109 @@ describe('POST /api/users/:id/health-profile', () => {
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty('error', 'Invalid Height or Weight Values'); 
   });
+});
+
+describe('POST /api/users/:id/goals', () => {
+  beforeEach(() => {
+    users.clear();
+    healthProfiles.clear(); 
+    goals.clear(); 
+  });
+  
+  test('should create a new goal for an existing user', async() => {
+   const userData = {
+      username: 'fuck',
+      email: 'healthTest@gmail.com', 
+      password: 'healthpass', 
+      date_of_birth: '01-01-2003',
+      gender: 'male',
+      timezone: 'UTC'
+    }; 
+  
+  const createUserResponse = await request(app)
+    .post('/api/users')
+    .send(userData); 
+
+  const userId = createUserResponse.body.id; 
+
+  const healthData = { 
+    height: 180, 
+    weight: 80
+  };
+
+  await request(app)
+    .post(`/api/users/${userId}/health-profile`)
+    .send(healthData)
 
 
 
+  const goalData = {
+    type: `weight`,
+    target_value: 75, 
+    timeline: '2025-12-31',
+    description: 'Weight loss goal'
+  };
+
+  const response = await request(app)
+    .post(`/api/users/${userId}/goals`)
+    .send(goalData);
+
+  expect(response.status).toBe(201);
+  expect(response.body).toHaveProperty('id');
+  expect(response.body).toHaveProperty('user-id', userId);
+  expect(response.body).toHaveProperty('type', goalData.type);
+  expect(response.body).toHaveProperty('target_value', goalData.target_value);
+  expect(response.body).toHaveProperty('timeline', goalData.timeline);
+  expect(response.body).toHaveProperty('description', goalData.description);
+  expect(response.body).toHaveProperty('created_at');
+  });
+
+  test('should return 404 when user does not exist', async() => {
+    
+    const fakeUserId = 'fuckaduck';
+    const goalData = {
+      type: `weight`,
+      target_value: 75,
+      timeline: '2026-01-01',
+      description: 'Weight loss goal'
+    };
+
+    const response = await request(app)
+      .post(`/api/users/${fakeUserId}/goals`)
+      .send(goalData);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty('error', 'User not found');
+  });
+  
+  test('should return 400 when required fields are missing', async() => {
+     
+    const userData = {
+      username: 'fuck',
+      email: 'healthTest@gmail.com', 
+      password: 'healthpass', 
+      date_of_birth: '01-01-2003',
+      gender: 'male',
+      timezone: 'UTC'
+    }; 
+    
+    const createUserResponse = await request(app)
+      .post('/api/users')
+      .send(userData);
+
+    const userId = createUserResponse.body.id; 
+
+    const invalidGoalData = {
+      type: 'weight',
+      // target_value: 75
+      timeline: '2026-01-01'
+    };
+
+    const response = await request(app)
+      .post(`/api/users/${userId}/goals`)
+      .send(invalidGoalData);
+    
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error', 'Missing required fields');
+  });
 })

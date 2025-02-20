@@ -13,6 +13,14 @@ const users = new Map();
 const healthProfiles = new Map(); 
 
 
+/* 
+ * fuck comments lmao 
+ * goals map structure Map<userId, Array<goals>> 
+ * should mimic one to many structure to be seen in the ORM 
+ */ 
+const goals = new Map();
+
+
 // TODO make get user endpoint and delete user endpoint, tests, and also user health data endpoint. 
 
 // create user helper functions in order to clean up /api/users POST 
@@ -145,4 +153,4 @@ app.listen(port, () => {
 }); 
 
 
-module.exports = { app, users, healthProfiles };
+module.exports = { app, users, healthProfiles, goals };
