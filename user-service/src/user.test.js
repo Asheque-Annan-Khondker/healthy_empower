@@ -1,6 +1,14 @@
 const request = require('supertest');
 const { app, users, healthProfiles, goals } = require('../../user-service/src/app.js')
 
+const userData = {
+    username: 'user',
+    email: 'ld277@uowmail.edu.au',
+    password: 'hellosadness',
+    date_of_birth: '23-11-1997',
+    gender: 'male',
+    timezone: 'UTC'
+};
 
 describe('POST /api/users', () => {
   beforeEach(() => {
@@ -8,15 +16,6 @@ describe('POST /api/users', () => {
   });
 
   test('should successfully create a new user with valid data', async () => {
-    const userData = {
-      username: 'user',
-      email: 'hello@gmail.com',
-      password: 'astrongpassword',
-      date_of_birth: '25-05-2003',
-      gender: 'male',
-      timezone: 'UTC'
-    };
-
     const response = await request(app)
       .post('/api/users')
       .send(userData);
