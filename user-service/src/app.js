@@ -34,6 +34,59 @@ const isEmailAlreadyRegistered = (email, users) => {
   return existingUsers.some(user => user.email === email);
 } 
 
+function validateHealthData(healthData) {
+  const { height, weight } = healthData;
+  
+  const HAS_MISSING_FIELDS = !height || !weight; 
+  const HAS_INVALID_VALUES = height <= 0 || weight <= 0; 
+
+  if (HAS_MISSING_FIELDS) {
+    return { isValid: false, error: 'Missing required fields' }; 
+  }
+
+  if (HAS_INVALID_VALUES) {
+    return { isValid: false, error: 'Invalid Height or Weight Values' }; 
+  } 
+
+  return { isValid: true };  
+}
+
+
+function validateGoalData(goalData, hasHealthProfile) {
+  const { type, target_value, timeline, description } = goalData;
+
+  const HAS_MISSING_FIELDS = !type || !target_value || !timeline || !description;
+  const HAS_NO_HEALTH_PROFILE = !hasHealthProfile; 
+  const INVALID_GOAL_TYPES = !['weight', 'activity', 'xpgoal', 'stepgoal'].includes();
+  const HAS_NEGATIVE_TARGET = target_value <= 0;
+  const TIMELINE_DATE = new Date(timeline);
+  const CURRENT_DATE = new Date();
+  const IS_PAST_OR_PRESENT_DATE = TIMELINE_DATE <= CURRENT_DATE; 
+
+  if (HAS_MISSING_FIELDS) {
+
+  }
+
+  if (HAS_NO_HEALTH_PROFILE) {
+
+  }
+
+  if (INVALID_GOAL_TYPES) {
+
+  }
+
+  if (HAS_NEGATIVE_TARGET) {
+
+  }
+
+  if (IS_PAST_OR_PRESENT_DATE) {
+
+  }
+
+  return { isValid: true }; 
+
+
+}
 
 // create a user with non-health information 
 app.post(
@@ -151,6 +204,40 @@ app.delete('/api/users/:id', (req, res) => {
 app.listen(port, () => {
   console.log(`user-service listening on port ${port}`)
 }); 
+
+
+app.post('/api/users/:id/health-profile', (req, res) => {
+  try {
+    const userId = req.params.id; 
+    const healthData = req.body;
+    
+    const user = users.get(userId); 
+    if (!user) {
+      return res.status(404).json({error: 'User not found'}); 
+    }
+
+    const validation = validateHealthData(healthData);
+    if (!validation.isValid) {
+      return res.status(400).json({error: validation.error}); 
+    }
+
+    const healthProfile = {
+      user_id: userId, 
+      height: healthData.height,
+      weight: healthData.weight,
+      created_at: new Date()
+    };
+     
+    healthProfiles.set(userId, healthProfile);
+    res.status(201).json(healthProfile);
+  } catch (error) {
+    res.status(500).json({ error: error.message }); 
+  }
+});
+
+
+
+
 
 
 module.exports = { app, users, healthProfiles, goals };
