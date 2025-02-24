@@ -57,30 +57,30 @@ function validateGoalData(goalData, hasHealthProfile) {
 
   const HAS_MISSING_FIELDS = !type || !target_value || !timeline || !description;
   const HAS_NO_HEALTH_PROFILE = !hasHealthProfile; 
-  const INVALID_GOAL_TYPES = !['weight', 'activity', 'xpgoal', 'stepgoal'].includes();
+  const INVALID_GOAL_TYPES = !['weight', 'activity', 'xpgoal', 'stepgoal'].includes(type);
   const HAS_NEGATIVE_TARGET = target_value <= 0;
   const TIMELINE_DATE = new Date(timeline);
   const CURRENT_DATE = new Date();
   const IS_PAST_OR_PRESENT_DATE = TIMELINE_DATE <= CURRENT_DATE; 
 
   if (HAS_MISSING_FIELDS) {
-
+    return { isValid: false, error: 'Missing required fields'}
   }
 
   if (HAS_NO_HEALTH_PROFILE) {
-
+    return { isValid: false, error: 'Health profile required before setting goals'}
   }
 
   if (INVALID_GOAL_TYPES) {
-
+    return { isValid: false, error: 'Invalid goal type. Goal must be: weight, activity, xpgoal, or stepgoal'}; 
   }
 
   if (HAS_NEGATIVE_TARGET) {
-
+    return { isValid: false, error: 'Invalid goal value'};
   }
 
   if (IS_PAST_OR_PRESENT_DATE) {
-
+    return { isValid: false, error: 'Timeline must be a future date'}; 
   }
 
   return { isValid: true }; 
@@ -235,7 +235,44 @@ app.post('/api/users/:id/health-profile', (req, res) => {
   }
 });
 
+app.post('/api/users/:id/goals', (req, res) => {
+  try {
+    const userId = req.params.id;
+    const goalData = req.body;
 
+    const user = users.get(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const hasHealthProfile = healthProfiles.has(userId);
+    const validation = validateGoalData(goalData, hasHealthProfile);
+    if (!validation.isValid) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    const goalId = Date.now().toString();
+    const newGoal = {
+      id: goalId,
+      'user-id': userId,
+      type: goalData.type,
+      target_value: goalData.target_value,
+      timeline: goalData.timeline,
+      description: goalData.description,
+      created_at: new Date()
+    };
+
+    // Initialize array if first goal
+    if (!goals.has(userId)) {
+      goals.set(userId, []);
+    }
+    goals.get(userId).push(newGoal);
+
+    res.status(201).json(newGoal);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 
 

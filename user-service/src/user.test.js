@@ -412,10 +412,12 @@ describe('POST /api/users/:id/goals', () => {
       const response = await request(app) 
         .post(`/api/users/${userId}/goals`)
         .send(invalidGoal);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error', 'Invalid goal value');
+
     }
 
-    expect(response.status).toBe(400);
-    expect(response.body).toHaveProperty('error', 'Invalid goal value');
   });
 
   test('should return 400 when goal type is invalid', async() => {
