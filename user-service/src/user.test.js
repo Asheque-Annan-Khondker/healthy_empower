@@ -28,14 +28,17 @@ describe('POST /api/users', () => {
   });
 
   test('should return 400 when email is invalid', async() => { 
+
     const userData = {
-      username: 'atestuser',
-      email: 'anonvalidemail', 
-      password: 'password',
-      date_of_birth: '26-06-2003',
-      gender: 'male',
-      timezone: 'UTC'
-    };
+    username: 'user',
+    email: 'ld277uowmail.edu.au',
+    password: 'hellosadness',
+    date_of_birth: '23-11-1997',
+    gender: 'male',
+    timezone: 'UTC'
+};
+
+
 
     const response = await request(app)
       .post('/api/users')
@@ -59,15 +62,6 @@ describe('POST /api/users', () => {
   })
 
 test('should return 409 when email already exists', async() => {
-  const userData = {
-    username: 'user',
-    email: 'hello@gmail.com',
-    password: 'password',
-    date_of_birth: '25-05-2003',
-    gender: 'male',
-    timezone: 'UTC'
-  };
-  // make first user 
   await request(app)
     .post('/api/users')
     .send(userData);
@@ -144,15 +138,6 @@ describe('GET /api/users/:id', () => {
   })
 
   test('should return specific user when valid id is provided', async() => {
-    const userData = {
-        username: 'user',
-        email: 'ld277@uowmail.edu.au',
-        password: 'hellosadness',
-        date_of_birth: '23-11-1997',
-        gender: 'male',
-        timezone: 'UTC'
-      };
-
     const createResponse = await request(app)
       .post('/api/users')
       .send(userData);
@@ -185,15 +170,6 @@ describe('DELETE /api/users/:id', () => {
 
   test('should successfully delete an existing user', async() => { 
     
-    const userData = {
-      username: 'dummyuser',
-      email: 'dummyuser@gmail.com',
-      password: 'deletepass',
-      date_of_birth: '25-05-2004',
-      gender: 'male',
-      timezone: 'UTC'
-    };
-
     const createResponse = await request(app)
       .post('/api/users')
       .send(userData)
@@ -230,15 +206,6 @@ describe('POST /api/users/:id/health-profile', () => {
   });
   
   test('should create health profile for existing user', async () => {
-    const userData = {
-      username: 'fuck',
-      email: 'healthTest@gmail.com',
-      password: 'healthtest',
-      date_of_birth: '01-01-2003',
-      gender: 'male',
-      timezone: 'UTC'
-    };
-
   const createUserResponse = await request(app)
     .post('/api/users')
     .send(userData);
@@ -274,20 +241,11 @@ describe('POST /api/users/:id/health-profile', () => {
       .send(healthData);
 
     expect(response.status).toBe(404);
-    expect(resposne.body).toHaveProperty('error', 'User not found');
+    expect(response.body).toHaveProperty('error', 'User not found');
   });
 
   test('should return 400 when required fields are missing', async() => {
-    const userData = {
-      username: 'fuck', 
-      email: 'healthTest@gmail.com', 
-      password: 'healthpass',
-      date_of_birth: '01-01-2003',
-      gender: 'male',
-      timezone: 'UTC'
-    };
-
-    const createUserResponse = await request(app)
+      const createUserResponse = await request(app)
       .post('/api/users')
       .send(userData);
 
@@ -307,15 +265,6 @@ describe('POST /api/users/:id/health-profile', () => {
   });
 
   test('return 400 when field values are invalid', async() => { 
-    const userData = {
-      username: 'fuck',
-      email: 'healthTest@gmail.com', 
-      password: 'healthpass', 
-      date_of_birth: '01-01-2003',
-      gender: 'male',
-      timezone: 'UTC'
-    }; 
-
     const createUserResponse = await request(app)
       .post('/api/users')
       .send(userData);
@@ -344,15 +293,6 @@ describe('POST /api/users/:id/goals', () => {
   });
   
   test('should create a new goal for an existing user', async() => {
-   const userData = {
-      username: 'fuck',
-      email: 'healthTest@gmail.com', 
-      password: 'healthpass', 
-      date_of_birth: '01-01-2003',
-      gender: 'male',
-      timezone: 'UTC'
-    }; 
-  
   const createUserResponse = await request(app)
     .post('/api/users')
     .send(userData); 
@@ -410,16 +350,6 @@ describe('POST /api/users/:id/goals', () => {
   });
   
   test('should return 400 when required fields are missing', async() => {
-     
-    const userData = {
-      username: 'fuck',
-      email: 'healthTest@gmail.com', 
-      password: 'healthpass', 
-      date_of_birth: '01-01-2003',
-      gender: 'male',
-      timezone: 'UTC'
-    }; 
-    
     const createUserResponse = await request(app)
       .post('/api/users')
       .send(userData);
@@ -439,4 +369,143 @@ describe('POST /api/users/:id/goals', () => {
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty('error', 'Missing required fields');
   });
-})
+
+  test('should return 400 when goal target value fields are invalid', async() => {
+    const createUserResponse = await request(app)
+      .post('/api/users')
+      .send(userData);
+
+    const userId = createUserResponse.body.id; 
+
+    await request(app)
+      .post(`/api/users/${userId}/health-profile`)
+      .send({ height: 180, weight: 80});
+    
+    const invalidGoals = [
+      {
+        type: 'weight',
+        target_value: -75,
+        timeline: '2025-12-31',
+        description: 'target value negative'
+      },
+      {
+        type: 'activity',
+        target_value: -75,
+        timeline: '2025-12-31',
+        description: 'activity target value negative'
+      },
+      {
+        type: 'xpgoal',
+        target_value: -20,
+        timeline: '2025-12-31',
+        description: 'xp target_value is negative'
+      },
+      {
+        type: 'stepgoal',
+        target_value: -20, 
+        timeline: '2025-12-31',
+        description: 'step goal is negative'
+      }
+    ];
+
+    for (const invalidGoal of invalidGoals) {
+      const response = await request(app) 
+        .post(`/api/users/${userId}/goals`)
+        .send(invalidGoal);
+    }
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error', 'Invalid goal value');
+  });
+
+  test('should return 400 when goal type is invalid', async() => {
+    const createUserResponse = await request(app)
+      .post(`/api/users`)
+      .send(userData);
+
+    const userId = createUserResponse.body.id; 
+
+    await request(app)
+      .post(`/api/users/${userId}/health-profile`)
+      .send({ height: 180, weight: 80});
+
+
+    const invalidGoalData = {
+      type: 'bad_goal',
+      target_value: 75, 
+      timeline: '2025-12-31',
+      description: 'Invalid goal type'
+    };
+
+    const response = await request(app)
+      .post(`/api/users/${userId}/goals`)
+      .send(invalidGoalData)
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error', 'Invalid goal type. Goal must be: weight, activity, xpgoal, or stepgoal');
+  });
+
+  test('should return 400 when timeline is not a future date', async() => {
+    const createUserResponse = await request(app)
+      .post('/api/users')
+      .send(userData);
+
+    const userId = createUserResponse.body.id;
+
+    await request(app)
+      .post(`/api/users/${userId}/health-profile`)
+      .send({ height: 180, weight: 80})
+
+    const pastGoalData = {
+      type: 'weight',
+      target_value: 75,
+      timeline: '2003-6-05', // past date
+      description: 'weight goal'
+    };
+
+    const pastDataResponse = await request(app)
+      .post(`/api/users/${userId}/goals`)
+      .send(pastGoalData);
+
+    expect(pastDataResponse.status).toBe(400);
+    expect(pastDataResponse.body).toHaveProperty('error', 'Timeline must be a future date');
+
+    // now test current date against it 
+    const currentDate = new Date().toISOString().split('T')[0];
+    const currentGoalData = {
+      type: 'weight',
+      target_value: 85,
+      timeline: currentDate,
+      description: 'weight goal'      
+    };
+
+    const currentDateResponse = await request(app)
+      .post(`/api/users/${userId}/goals`)
+      .send(currentGoalData);
+
+    expect(currentDateResponse.status).toBe(400);
+    expect(currentDateResponse.body).toHaveProperty('error', 'Timeline must be a future date');
+  });
+
+  test('should return 400 when creating goal without health profile', async() => {
+    const createUserResponse = await request(app)
+      .post('/api/users')
+      .send(userData); 
+
+    const userId = createUserResponse.body.id; 
+
+    const goalData = {
+      type: 'weight',
+      target_value: 85, 
+      timeline: '2025-12-31',
+      description: 'weight loss'
+    };
+
+    const response = await request(app)
+      .post(`/api/users/${userId}/goals`)
+      .send(goalData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error', 'Health profile required before setting goals');
+  });
+});
