@@ -720,5 +720,93 @@ describe('PUT /api/users/:id/health-profile', () => {
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty('error', 'Missing required fields'); 
   })
-
 });
+
+describe('GET /api/users/:id/goals', () => {
+  beforeEach(() => {
+    users.clear();
+    healthProfiles.clear();
+    goals.clear();
+  });
+
+  test('should successfully retrieve all goals for a user', async() => {
+    const createUserResponse = await request(app)
+      .post('/api/users')
+      .send(userData);
+
+    const userId = createUserResponse.body.Id; 
+
+    await request(app)
+      .post(`/api/users/${userId}/health-profile`)
+      .send({height: 180, weight: 80}); 
+
+    const goalOneData = { 
+      type: 'weight',
+      target_value: 75,
+      timeline: '2025-12-31',
+      description: 'lose weight'
+    }; 
+
+    const goalTwoData = { 
+      type: 'activity',
+      target_value: 300, 
+      timeline: '2025-12-31',
+      description: 'activity minutes goal'
+    };
+
+    await request(app)
+      .post(`/api/users/${userId}/goals`)
+      .send(goalOneData);
+
+    await request(app)
+      .post(`/api/users/${userId}/goals`)
+      .send(goalTwoData); 
+    
+    const response = await request(app)
+      .get(`/api/users/${userId}/goals`);
+    
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBe(2);
+
+    const goalTypes = response.body.map(goal => goal.type);
+    expect(goalTypes).toContain('weight');
+    expect(goalTypes).toContain('activity');
+    
+    // check goal structure
+    response.body.forEach(goal => {
+      expect(goal).toHaveProperty('id');
+      expect(goal).toHaveProperty('user-id', userId);
+      expect(goal).toHaveProperty('type');
+      expect(goal).toHaveProperty('target_value');
+      expect(goal).toHaveProperty('timeline');
+      expect(goal).toHaveProperty('description');
+      expect(goal).toHaveProperty('created_at');
+    });
+  });
+
+test('should return empty array when user has no goals', async() => {
+  const createUserResponse = await request(app);
+
+  const userId = createUserResponse.body.Id;
+
+  const response = await request(app)
+    .get(`/api/users/${userId}/goals`);
+    
+  expect(response.status).toBe(200); 
+  expect(Array.isArray(response.body)).toBe(true); 
+  expect(response.body.length).toBe(0); 
+});
+
+test('should return 404 when user does not exist', async() => {
+  const fakeUserId = 'sad'; 
+
+  const response = await request(app)
+    .get(`/api/users/${userId}/goals`);
+
+  expect(response.status).toBe(404); 
+  expect(response.body).toHaveProperty('error', 'User not found'); 
+  });
+});
+
+
