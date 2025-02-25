@@ -511,3 +511,214 @@ describe('POST /api/users/:id/goals', () => {
     expect(response.body).toHaveProperty('error', 'Health profile required before setting goals');
   });
 });
+
+
+describe('GET /api/users/:id/health-profile', () => {
+  beforeEach(() => {
+    users.clear();
+    healthProfiles.clear();
+  });
+
+  test('should successfully retrieve existing health profile', async() => {
+    const createUserResponse = await request(app)
+      .post('/api/users')
+      .send(userData);
+
+
+    const userId = createUserResponse.body.id; 
+
+    const healthData = {
+      height: 179,
+      weight: 82.5
+    };
+
+    await request(app)
+      .post(`/api/users/${userId}/health-profile`)
+      .send(healthData); 
+
+    const response = await request(app) 
+      .get(`/api/users/${userId}/health-profile`);
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('user-id', userId); 
+    expect(response.body).toHaveProperty('height', healthData.height);
+    expect(response.body).toHaveProperty('weight', healthData.weight);  
+  });
+
+
+  test('should return 404 when health profile does not exist', async() => {
+    const createUserResponse = await request(app)
+      .post('/api/users')
+      .send(userData); 
+
+    const userId = createUserResponse.body.id; 
+
+    const response = await request(app)
+      .get(`/api/users/${userId}/health-profile`);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty('error', 'health profile not found'); 
+  });
+
+  test('should return 404 when user does not exist', async() => {
+    const fakeUserId = 'fuckthislmao'; 
+
+    const response = await request(app)
+      .get(`/api/user/${fakeUserId}/health-profile`);
+
+    expect(response.status).toBe(404); 
+    expect(response.body).toHaveProperty('error', "User doesn't exist"); 
+  });
+});
+
+
+describe('PUT /api/users/:id/health-profile', () => {
+  beforeEach(() => {
+    users.clear();
+    healthProfiles.clear();
+  });
+
+  test('should successfully update existing health profile', async() => {
+    const createUserResponse = await request(app)
+      .post('/api/users')
+      .send(userData);
+
+    const userId = createUserResponse.body.id; 
+
+    const initialHealthData = { 
+      height: 180.5,
+      weight: 82.3
+    };
+
+    await request(app)
+      .post(`/api/users/${userId}/health-profile`)
+      .send(initialHealthData);
+
+    const updatedHealthData = {
+      height: 180.5, 
+      width: 80.1 
+    };
+
+    const response = await request(app) 
+      .put(`/api/users/${userId}/health-profile`)
+      .send(updatedHealthData); 
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('user-id', userId);
+    expect(response.body).toHaveProperty('height', updatedHealthData.height);
+    expect(response.body).toHaveProperty('weight', updatedHealthData.weight);
+
+    const getResponseFromUpdatedHealthProfile = await request(app)
+      .get(`/api/users/${userId}/health-profile`);
+
+    expect(getResponseFromUpdatedHealthProfile.body.height).toBe(updatedHealthData.height); 
+    expect(getResponseFromUpdatedHealthProfile.body.weight).toBe(updatedHealthData.weight);
+  });
+
+  test('should return 404 when user does not exist', async() => {
+    const fakeUserId = 'lmao'; 
+
+    const updatedHealthData = {
+      height: 175.0,
+      weight: 9
+    };
+
+    const response = await request(app)
+      .put(`/api/users/${fakeUserId}/health-profile`)
+      .send(updatedHealthData);
+
+    expect(response.status).toBe(404); 
+    expect(response.body).toHaveProperty('error', 'User not found'); 
+  });
+
+
+  test('should return 404 when user exists but health-profile does not', async() => {
+    const createUserResponse = await request(app)
+      .post('/api/users')
+      .send(userData); 
+
+    const userId = createUserResponse.body.id; 
+
+    const updateHealthData = { 
+      height: 175.0,
+      weight: 9
+    };
+
+    const response = await request(app)
+      .put(`/api/users/${userId}/health-profile`)
+      .send(updateHealthData); 
+
+    expect(response.status).toBe(404); 
+    expect(response.body).toHaveProperty('error', 'Health profile not found'); 
+  });
+
+  test('should return 400 when input validation fails with negative values', async() => {
+    const createUserResponse = await request(app)
+      .post('/api/users')
+      .send(userData);
+
+    const userId = createUserResponse.body.id; 
+
+    const initialHealthData = {
+      height: 180.5,
+      weight: 82
+    };
+
+    await request(app)
+      .post(`/api/users/${userId}/health-profile`)
+      .send(initialHealthData);
+
+    const invalidHeightHealthData = {
+      height: -175,
+      weight: 70.5
+    }; 
+
+    let response = await request(app)
+      .put(`/api/users/${userId}/health-profile`)
+      .send(invalidHeightHealthData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error', 'Invalid Height or Weight Values');
+
+    const invalidWeightHealthData = {
+      height: 175,
+      weight: -70
+    }; 
+
+    response = await request(app)
+      .put(`/api/users/${userId}/health-profile`)
+      .send(invalidWeightHealthData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error', 'Invalid Height or Weight Values');
+  });
+
+  test('should return 400 when fields are missing', async() => {
+    const createUserResponse = await request(app)
+      .post('/api/users')
+      .send(userData); 
+
+    const userId = createUserResponse.body.id;
+
+    const initialHealthData = { 
+      height: 180.5,
+      weight: 82
+    };
+
+    await request(app)
+      .post(`/api/users/${userId}/health-profile`)
+      .send(initialHealthData);
+
+    const missingFieldsHealthData = { 
+      weight: 75
+    }; 
+
+    const response = await request(app)
+      .put(`/api/users/${userId}/health-profile`)
+      .send(missingFieldsHealthData); 
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error', 'Missing required fields'); 
+  })
+
+});
