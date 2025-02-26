@@ -223,7 +223,7 @@ describe('POST /api/users/:id/health-profile', () => {
   
 
   expect(response.status).toBe(201);
-  expect(response.body).toHaveProperty('user_id', userId);
+  expect(response.body).toHaveProperty('user-id', userId);
   expect(response.body).toHaveProperty('height', healthData.height);
   expect(response.body).toHaveProperty('weight', healthData.weight);  
   });
@@ -564,10 +564,10 @@ describe('GET /api/users/:id/health-profile', () => {
     const fakeUserId = 'fuckthislmao'; 
 
     const response = await request(app)
-      .get(`/api/user/${fakeUserId}/health-profile`);
+      .get(`/api/users/${fakeUserId}/health-profile`);
 
     expect(response.status).toBe(404); 
-    expect(response.body).toHaveProperty('error', "User doesn't exist"); 
+    expect(response.body).toHaveProperty('error', "User not found"); 
   });
 });
 
@@ -596,7 +596,7 @@ describe('PUT /api/users/:id/health-profile', () => {
 
     const updatedHealthData = {
       height: 180.5, 
-      width: 80.1 
+      weight: 80.1 
     };
 
     const response = await request(app) 
@@ -734,7 +734,7 @@ describe('GET /api/users/:id/goals', () => {
       .post('/api/users')
       .send(userData);
 
-    const userId = createUserResponse.body.Id; 
+    const userId = createUserResponse.body.id; 
 
     await request(app)
       .post(`/api/users/${userId}/health-profile`)
@@ -786,9 +786,11 @@ describe('GET /api/users/:id/goals', () => {
   });
 
 test('should return empty array when user has no goals', async() => {
-  const createUserResponse = await request(app);
+  const createUserResponse = await request(app)
+    .post(`/api/users/`)
+    .send(userData)
 
-  const userId = createUserResponse.body.Id;
+  const userId = createUserResponse.body.id;
 
   const response = await request(app)
     .get(`/api/users/${userId}/goals`);
@@ -802,7 +804,7 @@ test('should return 404 when user does not exist', async() => {
   const fakeUserId = 'sad'; 
 
   const response = await request(app)
-    .get(`/api/users/${userId}/goals`);
+    .get(`/api/users/${fakeUserId}/goals`);
 
   expect(response.status).toBe(404); 
   expect(response.body).toHaveProperty('error', 'User not found'); 

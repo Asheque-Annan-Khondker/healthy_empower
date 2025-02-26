@@ -160,7 +160,7 @@ app.post('/api/users/:id/health-profile', (req, res) => {
     }
 
     const healthProfile = {
-      user_id: userId, 
+      'user-id': userId, 
       height: healthData.height,
       weight: healthData.weight,
       created_at: new Date()
@@ -172,6 +172,38 @@ app.post('/api/users/:id/health-profile', (req, res) => {
     res.status(500).json({ error: error.message }); 
   }
 });
+
+
+
+app.get('/api/users/:id/health-profile', (req, res) => {
+  try {
+    const userId = req.params.id; 
+
+    const user = users.get(userId); 
+    if (!user) {
+      return res.status(404).json({ error: "User not found"});
+    }
+  
+  
+  const healthProfile = healthProfiles.get(userId);
+  if (!healthProfile) {
+    return res.status(404).json({ error: "health profile not found"});
+  }
+
+  const healthProfileResponse = {
+    'user-id': userId, 
+    height: healthProfile.height,
+    weight: healthProfile.weight,
+    created_at: healthProfile.created_at
+  };
+
+    res.status(200).json(healthProfileResponse)
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 app.post('/api/users/:id/goals', (req, res) => {
   try {
@@ -213,6 +245,68 @@ app.post('/api/users/:id/goals', (req, res) => {
 });
 
 
+app.put(`/api/users/:id/health-profile`, (req, res) => {
+  try {
+    const userId = req.params.id; 
+    const healthData = req.body; 
+
+    const user = users.get(userId); 
+    if (!user) {
+      return res.status(404).json({ error: 'User not found'});
+    }
+
+    const existingHealthProfile = healthProfiles.get(userId); 
+    if (!existingHealthProfile) {
+      return res.status(404).json({ error: 'Health profile not found'});
+    }
+
+    const validation = validateHealthData(healthData); 
+    if (!validation.isValid) {
+      return res.status(400).json({ error: validation.error }); 
+    }
+
+    const updatedHealthProfile = {
+      'user-id': userId, 
+      height: healthData.height,
+      weight: healthData.weight,
+      created_at: existingHealthProfile.created_at,
+      updated_at: new Date()
+    };
+
+    healthProfiles.set(userId, updatedHealthProfile);
+
+    res.status(200).json({
+      'user-id': userId,
+      height: updatedHealthProfile.height,
+      weight: updatedHealthProfile.weight,
+      created_at: updatedHealthProfile.created_at, // existingHealthProfile.created_at referenced
+      updated_at: updatedHealthProfile.updated_at
+    })
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+})
+
+app.get('/api/users/:id/goals', (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = users.get(userId); 
+    if (!user) {
+      return res.status(404).json({ error: 'User not found'});
+    }
+
+    if (!goals.has(userId)) {
+      return res.status(200).json([]);
+    }
+    
+    const userGoals = goals.get(userId);
+
+    res.status(200).json(userGoals);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+})
 
 
 module.exports = { app, users, healthProfiles, goals };
