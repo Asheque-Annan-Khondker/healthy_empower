@@ -812,3 +812,88 @@ test('should return 404 when user does not exist', async() => {
 });
 
 
+// get /api/users/:userId/goals/:goalId
+// 1. successfully retrieve a specific goals
+// 2. if goal doesnt exist return 404
+// 3. return 404 when user doesnt exist
+
+describe('GET /api/users/:userId/goals/:goalId', () => {
+  beforeEach(() => {
+    users.clear();
+    healthProfiles.clear();
+    goals.clear();
+  })
+
+  test('successfully retrieve a goal by userId and goalId', async() => {
+    const createUserResponse = await request(app)
+      .post('/api/users')
+      .send(userData);
+    
+    const userId = createUserResponse.body.id;
+
+    await request(app)
+      .post(`/api/users/${userId}/health-profile`)
+      .send({ height: 140, weight: 70 });
+
+    const goalData = {
+      type: 'weight',
+      target_value: 50, 
+      timeline: '2025-12-31',
+      description: 'weight loss'
+    };
+
+    const createGoalResponse = await request(app)
+      .post(`/api/users/${userId}/goals`)
+      .send(goalData);
+
+    const goalId = createGoalResponse.body.id; 
+
+    const response = await request(app)
+      .get(`/api/users/${userId}/goals/${goalId}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('id', goalId);
+    expect(response.body).toHaveProperty('user-id', userId);
+    expect(response.body).toHaveProperty('type', goalData.type);
+    expect(response.body).toHaveProperty('target_value', goalData.target_value);
+    expect(response.body).toHaveProperty('timeline', goalData.timeline);
+    expect(response.body).toHaveProperty('description', goalData.description);
+  });
+
+  test('should return 404 when goal ID does not exist', async() => {
+    const createUserResponse = await request(app)
+      .post('/api/users')
+      .send(userData);
+
+    const userId = createUserResponse.body.id;
+
+    await request(app)
+      .post(`/api/users/${userId}/health-profile`)
+      .send({ height: 180, weight: 80 }); 
+
+    if (!goals.has(userId)) {
+      goals.set(userId, []);
+    }
+
+    const fakeGoalId = 'fakegoal';
+    
+    const response = await request(app)
+      .get(`/api/users/${userId}/goals/${fakeGoalId}`);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty('error', 'Goal not found');
+  });
+
+  test('should return 404 when userId does not exist', async() => {
+    const fakeUserId = 'fakey';
+    const fakeGoalId = 'fakersgoal';
+
+    const response = await request(app)
+      .get(`/api/users/${fakeUserId}/goals/${fakeGoalId}`);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty('error', 'User not found');
+  })
+
+}) 
+

@@ -306,6 +306,30 @@ app.get('/api/users/:id/goals', (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+app.get('/api/users/:userId/goals/:goalId', (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const goalId = req.params.goalId;
+
+
+    const user = users.get(userId); 
+    if (!user) {
+      return res.status(404).json({ error: 'User not found'})
+    }
+
+    const userGoals = goals.get(userId) || [];
+    const goal = userGoals.find(g => g.id == goalId); 
+
+    if (!goal) {
+      return res.status(404).json({ error: 'Goal not found'}); 
+    }
+
+    res.status(200).json(goal);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 })
 
 
