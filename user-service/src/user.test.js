@@ -969,7 +969,7 @@ describe('PUT /api/users/:userId/goals/:goalId', () => {
       .get(`/api/users/${userId}/goals/${goalId}`); 
 
     expect(getResponse.body.target_value).toBe(updatedGoalData.target_value);
-    expect(getResponse.body.timeline).toBe(updateGoalData.timeline); 
+    expect(getResponse.body.timeline).toBe(updatedGoalData.timeline); 
   });
 
   test('should return 404 when goal does not exist', async() => {
@@ -1028,6 +1028,91 @@ describe('PUT /api/users/:userId/goals/:goalId', () => {
       .send(invalidGoalData); 
 
     expect(response.status).toBe(400);
-    expect(response.body).toHaveProperty('error', 'Timeline is in the past');
+    expect(response.body).toHaveProperty('error', 'Timeline must be a future date');
+  })
+
+  test('should return 404 when user does not exist', async() => {
+    const fakeUserId = 'notreal';
+    const fakeGoalId = 'fakegoal'; 
+
+    const updatedGoalData = {
+      type: 'weight',
+      target_value: 77.78, 
+      timeline: '2026-06-30',
+      description: 'Updated goal'
+    };
+
+    const response = await request(app)
+      .put(`/api/users/${fakeUserId}/goals/${fakeGoalId}`)
+      .send(updatedGoalData);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty('error', 'User not found');
+  });
+
+  test('should return 400 when required fields are missing', async() => {
+    const { userId, goalId } = await setupUserWithGoal(userData); 
+
+    const incompleteGoalData = {
+      type: 'weight',
+      timeline: '2026-06-30',
+      description: 'updated goal'
+    }; 
+
+    const response = await request(app)
+      .put(`/api/users/${userId}/goals/${goalId}`)
+      .send(incompleteGoalData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error', 'Missing required fields');
+  });
+});
+
+
+describe('DELETE /api/users/:userId/goals/:goalId', () => {
+  beforeEach(() => {
+    users.clear();
+    healthProfiles.clear();
+    goals.clear();
+  });
+
+  test('should successfully delete an existing goal', async() => { 
+    const { userId, goalId } = await setupUserWithGoal(userData);
+
+    const response = await request(app)
+      .delete(`/api/users/${userId}/goals/${goalId}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('message', 'Goal successfully deleted');
+
+    const getResponse = await request(app)
+      .get(`/api/users/${userId}/goals/${goalId}`);
+
+    expect(getResponse.status).toBe(404); 
+  });
+
+  test('should return 404 when goal does not exist', async() => {
+    const createUserResponse = await createTestUser(userData); 
+    const userId = createUserResponse.body.id; 
+
+    await createTestHealthData(userId);
+
+    const fakeGoalId = 'unreal goal';
+
+    const response = await request(app)
+      .delete(`/api/users/${userId}/goals/${fakeGoalId}`);
+
+    expect(response.status).toBe(404); 
+  });
+
+  test('should return 404 when user does not exist', async() => { 
+    const fakeUserId = 'unreal user'; 
+    const fakeGoalId = 'unreal goal';
+
+    const response = await request(app) 
+      .delete(`/api/users/${fakeUserId}/goals/${fakeGoalId}`);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty('error', 'User not found'); 
   })
 });
