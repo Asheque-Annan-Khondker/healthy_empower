@@ -8,7 +8,45 @@ const userData = {
     date_of_birth: '23-11-1997',
     gender: 'male',
     timezone: 'UTC'
-};
+}; 
+
+
+async function createTestUser(userData) {
+  const response = await request(app)
+    .post('/api/users')
+    .send(userData);
+  return response;
+}
+
+async function createTestHealthData(userId, healthData = { height: 180, weight: 80 }) {
+  const response = await request(app)
+    .post(`/api/users/${userId}/health-profile`)
+    .send(healthData);
+  return response; 
+}
+
+async function createGoal(userId, goalData = {
+  type: 'weight',
+  target_value: 77, 
+  timeline: '2025-12-31',
+  description: 'weight loss'
+}) {
+  const response = await request(app)
+    .post(`/api/users/${userId}/goals`)
+    .send(goalData);
+  return response;
+}
+
+async function setupUserWithGoal(userData, healthData, goalData) {
+  const createUserResponse = await createTestUser(userData);
+  const userId = createUserResponse.body.id; 
+
+  await createTestHealthData(userId, healthData); 
+  const createGoalResponse = await createGoal(userId, goalData);
+  const goalId = createGoalResponse.body.id; 
+
+  return { userId, goalId };
+}
 
 describe('POST /api/users', () => {
   beforeEach(() => {
@@ -812,11 +850,6 @@ test('should return 404 when user does not exist', async() => {
 });
 
 
-// get /api/users/:userId/goals/:goalId
-// 1. successfully retrieve a specific goals
-// 2. if goal doesnt exist return 404
-// 3. return 404 when user doesnt exist
-
 describe('GET /api/users/:userId/goals/:goalId', () => {
   beforeEach(() => {
     users.clear();
@@ -893,7 +926,108 @@ describe('GET /api/users/:userId/goals/:goalId', () => {
 
     expect(response.status).toBe(404);
     expect(response.body).toHaveProperty('error', 'User not found');
+  });
+}); 
+
+
+describe('PUT /api/users/:userId/goals/:goalId', () => {
+  beforeEach(() => {
+    users.clear();
+    healthProfiles.clear();
+    goals.clear();
+  });
+
+  test('should successfully update an existing goal', async() => {
+    const createUserResponse = await createTestUser(userData)
+    const userId = createUserResponse.body.id; 
+    
+    await createTestHealthData(userId);
+    const createGoalResponse = await createGoal(userId); 
+    const goalId = createGoalResponse.body.id;
+
+    const updatedGoalData = {
+      type: 'weight',
+      target_value: 70.7,
+      timeline: '2026-06-30',
+      description: 'new weight loss'
+    };
+
+    const response = await request(app)
+      .put(`/api/users/${userId}/goals/${goalId}`)
+      .send(updatedGoalData); 
+
+    expect(response.status).toBe(200); 
+    expect(response.body).toHaveProperty('id', goalId);
+    expect(response.body).toHaveProperty('user-id', userId);
+    expect(response.body).toHaveProperty('type', updatedGoalData.type);
+    expect(response.body).toHaveProperty('target_value', updatedGoalData.target_value);
+    expect(response.body).toHaveProperty('timeline', updatedGoalData.timeline);
+    expect(response.body).toHaveProperty('description', updatedGoalData.description); 
+    expect(response.body).toHaveProperty('updated_at');
+
+    const getResponse = await request(app)
+      .get(`/api/users/${userId}/goals/${goalId}`); 
+
+    expect(getResponse.body.target_value).toBe(updatedGoalData.target_value);
+    expect(getResponse.body.timeline).toBe(updateGoalData.timeline); 
+  });
+
+  test('should return 404 when goal does not exist', async() => {
+    const createUserResponse = await createTestUser(userData); 
+    const userId = createUserResponse.body.id; 
+
+    await createTestHealthData(userId); 
+
+    const fakeGoalId = 'notrealg'; 
+ 
+    const updatedGoalData = {
+      type: 'weight',
+      target_value: 70.7,
+      timeline: '2026-06-30',
+      description: 'new weight loss'
+    };
+
+    const response = await request(app)
+      .put(`/api/users/${userId}/goals/${fakeGoalId}`)
+      .send(updatedGoalData);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty('error', 'Goal not found');
+  });
+
+  test('should return 400 when update data is invalid', async() => {
+    const { userId, goalId } = await setupUserWithGoal(userData);
+    
+    const invalidGoalData = {
+      type: 'weight',
+      target_value: -77, 
+      timeline: '2026-06-30',
+      description: 'Updated goal'
+    };
+
+    const response = await request(app)
+      .put(`/api/users/${userId}/goals/${goalId}`)
+      .send(invalidGoalData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error', 'Invalid goal value');
+  });
+
+  test('should return 400 when timeline is in the past', async() => { 
+    const { userId, goalId } = await setupUserWithGoal(userData);
+
+    const invalidGoalData = {
+      type: 'weight',
+      target_value: 70, 
+      timeline: '2020-05-30',
+      description: 'Updated goal'
+    }; 
+
+    const response = await request(app)
+      .put(`/api/users/${userId}/goals/${goalId}`)
+      .send(invalidGoalData); 
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error', 'Timeline is in the past');
   })
-
-}) 
-
+});
