@@ -20,9 +20,6 @@ describe('encrypt the users password', () => {
     expect(typeof encrypted).toBe('string');
 
     const decrypted = CryptoJS.AES.decrypt(encrypted, process.env.SECRET).toString(CryptoJS.enc.Utf8);
-    console.log("pre-encrypt password: " + password + 
-      '\n' + "encrypted password: " + encrypted + 
-      '\n' + "decrypted password: " + decrypted);
     expect(decrypted).toBe(password); 
   });
 }

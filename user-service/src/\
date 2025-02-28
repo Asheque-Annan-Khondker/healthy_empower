@@ -1,12 +1,5 @@
 const request = require('supertest');
 const { app, users, healthProfiles, goals } = require('../../user-service/src/app.js')
-const { 
-  createTestUser, 
-  userData, 
-  createTestHealthData, 
-  createGoal, 
-  setupUserWithGoal 
-} = require('./test-utils.js');
 
 describe('POST /api/users', () => {
   beforeEach(() => {
@@ -1077,3 +1070,4 @@ describe('DELETE /api/users/:userId/goals/:goalId', () => {
   })
 });
 
+module.exports = { createTestUser, userData, setupUserWithGoal };

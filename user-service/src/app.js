@@ -10,7 +10,7 @@ const { validateGoalData, validateHealthData, isEmailAlreadyRegistered, hasRequi
 // lets get it 930 - 1230
 
 const app = express(); 
-const port = 3000; 
+const port = 3001; 
 
 app.use(express.json());
 app.use(cors());
@@ -30,7 +30,6 @@ const goals = new Map();
 app.post(
   '/api/users', (req, res) => {
     try {
-      console.log('request body', req.body);
       // password is currently unhashed
       const { username, email, password, date_of_birth, gender, timezone } = req.body; 
       
@@ -100,9 +99,7 @@ app.get('/api/users', (req, res) => {
 app.get('/api/users/:id', (req, res) => {
   try {
     const userId = req.params.id; 
-    console.log('looking for user with ID: ', userId);
     const user = users.get(userId);
-    console.log('Found user', user);
 
     if (!user) {
       return res.status(404).json({error: 'User Not Found' });
@@ -139,10 +136,12 @@ app.delete('/api/users/:id', (req, res) => {
   }
 });
 
-app.listen(port, () => {
+
+if (require.main === module) {
+  app.listen(port, () => {
   console.log(`user-service listening on port ${port}`)
 }); 
-
+}
 
 app.post('/api/users/:id/health-profile', (req, res) => {
   try {
