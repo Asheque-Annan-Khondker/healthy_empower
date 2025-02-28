@@ -3,10 +3,10 @@ name: Unit Testing
 on:
   push:
     branches:
-      - main
+      - backend_branch_luke
   pull_request:
     branches:
-      - main
+      - backend_branch_luke
 
 jobs:
   unit-tests:
