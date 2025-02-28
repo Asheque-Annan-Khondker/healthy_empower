@@ -1,4 +1,5 @@
-import React from 'react';
+//import React from 'react';
+import * as React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { ExternalLink } from '../ExternalLink';
 import { openBrowserAsync } from 'expo-web-browser';
