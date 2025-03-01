@@ -37,12 +37,10 @@ jobs:
     # Step 4: Build the application
     - name: Build the application
       run: yarn build
-      working-directory: healthy_empowerer
 
     # Step 5: Run system tests
     - name: Run System Tests
       run: yarn test:system
-      working-directory: healthy_empowerer
 
     # Step 6: Upload system test results
     - name: Upload System Test Results
@@ -54,8 +52,6 @@ jobs:
         
     - name: Clear Yarn Cache
       run: yarn cache clean
-      working-directory: healthy_empowerer
 
     - name: Debug package.json
       run: cat package.json
-      working-directory: healthy_empowerer
