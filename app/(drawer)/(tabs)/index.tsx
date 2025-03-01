@@ -1,6 +1,6 @@
 import {Animated, Pressable, StyleSheet, Text, View} from "react-native";
 import GuideCardList from "@/components/GuideCardDetails";
-import {react_logo} from '@/assets/images'
+import {react_logo} from '@/assets/images/react_logo.png'
 import {Image} from "expo-image";
 import ScrollView = Animated.ScrollView;
 // import ProfileHeader from "@/components/ProfileHeader";
