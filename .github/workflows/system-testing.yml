@@ -27,11 +27,9 @@ jobs:
     # Step 3: Install dependencies using Yarn
     - name: Install dependencies
       run: yarn install
-      working-directory: healthy_empowerer
 
     - name: List Installed Dependencies
       run: yarn list
-      working-directory: healthy_empowerer
 
 
     # Step 4: Build the application
