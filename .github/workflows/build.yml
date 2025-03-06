@@ -20,6 +20,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+      # run commands in user-service directory
+      - name: Install dependencies
+        working-directory: user-service
+        run: yarn install
+
+      - name: Build the application
+        working-directory: user-service
+        run: yarn build
 
       - name: Install dependencies
         run: yarn install
