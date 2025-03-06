@@ -41,7 +41,8 @@
     "react-native-web": "~0.19.10",
     "express": "^4.21.2",
     "cors": "^2.8.5",
-    "crypto-js": "^4.2.0"
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.4.7"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
