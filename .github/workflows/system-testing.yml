@@ -37,7 +37,7 @@ jobs:
 
     # for debugging purpose
     - name: list test directory
-      run: ls -R __test__/system/
+      run: ls -R __tests__/system/
  
     # Step 5: Run system tests
     - name: Run System Tests
