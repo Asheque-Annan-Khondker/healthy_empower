@@ -24,9 +24,15 @@ jobs:
      
       - name: Install dependencies
         run: yarn install
+        
+      - name: Build the application with debug logs
+        run: |
+          set -x
+          yarn build
+          set +x
 
-      - name: Build the application
-        run: yarn build
+      # - name: Build the application
+        # run: yarn build
    
         
         
