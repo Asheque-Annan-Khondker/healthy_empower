@@ -32,8 +32,12 @@ jobs:
       run: yarn list
 
     # Step 4: Build the application
-    - name: Build the application
-      run: yarn build
+    #- name: Build the application
+    #  run: yarn build
+
+    # for debugging purpose
+    - name: list test directory
+      run: ls -R __tests__/system/
  
     # Step 5: Run system tests
     - name: Run System Tests
