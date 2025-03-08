@@ -12,7 +12,7 @@ export default function Layout() {
     <GestureHandlerRootView>
       <Stack screenOptions={{headerShown: false}}>
         {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> */}
-          {/* <Stack.Screen name="(Drawer)" options={{ headerShown:false}} /> */}
+          <Stack.Screen name="(drawer)" options={{ headerShown:false}} />
       </Stack>
     </GestureHandlerRootView>
   );
