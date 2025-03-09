@@ -5,6 +5,7 @@ import { GestureHandlerRootView} from 'react-native-gesture-handler'
 import {Drawer} from "expo-router/drawer";
 import {createNativeStackNavigator} from "react-native-screens/native-stack";
 import {createDrawerNavigator} from "@react-navigation/drawer";
+import React from 'react';
 
 export default function Layout() {
   return (

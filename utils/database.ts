@@ -1,7 +1,15 @@
 // utils/database.ts
 import  * as SQLite from 'expo-sqlite';
+import { Platform } from 'react-native';
 
 async function initializeDatabase() {
+
+
+  // check for build only mode
+
+  if (Platform.OS === 'web'  || process.env.EXPO_BUILD_ONLY==='true')
+    return mockDatabase();
+
   const db = await SQLite.openDatabaseAsync('healthy_empower.db');
   await db.execAsync(`
     PRAGMA foreign_keys = ON;
@@ -63,3 +71,15 @@ export const getDatabase = () => dbPromise;
 // Example of how to use this in other files:
 // import { getDatabase } from '@/utils/database';
 // const db = await getDatabase();
+
+// for build process since expo-sqlite is not meant for builds
+
+function mockDatabase(){
+  console.log("Mock for build processes")
+  return {
+    execAsync: async ()=>{},
+    getAllAsync: async ()=>{},
+    getAsync: async ()=> null,
+    runAsync: async ()=>({lastInsertRowId: -1, changes: 0})
+  }
+}

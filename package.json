@@ -23,12 +23,21 @@
     "@react-navigation/drawer": "6.7.2",
     "@react-navigation/native": "^6.0.2",
     "@react-navigation/stack": "^7.1.1",
+    "@tensorflow/tfjs": "^4.22.0",
+    "@tensorflow/tfjs-react-native": "^1.0.0",
     "@testing-library/react-native": "^13.2.0",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.4.7",
     "expo": "~51.0.39",
+    "expo-camera": "^16.0.17",
     "expo-constants": "~16.0.2",
     "expo-doctor": "^1.12.7",
     "expo-font": "~12.0.9",
-    "expo-image": "~1.13.0",
+    "expo-gl": "^15.0.4",
+    "expo-haptics": "^14.0.1",
+    "expo-image": "^1.0.0",
+    "expo-image-picker": "^16.0.6",
     "expo-linear-gradient": "~13.0.2",
     "expo-linking": "~6.3.1",
     "expo-router": "~3.5.24",
@@ -37,6 +46,7 @@
     "expo-status-bar": "~1.12.1",
     "expo-system-ui": "~3.0.7",
     "expo-web-browser": "~13.0.3",
+    "express": "^4.21.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.5",
@@ -48,12 +58,7 @@
     "react-native-screens": "3.31.1",
     "react-native-svg": "^15.11.2",
     "react-native-vector-icons": "^10.2.0",
-    "react-native-web": "~0.19.10",
-    "express": "^4.21.2",
-    "cors": "^2.8.5",
-    "crypto-js": "^4.2.0",
-    "dotenv": "^16.4.7",
-    "expo-image": "^1.0.0"
+    "react-native-web": "~0.19.10"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -64,9 +69,8 @@
     "jest-expo": "~51.0.3",
     "jest-junit": "^12.0.0",
     "react-test-renderer": "18.2.0",
-    "jest-junit": "^12.0.0",
-    "typescript": "~5.3.3",
-    "supertest": "^7.0.0"
+    "supertest": "^7.0.0",
+    "typescript": "~5.3.3"
   },
   "private": true
 }
