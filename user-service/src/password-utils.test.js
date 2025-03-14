@@ -1,5 +1,5 @@
 const CryptoJS = require('crypto-js');
-const { encrypt_user_password, isValidEmail } = require('./password-utils.js')
+const { encrypt_user_password, isValidEmail } = require('./utils/password-utils.js')
 
 describe('encrypt the users password', () => {
   const originalEnv = process.env; 
