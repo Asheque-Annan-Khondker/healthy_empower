@@ -23,11 +23,9 @@ jobs:
 
       - name: Install dependencies
         run: yarn install
-        working-directory: healthy_empowerer
 
       - name: Build the application
         run: yarn build
-        working-directory: healthy_empowerer
         
         
         
