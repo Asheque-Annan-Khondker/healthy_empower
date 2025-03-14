@@ -30,11 +30,6 @@ jobs:
 
     - name: List Installed Dependencies
       run: yarn list
-
-    # Step 4: Build the application
-    #- name: Build the application
-    #  run: yarn build
-
     # for debugging purpose
     - name: list test directory
       run: ls -R __tests__/system/
