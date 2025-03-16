@@ -29,10 +29,10 @@ export default function Index() {
   );
 }
 const testCards = [
-    {img: react_logo, title: "React", description:"This is the react logo", link:'https://reactjs.org'},
-    {img: react_logo, title: "React", description:"This is the react logo", link:'https://reactjs.org'},
-    {img: react_logo, title: "React", description:"This is the react logo", link:'https://reactjs.org'},
-    {img: react_logo, title: "React", description:"This is the react logo", link:'https://reactjs.org'},
+    {img: react_logo, title: "Lesson 1", description:"Beginner", link:'/(drawer)/(guide)/BeginnerGuide'},
+    {img: react_logo, title: "Lesson 2", description:"Intermediate", link: '/(drawer)/(guide)/IntermediateGuide'},
+    {img: react_logo, title: "Lesson 3", description:"Advanced", link:'/(drawer)/(guide)/AdvancedrGuide'},
+    {img: react_logo, title: "Lesson 4", description:"Expert", link:'/(drawer)/(guide)/ExpertGuide'},
 ]
 const healthStats = [
   { label: 'STEPS', value: '8,432', icon: 'footsteps', color: '#5acdff' },

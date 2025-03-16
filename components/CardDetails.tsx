@@ -3,7 +3,7 @@ import {Dimensions, ImageSourcePropType, Pressable, StyleSheet, Text, View} from
 import React from "react";
 import {Image} from "expo-image";
 import Animated, {useAnimatedScrollHandler, useSharedValue} from "react-native-reanimated"
-import {router} from "expo-router";
+import {RouteParamInput, router} from "expo-router";
 
 const screenHeight: number = Dimensions.get("screen").height
 const screenWidth: number = Dimensions.get("screen").width;
