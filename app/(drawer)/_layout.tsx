@@ -9,9 +9,9 @@ const CustomDrawerContent = (props) => {
         <DrawerItem label={"Setting"} onPress={()=>{router.navigate("/(drawer)/settings")}} />
         <DrawerItem label={"debug"} onPress={()=>{router.navigate("/(drawer)/debugScreen")}} />
         <DrawerItem label={"Beginner"} onPress={()=>{router.navigate("/(drawer)/(guide)/BeginnerGuide")}} />
-        <DrawerItem label={"Intermediate"} onPress={()=>{router.navigate("/(drawer)/guide/IntermediateGuide")}} />
-        <DrawerItem label={"Advanced"} onPress={()=>{router.navigate("/(drawer)/guide/AdvancedGuide")}} />
-        <DrawerItem label={"Expert"} onPress={()=>{router.navigate("/(drawer)/guide/ExpertGuide")}} />
+        <DrawerItem label={"Intermediate"} onPress={()=>{router.navigate("/(drawer)/(guide)/IntermediateGuide")}} />
+        <DrawerItem label={"Advanced"} onPress={()=>{router.navigate("/(drawer)/(guide)/AdvancedGuide")}} />
+        <DrawerItem label={"Expert"} onPress={()=>{router.navigate("/(drawer)/(guide)/ExpertGuide")}} />
     </DrawerContentScrollView>
    )
 }
@@ -22,6 +22,9 @@ export default function DrawerEntry(){
     <Drawer.Screen name={"settings"} options={{headerShown: true}} />
     <Drawer.Screen name={"debugScreen"} options={{headerShown: true}} />
     <Drawer.Screen name={"(guide)/BeginnerGuide"} options={{headerShown: true, title: 'Beginner Guide'}} />
+    <Drawer.Screen name={"(guide)/IntermediateGuide"} options={{headerShown: true, title: 'Intermediate Guide'}} />
+    <Drawer.Screen name={"(guide)/AdvancedGuide"} options={{headerShown: true, title: 'Advanced Guide'}} />
+    <Drawer.Screen name={"(guide)/ExpertGuide"} options={{headerShown: true, title: 'Expert Guide'}} />
   
     </Drawer>
   )
