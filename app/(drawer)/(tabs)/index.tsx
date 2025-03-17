@@ -9,6 +9,8 @@ import { react_logo } from '@/assets/images';
 import { FAIcon } from '@/utils/getIcon';
 import SearchBarComponent from '@/components/SearchBarComponent';
 import DropdownMenu from '@/components/DropdownMenu';
+import SlidingToggleButton from '@/components/SlidingToggleButton';
+
 
 
 export default function Index() {
@@ -25,6 +27,11 @@ export default function Index() {
       {/*DropDown Menu*/}
       <View style={styles.section}>
         <DropdownMenu onSelect={(option) => console.log("Selected:", option)} />
+      </View>
+
+      {/*Toggle Button*/}
+      <View style={styles.section}>
+        <SlidingToggleButton />
       </View>
 
       {/* Guide Cards Section */}
