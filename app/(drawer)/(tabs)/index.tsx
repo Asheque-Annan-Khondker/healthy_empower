@@ -8,6 +8,8 @@ import { SafeAreaView } from "react-native";
 import { react_logo } from '@/assets/images';
 import { FAIcon } from '@/utils/getIcon';
 import SearchBarComponent from '@/components/SearchBarComponent';
+import DropdownMenu from '@/components/DropdownMenu';
+
 
 export default function Index() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -15,11 +17,15 @@ export default function Index() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/*Search bar */}
+      {/* Search Bar Section */}
       <View style={styles.section}>
         <SearchBarComponent onSearch={setSearchQuery} />
       </View>
 
+      {/*DropDown Menu*/}
+      <View style={styles.section}>
+        <DropdownMenu onSelect={(option) => console.log("Selected:", option)} />
+      </View>
 
       {/* Guide Cards Section */}
       <ScreenTransition type='slide'>
