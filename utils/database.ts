@@ -19,9 +19,9 @@ async function initializeDatabase() {
       id INTEGER PRIMARY KEY,
       name TEXT NOT NULL,
       calories INTEGER NOT NULL,
-      protein REAL,
-      carbs REAL,
-      fat REAL,
+      protein REAL default 0,
+      carbs REAL default 0,
+      fat REAL default 0,
       date TEXT NOT NULL,
       meal_type TEXT NOT NULL
     );
@@ -34,7 +34,6 @@ async function initializeDatabase() {
       sets INTEGER,
       reps INTEGER,
       duration INTEGER,
-    
       date TEXT NOT NULL,
       notes TEXT
     );
@@ -45,16 +44,19 @@ async function initializeDatabase() {
       title TEXT NOT NULL,
       description TEXT,
       icon TEXT,
-      completed INTEGER NOT NULL DEFAULT 0,
+      category text,
+      completed boolean NOT NULL DEFAULT FALSE,
       progress INTEGER NOT NULL DEFAULT 0,
-      completion_date TEXT
+      target_progress integer not null,
+      completion_date TEXT,
+      xp INTEGER default 0
     );
 
     -- Create exercise guides table
     CREATE TABLE IF NOT EXISTS exercise_guides (
       id INTEGER PRIMARY KEY,
       title TEXT NOT NULL,
-      difficulty TEXT
+      difficulty TEXTs,
       category TEXT NOT NULL,
       steps TEXT NOT NULL
     );
