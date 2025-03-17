@@ -34,7 +34,8 @@ jobs:
         run: ls -la
 
       # Step 3: Install dependencies using Yarn
-      #- name: Install dependencies
+      - name: Install dependencies
+        run: yarn install
 
       # Step 4: Run Jest tests (Override default test script)
       - name: Run unit tests
