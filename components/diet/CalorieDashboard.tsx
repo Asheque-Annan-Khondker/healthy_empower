@@ -24,6 +24,7 @@ export default function CalorieDashboard(){
       console.log("FILTER DATE:", monthagostr) // e.g. 2024-02-11
       
       setLoading(true)
+      
       let db = await getDatabase()
       
       // // 2. Check if ANY data exists
@@ -40,148 +41,158 @@ export default function CalorieDashboard(){
       WHERE date >= ?
       GROUP BY date
       ORDER BY date ASC`, [monthagostr])
-          const labels = []
-          const calories = []
+        const labels = []
+        const calories = []
+
+        // just in case if data is not loaded for the graph, which leads to crashes.
+        
+        if(result.length == 0){
         
         const calorieMap = {}
         result.forEach(row => {
           calorieMap[row.date] = row.total_calories
         })
           for (let i = 0; i < 30; i++) {
-        
-      const date = new Date()
-      date.setDate(date.getDate() - (29 - i)) // Start from oldest to newest
-      const dateStr = date.toISOString().split('T')[0] // YYYY-MM-DD
-      const shortLabel = dateStr.substring(5) // MM-DD
-      
-      labels.push(shortLabel)
-      calories.push(calorieMap[dateStr] || 0) // Use 0 if no data exists
-    }
-        setData({
-          labels,
-          datasets:[{data:calories}]
-        })
-        console.log("Check retrieval", JSON.stringify(result))
-        
-        
-        
-        setLoading(false)
-        
-      } catch(err) {
-        console.log("ERROR:", err)
-        setError('Failed to Load data')
-        setLoading(false)
-      }
-      
-    }
-    //initial mount
-    useEffect(()=>{loadHistory()},[])
-    //subsequent mount every screen refresh
-    useFocusEffect(
-      useCallback(()=>{
-        loadHistory()
-        
-        return () => {
-          console.log('Screen unfocused')
-        }
-      },[])
-    )
-    if(loading==true){
-      return(
-        <Card >
-        <Card.Content>
-        <ActivityIndicator size={'large'} color="#0000ff" />
-        <Text>Loading your calorie history...</Text>
-        </Card.Content>
-        </Card>
-      )
-    } else{
-      return(
-        <Card style={styles.card}>
-        <Card.Content>
-        <Title>Calories</Title>
-        <Paragraph>Over 30 days</Paragraph>
-        <View style={styles.chartContainer}>
-         <LineChart
-        style={styles.chart}
-        data={data}
-        width={Dimensions.get("window").width-60}
-        height={220}
-        chartConfig={{
-          backgroundColor: "#e26a00",
-          backgroundGradientFrom: "#fb8c00",
-          backgroundGradientTo: "#ffa726",
-          decimalPlaces: 0,
-          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          
-          propsForDots: {
-            r: "6",
-            strokeWidth: "2",
-            stroke: "#ffa726"
+            
+            const date = new Date()
+            date.setDate(date.getDate() - (29 - i)) 
+            const dateStr = date.toISOString().split('T')[0] // YYYY-MM-DD
+            const shortLabel = dateStr.substring(5) // MM-DD
+            
+            labels.push(shortLabel)
+            calories.push(calorieMap[dateStr] || 0) // fills in missing calories with zero
+
+          }} else {
+            result.forEach(row => {
+              labels.push(row.date.substring(5))
+              calories.push(row.total_calories)
+            })
           }
-        }}
-        bezier
-        />
+          setData({
+            labels,
+            datasets:[{data:calories}]
+          })
+          console.log("Check retrieval", JSON.stringify(result))
+          
+          
+          
+          setLoading(false)
+          
+        } catch(err) {
+          console.log("ERROR:", err)
+          setError('Failed to Load data')
+          setLoading(false)
+        }
         
-        </View>
-        </Card.Content>
-        </Card>
+      }
+      //initial mount
+      useEffect(()=>{loadHistory()},[])
+      //subsequent mount every screen refresh
+      useFocusEffect(
+        useCallback(()=>{
+          loadHistory()
+          
+          return () => {
+            console.log('Screen unfocused')
+          }
+        },[])
       )
+      if(loading==true){
+        return(
+          <Card >
+          <Card.Content>
+          <ActivityIndicator size={'large'} color="#0000ff" />
+          <Text>Loading your calorie history...</Text>
+          </Card.Content>
+          </Card>
+        )
+      } else{
+        return(
+          <Card style={styles.card}>
+          <Card.Content>
+          <Title>Calorie Intake Graph</Title>
+          <Paragraph>Over last 30 days</Paragraph>
+          <View style={styles.chartContainer}>
+          <LineChart
+          style={styles.chart}
+          data={data}
+          width={Dimensions.get("window").width-60}
+          height={220}
+          chartConfig={{
+            backgroundColor: "#e26a00",
+            backgroundGradientFrom: "#fb8c00",
+            backgroundGradientTo: "#ffa726",
+            decimalPlaces: 0,
+            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            
+            propsForDots: {
+              r: "6",
+              strokeWidth: "2",
+              stroke: "#ffa726"
+            }
+          }}
+          bezier
+          />
+          
+          </View>
+          </Card.Content>
+          </Card>
+        )
+      }
     }
-  }
-  
-  
-  const styles = StyleSheet.create({
-    card: {
-      margin: 16,
-      elevation: 4,
-      borderRadius: 12,
-      width: Dimensions.get("window").width - 30
-    },
-    loadingContainer: {
-      alignItems: 'center',
-      padding: 20,
-    },
-    loadingText: {
-      marginTop: 10,
-    },
-    errorText: {
-      color: 'red',
-      marginTop: 10,
-    },
-    chartContainer: {
-      alignItems: 'center',
-      marginTop: 20,
-      marginBottom: 10,
-    },
-    chart: {
-      borderRadius: 16,
-    },
-    noDataText: {
-      textAlign: 'center',
-      marginTop: 30,
-      marginBottom: 30,
-      color: '#888',
-      fontStyle: 'italic',
-    },
-    statsContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      marginTop: 15,
-      paddingTop: 15,
-      borderTopWidth: 1,
-      borderTopColor: '#eee',
-    },
-    stat: {
-      alignItems: 'center',
-    },
-    statLabel: {
-      fontSize: 12,
-      color: '#888',
-    },
-    statValue: {
-      fontSize: 18,
-      fontWeight: 'bold',
-    },
-  });
+    
+    
+    const styles = StyleSheet.create({
+      card: {
+        margin: 16,
+        elevation: 4,
+        borderRadius: 12,
+        width: Dimensions.get("window").width - 30
+      },
+      loadingContainer: {
+        alignItems: 'center',
+        padding: 20,
+      },
+      loadingText: {
+        marginTop: 10,
+      },
+      errorText: {
+        color: 'red',
+        marginTop: 10,
+      },
+      chartContainer: {
+        alignItems: 'center',
+        marginTop: 20,
+        marginBottom: 10,
+      },
+      chart: {
+        borderRadius: 16,
+      },
+      noDataText: {
+        textAlign: 'center',
+        marginTop: 30,
+        marginBottom: 30,
+        color: '#888',
+        fontStyle: 'italic',
+      },
+      statsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginTop: 15,
+        paddingTop: 15,
+        borderTopWidth: 1,
+        borderTopColor: '#eee',
+      },
+      stat: {
+        alignItems: 'center',
+      },
+      statLabel: {
+        fontSize: 12,
+        color: '#888',
+      },
+      statValue: {
+        fontSize: 18,
+        fontWeight: 'bold',
+      },
+    });
