@@ -1,46 +1,60 @@
-// Tip: Mat UI is incompatible
-import {Dimensions, ImageSourcePropType, Pressable, StyleSheet, Text, View} from "react-native";
-import React from "react";
-import {Image} from "expo-image";
-import Animated, {useAnimatedScrollHandler, useSharedValue} from "react-native-reanimated"
-import {RouteParamInput, router} from "expo-router";
+import {Card ,Avatar, Paragraph, Title} from 'react-native-paper'
+import React, {memo, useCallback} from "react";
+import {Dimensions, StyleSheet, StyleSheetProperties} from "react-native";
+import Animated, {useAnimatedScrollHandler, useSharedValue} from "react-native-reanimated";
+import {screenHeight, screenWidth} from "@/utils/deviceDetails";
 
-const screenHeight: number = Dimensions.get("screen").height
-const screenWidth: number = Dimensions.get("screen").width;
+export interface cardProps {
+    onPress: () => void
+    longPress?: () => void
+    mainComponent?: React.ReactNode
+    textContent: {
+        title: string,
+        subtitle?: string,
+        description?: string,
+        paragraph?: string
+    }
+    iconProps: React.ComponentProps<typeof Avatar.Icon>
 
+    variant: "default" | "outlined" | "elevated"
 
-type GuideCardProps = {
-    img: ImageSourcePropType;
-    title: string
-    description: string
-    link: string
 }
-function GuideCard(img:ImageSourcePropType, title: string, description: string, link) {
-    const onPress =( () =>{
-        // Navigate to link
-       return  router.navigate(link)
-    })
-    return(
-        <Pressable onPress={onPress}>
-            <View style={styles.card}>
-                <View style={styles.cardContent}>
-                    <Image source={img} style={styles.img}/>
-                    <Text style={styles.title} >{title}</Text>
-                    <Text style={styles.text}>{description}</Text>
-                </View>
-            </View>
-        </Pressable>
+// memoise function(cache it and only rerender for changes)
+const CustomCard = memo((props:cardProps) => {
+    //defaults
+    const {
+        onPress,
+        longPress,
+        textContent={title:"Default"},
+        iconProps,
+        variant="default"
+    } = props;
 
+    // note, the icon will stay relatively same so it's best to use call back to only rerender when its changed
+    const leftContent = useCallback(() => <Avatar.Icon {...iconProps}/>,[])
+
+    return (
+        <Card style={styles.cardContainer} elevation={5} onPress={onPress}>
+            <Card.Title title={textContent.title} subtitle={textContent.subtitle} />
+            <Card.Content style={styles.cardContent}>
+                <Title>{textContent.title}</Title>
+                <Paragraph>{textContent.paragraph}</Paragraph>
+
+            </Card.Content>
+        </Card>
     )
-}
+})
+export type CardItemType = cardProps | React.ReactElement<typeof CustomCard>
+
 
 
 type  CardListProps = {
-    cards: GuideCardProps[];
-    horizontal: boolean
+    cards: CardItemType[]
+    horizontal?: boolean,
+    cardStyles:{}
 }
 // Implement scrollable list of cards
-const GuideCardList: React.FC<CardListProps> = ({cards, horizontal=true}) => {
+const CustomCardList: React.FC<CardListProps> = ({ cards, horizontal=true, cardStyles=styles}) => {
     const offset = useSharedValue(16)
     const scrollHandler = useAnimatedScrollHandler(
         {
@@ -53,56 +67,37 @@ const GuideCardList: React.FC<CardListProps> = ({cards, horizontal=true}) => {
         // use flatlist for many list items
         <Animated.FlatList
             renderItem={({ item}) => {
-                return GuideCard(item.img, item.title, item.description, item.link)
+                if(React.isValidElement(item)) return item
+                else return <CustomCard {...item}/>
             }}
             scrollEnabled={true}
-            style={styles.cardContainer}
+            style={cardStyles.cardContainer}
+            contentContainerStyle={styles.contentContainer}
             data={cards}
             pagingEnabled={true}
             scrollEventThrottle={16}
             onScroll={scrollHandler}
             horizontal={horizontal}
         ></Animated.FlatList>
-            )
+    )
 
 
 }
 
-export default GuideCardList;
-export {GuideCard}
+export  {CustomCardList, CustomCard};
+
 const styles = StyleSheet.create({
-        cardContainer: {
-           // justifyContent: "center",
-            padding: 10,
-            margin: 10,
-            height: screenHeight/6,
+    cardContainer: {
+        // backgroundColor: 'white',
+        width: screenWidth - 30,
+        height: screenHeight/6,
+        // margin: 20,
+    },
+    contentContainer: {
 
-        },
-        card: {
-            // flexShrink: 1.
-
-        },
-        cardContent: {
-            justifyContent: "space-around",
-            alignItems: "center",
-            verticalAlign: "bottom",
-            padding: 10
-
-        },
-        title:{
-            fontSize: 20,
-            fontWeight: "bold"
-        },
-        text: {
-            fontSize: 10,
-
-        },
-        img: {
-            // maxHeight: '100%',
-            // maxWidth: '100%',
-            height: screenHeight/10,
-            width: screenWidth/5,
-            borderRadius: 20,
-        }
-    }
-)
+        width: screenWidth - 30,
+        height: screenHeight/6,
+        alignItems: "center",
+    },
+    cardContent:{}
+})
