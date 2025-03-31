@@ -4,7 +4,7 @@ function encrypt_user_password(password) {
   if (!process.env.SECRET) {
     throw new Error('SECRET environment variable is not set');
   }
-  const phrase = process.env.SECRET;
+  const phrase = process.env.SECRET || 'dogpark';
   let encrypt_password = CryptoJS.encrypt(password, phrase).toString(); 
   return encrypt_password;
 }
