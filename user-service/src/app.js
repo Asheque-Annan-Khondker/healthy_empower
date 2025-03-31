@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors'); 
-
+const path = require('path'); 
+const dotenv = require('dotenv').config({ path: path.resolve(__dirname, '.env') }); 
 
 const UserController = require('./controllers/userController');
 const HealthProfileController = require('./controllers/healthProfileController');
@@ -17,9 +18,8 @@ const port = 3001;
 
 app.use(express.json());
 app.use(cors());
-
-// we use a map until we implement sqlLite and ORM
 const users = new Map();
+// we use a map until we implement sqlLite and ORM
 const healthProfiles = new Map(); 
 /* 
  * fuck comments lmao 
@@ -27,9 +27,8 @@ const healthProfiles = new Map();
  * should mimic one to many structure to be seen in the ORM 
  */ 
 const goals = new Map();
-
-const userController = new UserController(users); 
-const healthProfileController = new HealthProfileController(users, healthProfiles);
+const userController = new UserController();
+const healthProfileController = new HealthProfileController();
 const goalController = new GoalController(users, healthProfiles, goals);
 const authController = new AuthController(users); 
 
