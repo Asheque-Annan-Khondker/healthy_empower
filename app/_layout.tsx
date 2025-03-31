@@ -5,6 +5,7 @@ import { GestureHandlerRootView} from 'react-native-gesture-handler'
 import {Drawer} from "expo-router/drawer";
 import {createNativeStackNavigator} from "react-native-screens/native-stack";
 import {createDrawerNavigator} from "@react-navigation/drawer";
+import React from 'react';
 
 export default function Layout() {
   return (
@@ -12,7 +13,7 @@ export default function Layout() {
     <GestureHandlerRootView>
       <Stack screenOptions={{headerShown: false}}>
         {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> */}
-          {/* <Stack.Screen name="(Drawer)" options={{ headerShown:false}} /> */}
+          <Stack.Screen name="(drawer)" options={{ headerShown:false}} />
       </Stack>
     </GestureHandlerRootView>
   );
