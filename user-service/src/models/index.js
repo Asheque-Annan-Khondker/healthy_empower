@@ -13,8 +13,9 @@ const User = require('./User')(sequelize);
 
 
 const HealthProfile = require('./HealthProfile')(sequelize, Sequelize.DataTypes);
+
+const Goal = require('./Goal')(sequelize, Sequelize.DataTypes);
 /*
-const Goal = require('./Goal');
 const Exercise = require('./Exercise');
 const WorkoutLog = require('./WorkoutLog');
 const WorkoutPlan = require('./WorkoutPlan');
@@ -26,15 +27,17 @@ const Achievement = require('./Achievement');
 const UserAchievement = require('./UserAchievement');
 */
 User.hasOne(HealthProfile, { foreignKey: 'user_id' });
-//User.hasMany(Goal, { foreignKey: 'user_id' });
+User.hasMany(Goal, { foreignKey: 'user_id' });
 //User.hasMany(WorkoutLog, { foreignKey: 'user_id' });
 //User.hasMany(MealLog, { foreignKey: 'user_id' });
 //User.belongsToMany(Achievement, { through: UserAchievement, foreignKey: 'user_id' });
 
 
 HealthProfile.belongsTo(User, { foreignKey: 'user_id' });
-/*
 Goal.belongsTo(User, { foreignKey: 'user_id' });
+
+
+/*
 Exercise.hasMany(WorkoutLog, { foreignKey: 'exercise_id' });
 Exercise.belongsToMany(WorkoutPlan, { through: WorkoutPlanExercise, foreignKey: 'exercise_id' });
 WorkoutLog.belongsTo(User, { foreignKey: 'user_id' });
@@ -54,7 +57,8 @@ const db = {
   sequelize,
   Sequelize,
   User,
-  HealthProfile
+  HealthProfile,
+  Goal
   /*
   Goal,
   Exercise,

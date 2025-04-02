@@ -20,16 +20,14 @@ app.use(express.json());
 app.use(cors());
 const users = new Map();
 // we use a map until we implement sqlLite and ORM
-const healthProfiles = new Map(); 
 /* 
  * fuck comments lmao 
  * goals map structure Map<userId, Array<goals>> 
  * should mimic one to many structure to be seen in the ORM 
  */ 
-const goals = new Map();
 const userController = new UserController();
 const healthProfileController = new HealthProfileController();
-const goalController = new GoalController(users, healthProfiles, goals);
+const goalController = new GoalController();
 const authController = new AuthController(users); 
 
 app.use('/api/users', userRoutesFactory(userController));
@@ -45,4 +43,4 @@ if (require.main === module) {
 }
 
 
-module.exports = { app, users, healthProfiles, goals };
+module.exports = { app, users };
