@@ -1,74 +1,102 @@
 const { validateGoalData } = require('../utils/validation.js'); 
+const db = require('../models');
 
 class GoalController {  
-  constructor(users, healthProfiles, goals) { 
-    this.users = users; 
-    this.healthProfiles = healthProfiles;
-    this.goals = goals; 
+  constructor() { 
   }
 
 
-  getAllGoals = (req, res) => {
+  getGoalById = async (req, res) => {
     try {
-      const userId = req.params.id;
+      const userId = req.params.userId;
+      const goalId = req.params.goalId
 
-      const user = this.users.get(userId); 
+      const user = await db.User.findByPk(userId);
       if (!user) {
         return res.status(404).json({ error: 'User not found'});
       }
-
-      if (!this.goals.has(userId)) {
-       return res.status(200).json([]);
+      
+      const goal = await db.Goal.findOne({
+        where: {
+          goal_id: goalId,
+          user_id: userId
+        }
+      });
+      
+      if (!goal) {
+        return res.status(404).json({ error: 'Goal not found' });
       }
-    
-      const userGoals = this.goals.get(userId);
-
-      res.status(200).json(userGoals);
+     
+      res.status(200).json({
+        goal_id: goal.goal_id, 
+        user_id: goal.user_id, 
+        type: goal.type,
+        target_value: goal.target_value,
+        start_date: goal.start_date,
+        target_date: goal.target_date,
+        description: goal.description,
+        created_at: goal.createdAt,
+        updated_at: goal.updatedAt
+      });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
   }
 
-  getGoalById = (req, res) => {
+  getAllGoals =  async (req, res) => {
     try {
       const userId = req.params.userId;
-      const goalId = req.params.goalId;
 
-
-      const user = this.users.get(userId); 
+    // Check if user exists
+      const user = await db.User.findByPk(userId);
       if (!user) {
-        return res.status(404).json({ error: 'User not found'})
+        return res.status(404).json({ error: 'User not found'});
       }
+    
+      // Get all goals for the user
+      const userGoals = await db.Goal.findAll({
+       where: { user_id: userId }
+      });
 
-      const userGoals = this.goals.get(userId) || [];
-      const goal = userGoals.find(g => g.id == goalId); 
-
-      if (!goal) {
-        return res.status(404).json({ error: 'Goal not found'}); 
-      }
-
-      res.status(200).json(goal);
+      // Map goals to response format
+      const formattedGoals = userGoals.map(goal => ({
+        goal_id: goal.goal_id,
+        user_id: goal.user_id,
+        type: goal.type,
+        target_value: goal.target_value,
+        start_date: goal.start_date,
+        target_date: goal.target_date,
+        description: goal.description,
+        created_at: goal.createdAt,
+        updated_at: goal.updatedAt
+      }));
+    
+      res.status(200).json(formattedGoals);    
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
   }
 
-  updateGoal = (req, res) => {
+  updateGoal = async (req, res) => {
     try {
       const userId = req.params.userId;
       const goalId = req.params.goalId;
       const goalData = req.body;
 
-      const user = this.users.get(userId);
+      const user = await db.User.findByPk(userId);
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
 
-      const userGoals = this.goals.get(userId) || [];
-      const goalIndex = userGoals.findIndex(currentGoal => currentGoal.id === goalId);
-    
-      const INDEX_NOT_FOUND = goalIndex === -1 
-      if (INDEX_NOT_FOUND) {
+      const goal = await db.Goal.findOne({
+        where: {
+          goal_id: goalId,
+          user_id: userId
+        }
+      });
+
+      
+      if (!goal) {
         return res.status(404).json({ error: 'Goal not found'});
       }
 
@@ -77,49 +105,54 @@ class GoalController {
       if (VALIDATION_FAILED) {
         return res.status(400).json({ error: validation.error }); 
       }
-
-      const existingGoal = userGoals[goalIndex];
-      const updatedGoal = {
-        ...existingGoal,
-        type: goalData.type,
+      
+      await goal.update({
+        type: goalData.type, 
         target_value: goalData.target_value,
-        timeline: goalData.timeline,
-        description: goalData.description,
-        updated_at: new Date()
-      };
+        target_date: new Date(goalData.timeline),
+        description: goalData.description
+      });
 
-      userGoals[goalIndex] = updatedGoal;
+      const updatedGoal = await db.Goal.findByPk(goal.goal_id);
 
-      res.status(200).json(updatedGoal);
+      res.status(200).json({
+        goal_id: updatedGoal.goal_id,
+        user_id: updatedGoal.user_id,
+        type: updatedGoal.type,
+        target_value: updatedGoal.target_value,
+        start_date: updatedGoal.start_date,
+        target_date: updatedGoal.target_date,
+        description: updatedGoal.description,
+        created_at: updatedGoal.createdAt,
+        updated_at: updatedGoal.updatedAt
+      });
     } catch (error) {
       res.status(500).json({ error: error.message }); 
     }
   } 
 
-  deleteGoal = (req,res) => { 
+  deleteGoal = async (req,res) => { 
     try {
       const userId = req.params.userId;
       const goalId = req.params.goalId; 
     
-      const user = this.users.get(userId);
+      const user = await db.User.findByPk(userId);
       if (!user) {
         return res.status(404).json({ error: 'User not found'}); 
       }
 
-      if (!this.goals.has(userId)) {
-        return res.status(404).json({ error: 'Goal not found' });
+      const goal = await db.Goal.findOne({
+        where: {
+          goal_id: goalId,
+          user_id: userId
+        }
+      });
+
+      if (!goal) {
+        return res.status(404).json({ error: 'Goal not found' }); 
       }
 
-      const userGoals = this.goals.get(userId); 
-      const goalIndex = userGoals.findIndex(goal => goal.id === goalId);
-
-      const GOAL_DOES_NOT_EXIST = goalIndex === -1; 
-
-      if (GOAL_DOES_NOT_EXIST) {
-        return res.status(404).json({ error: 'Goal not found'});
-      }
-
-      userGoals.splice(goalIndex, 1);
+      await goal.destroy();
 
       res.status(200).json({ message: 'Goal successfully deleted' });
     } catch (error) {
@@ -127,40 +160,49 @@ class GoalController {
     }
   }
 
-  createGoal = (req, res) => {
+  createGoal = async (req, res) => {
     try {
-      const userId = req.params.id;
+      const userId = req.params.userId;
       const goalData = req.body;
 
-      const user = this.users.get(userId);
+      const user = await db.User.findByPk(userId);
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
+      
+      const healthProfile = await db.HealthProfile.findOne({
+        where: { user_id: userId }
+      });
+      const hasHealthProfile = !!healthProfile;
 
-      const hasHealthProfile = this.healthProfiles.has(userId);
+
       const validation = validateGoalData(goalData, hasHealthProfile);
       if (!validation.isValid) {
         return res.status(400).json({ error: validation.error });
       }
 
-      const goalId = Date.now().toString();
-      const newGoal = {
-        id: goalId,
-        'user-id': userId,
+      
+      const newGoal = await db.Goal.create({
+        user_id: userId,
         type: goalData.type,
         target_value: goalData.target_value,
-        timeline: goalData.timeline,
-        description: goalData.description,
-        created_at: new Date()
-      };
+        start_date: new Date(),
+        target_date: new Date(goalData.timeline),
+        description: goalData.description
+      });
 
-      // Initialize array if first goal
-      if (!this.goals.has(userId)) {
-        this.goals.set(userId, []);
-      }
-      this.goals.get(userId).push(newGoal);
-
-      res.status(201).json(newGoal);
+    
+      res.status(201).json({
+        goal_id: newGoal.goal_id,
+        user_id: newGoal.user_id,
+        type: newGoal.type,
+        target_value: newGoal.target_value,
+        start_date: newGoal.start_date,
+        target_date: newGoal.target_date,
+        description: newGoal.description,
+        created_at: newGoal.createdAt,
+        updated_at: newGoal.updatedAt
+      });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

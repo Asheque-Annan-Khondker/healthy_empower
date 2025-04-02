@@ -65,7 +65,7 @@ class UserController {
 
   getAllUsers = async (req, res) => {
     try {
-     const users = await User.findAll({
+     const users = await db.User.findAll({
         attributes: ['user_id', 'username', 'email']
        });
      const userList = users.map(user => ({
@@ -92,7 +92,7 @@ class UserController {
     }
 
     const userResponse = {
-      id: user.user.id,
+      id: user.user_id,
       username: user.username,
       email: user.email
     }
