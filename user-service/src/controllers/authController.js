@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken'); 
 const CryptoJS = require('crypto-js'); 
 const { isValidEmail } = require('../utils/password-utils.js');
+const db = require('../models');
 
 class AuthController {
   constructor(users) {
@@ -8,7 +9,7 @@ class AuthController {
     this.refreshTokens = new Map(); 
   }
 
-  login = (req, res) => {
+  login = async (req, res) => {
     try {
       const { email, password } = req.body; 
 
@@ -17,23 +18,21 @@ class AuthController {
         return res.status(400).json({ error: 'Email and password are required' });
       }
 
-      const user = Array.from(this.users.values()).find(user => user.email === email); 
+      const user = await db.User.findOne({ where: { email }});
 
       const USER_NOT_FOUND = !user; 
       if (USER_NOT_FOUND) {
         return res.status(401).json({ error: 'Invalid credentials'});
       }
 
-      const decrypted = CryptoJS.AES.decrypt(user.password, process.env.SECRET).toString(CryptoJS.enc.Utf8); 
+      const decrypted = CryptoJS.AES.decrypt(user.password_hash, process.env.SECRET).toString(CryptoJS.enc.Utf8); 
 
       const PASSWORD_INCORRECT = decrypted !== password; 
       if (PASSWORD_INCORRECT) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
 
-      const updatedUser = this.users.get(user.id); 
-      updatedUser.last_login = new Date();
-      this.users.set(user.id, updatedUser); 
+      await user.update({ last_login: new Date() });
 
       const token = this.generateAccessToken(user.id); 
       const refreshToken = this.generateRefreshToken(user.id);
@@ -126,27 +125,32 @@ class AuthController {
     );
   };
 
-  authenticateToken = (req, res, next) => {
+  authenticateToken = async (req, res, next) => {
     try {
       const authHeader = req.headers['authorization'];
       const token = authHeader && authHeader.split(' ')[1];
-      
+    
       if (!token) {
         return res.status(401).json({ error: 'Authentication token required' });
       }
 
-      jwt.verify(token, process.env.JWT_SECRET || 'yes_a_token', (err, decoded) => {
+      jwt.verify(token, process.env.JWT_SECRET || 'yes_a_token', async (err, decoded) => {
         if (err) {
           return res.status(403).json({ error: 'Invalid or expired token'});
         }
 
-        const user = this.users.get(decoded.userId);
-        if (!user) {
-          return res.status(403).json({ error: 'User not found' });
-        }
+        try {
+        // Find user in database instead of Map
+          const user = await db.User.findByPk(decoded.userId);
+          if (!user) {
+            return res.status(403).json({ error: 'User not found' });
+          }
 
-        req.userId = decoded.userId; 
-        next();
+          req.userId = decoded.userId; 
+          next();
+        } catch (dbError) {
+          return res.status(500).json({ error: dbError.message });
+        }
       });
     } catch (error) {
       res.status(500).json({ error: error.message });

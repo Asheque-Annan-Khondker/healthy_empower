@@ -9,9 +9,14 @@ function encrypt_user_password(password) {
   return encrypt_password;
 }
 
+function decrypt_user_password(hashedPassword) {
+  const phrase = process.env.SECRET || 'dogpark';
+  return CryptoJS.AES.decrypt(hashedPassword, phrase).toString(CryptoJS.enc.Utf8);
+}
+
 function isValidEmail(email) {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailPattern.test(email);
 }
 
-module.exports = { encrypt_user_password, isValidEmail };
+module.exports = { encrypt_user_password, decrypt_user_password, isValidEmail };
