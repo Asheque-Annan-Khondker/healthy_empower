@@ -14,8 +14,7 @@ import { DrawerActions } from '@react-navigation/native';
 import DropdownMenu from '@/components/DropdownMenu';
 import SearchBarComponent from '@/components/SearchBarComponent';
 import SlidingToggleButton from '@/components/SlidingToggleButton';
-
-
+import CheckButton from '@/components/CheckButton';
 
 
 export default function Index() {
@@ -46,6 +45,13 @@ export default function Index() {
         <View style={styles.section}>
           <SlidingToggleButton />
         </View>
+
+        {/* Check Button Section */}
+        <View style={{ marginTop: 20, paddingHorizontal: 20 }}>
+          <Text style={{ marginBottom: 10 }}>CheckBox Button:</Text>
+          <CheckButton />
+        </View>
+
       </View>
       
     );
