@@ -16,6 +16,8 @@ import SearchBarComponent from '@/components/SearchBarComponent';
 import SlidingToggleButton from '@/components/SlidingToggleButton';
 import CheckButton from '@/components/CheckButton';
 import ProgressBar from '@/components/ProgressBar';
+import CalendarPicker from '@/components/CalendarPicker';
+
 
 
 
@@ -59,6 +61,11 @@ export default function Index() {
         <Text style={{ marginBottom: 10 }}>Course Progress</Text>
         <ProgressBar progress={10} />
       </View>
+
+      <View style={{ marginBottom: 40 }}>
+        <CalendarPicker />
+      </View>
+
 
 
       </View>
