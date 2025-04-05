@@ -13,6 +13,8 @@ import { useNavigation } from 'expo-router';
 import { DrawerActions } from '@react-navigation/native';
 import DropdownMenu from '@/components/DropdownMenu';
 import SearchBarComponent from '@/components/SearchBarComponent';
+import SlidingToggleButton from '@/components/SlidingToggleButton';
+
 
 
 
@@ -39,7 +41,13 @@ export default function Index() {
         <View style={styles.section}>
           <DropdownMenu onSelect={(option) => console.log("Selected:", option)} />
         </View>
+
+        {/*Toggle Button*/}
+        <View style={styles.section}>
+          <SlidingToggleButton />
+        </View>
       </View>
+      
     );
     
 }
