@@ -7,31 +7,46 @@ import { FAIcon, IonIcon } from '@/utils/getIcon';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withDelay } from 'react-native-reanimated';
 import PaperCard from '@/components/PaperCard';
 import {Avatar, Card, Paragraph, Searchbar, Title} from "react-native-paper";
-import GuideCardList, { GuideCard } from '@/components/CardDetails';
+import { CustomCardList } from '@/components/CardDetails';
 import { react_logo } from '@/assets/images';
 import { useNavigation } from 'expo-router';
 import { DrawerActions } from '@react-navigation/native';
+import DropdownMenu from '@/components/DropdownMenu';
+import SearchBarComponent from '@/components/SearchBarComponent';
+
+
 
 export default function Index() {
  const [searchQuery, setSearchQuery] = useState('');
     const metrics = {steps:"", calories: "", hydration:"",recovery:""}
     const navigation = useNavigation()
-  return (
-      <View style={styles.container}>
-        {/*it is possible to combine search with drawer through paper*/}
-        <Searchbar placeholder={"Search"} onChangeText={setSearchQuery} value={searchQuery}
-                  icon={()=><FAIcon name='bars' color='black'/>} onIconPress={()=>navigation.dispatch(DrawerActions.toggleDrawer())}/>
-              <ScreenTransition type='slide'>
-                <GuideCardList cards={testCards} horizontal={true}/>
 
-                </ScreenTransition>
+    return (
+      <View style={styles.container}>
+        <Searchbar
+          placeholder={"Search"}
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+          icon={() => <FAIcon name="bars" color="black" />}
+          onIconPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+        />
+    
+        <ScreenTransition type="slide">
+          <CustomCardList cards={testCards} horizontal={true} />
+        </ScreenTransition>
+    
+        {/* DropDown Menu */}
+        <View style={styles.section}>
+          <DropdownMenu onSelect={(option) => console.log("Selected:", option)} />
+        </View>
       </View>
-  );
+    );
+    
 }
 const testCards = [
     {img: react_logo, title: "Lesson 1", description:"Beginner", link:'/(drawer)/(guide)/BeginnerGuide'},
     {img: react_logo, title: "Lesson 2", description:"Intermediate", link: '/(drawer)/(guide)/IntermediateGuide'},
-    {img: react_logo, title: "Lesson 3", description:"Advanced", link:'/(drawer)/(guide)/AdvancedrGuide'},
+    {img: react_logo, title: "Lesson 3", description:"Advanced", link:'/(drawer)/(guide)/AdvancedGuide'},
     {img: react_logo, title: "Lesson 4", description:"Expert", link:'/(drawer)/(guide)/ExpertGuide'},
 ]
 const healthStats = [
