@@ -16,6 +16,6 @@ module.exports = {
     '^.+\\.[jt]sx?$': 'babel-jest',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(sequelize|pg|other-esm-packages)/)',
+    'node_modules/(?!(sequelize|expo|react-native|other-esm-packages)/)',
   ],
 };
