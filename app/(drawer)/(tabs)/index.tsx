@@ -15,6 +15,8 @@ import DropdownMenu from '@/components/DropdownMenu';
 import SearchBarComponent from '@/components/SearchBarComponent';
 import SlidingToggleButton from '@/components/SlidingToggleButton';
 import CheckButton from '@/components/CheckButton';
+import ProgressBar from '@/components/ProgressBar';
+
 
 
 export default function Index() {
@@ -46,11 +48,18 @@ export default function Index() {
           <SlidingToggleButton />
         </View>
 
-        {/* Check Button Section */}
+        {/* Check Button*/}
         <View style={{ marginTop: 20, paddingHorizontal: 20 }}>
           <Text style={{ marginBottom: 10 }}>CheckBox Button:</Text>
           <CheckButton />
         </View>
+
+        {/* Progress Bar*/}
+      <View style={{ marginTop: 30, paddingHorizontal: 20, marginBottom: 40 }}>
+        <Text style={{ marginBottom: 10 }}>Course Progress</Text>
+        <ProgressBar progress={10} />
+      </View>
+
 
       </View>
       
