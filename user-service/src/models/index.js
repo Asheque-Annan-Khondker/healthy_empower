@@ -15,8 +15,9 @@ const User = require('./User')(sequelize);
 const HealthProfile = require('./HealthProfile')(sequelize, Sequelize.DataTypes);
 
 const Goal = require('./Goal')(sequelize, Sequelize.DataTypes);
+
+const Exercise = require('./Exercise')(sequelize, Sequelize.DataTypes);
 /*
-const Exercise = require('./Exercise');
 const WorkoutLog = require('./WorkoutLog');
 const WorkoutPlan = require('./WorkoutPlan');
 const WorkoutPlanExercise = require('./WorkoutPlanExercise');
@@ -62,14 +63,14 @@ const db = {
   HealthProfile,
   Goal,
   /*
-  Exercise,
   WorkoutLog,
   WorkoutPlan,
   WorkoutPlanExercise,
   */
   UnitOfMeasurement,
   Food,
-  MealLog
+  MealLog,
+  Exercise
  // Achievement,
   //UserAchievement
   

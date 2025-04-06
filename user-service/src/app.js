@@ -10,7 +10,7 @@ const AuthController = require('./controllers/authController');
 const FoodController = require('./controllers/foodController');
 const MealLogController = require('./controllers/mealLogController');
 const UnitOfMeasurementController = require('./controllers/unitOfMeasurementController');
-
+const ExerciseController = require('./controllers/exerciseController');
 
 const userRoutesFactory = require('./routes/userRoutes');
 const healthProfileRoutesFactory = require('./routes/healthRoutes');
@@ -19,7 +19,7 @@ const authRoutesFactory = require('./routes/authRoutes');
 const foodRoutesFactory = require('./routes/foodRoutes');
 const mealLogRoutesFactory = require('./routes/mealLogRoutes');
 const unitRoutesFactory = require('./routes/unitRoutes');
-
+const exerciseRoutesFactory = require('./routes/exerciseRoutes');
 
 const app = express(); 
 const port = 3001; 
@@ -34,13 +34,17 @@ const authController = new AuthController(users);
 const foodController = new FoodController();
 const mealLogController = new MealLogController();
 const unitOfMeasurementController = new UnitOfMeasurementController();
+const exerciseController = new ExerciseController();
+
+
+
 
 app.use('/api/users', userRoutesFactory(userController));
 app.use('/api/users', healthProfileRoutesFactory(healthProfileController));
 app.use('/api/users', goalRoutesFactory(goalController));
 app.use('/api', authRoutesFactory(authController));
 
-
+app.use('/api/exercises', exerciseRoutesFactory(exerciseController));
 app.use('/api/foods', foodRoutesFactory(foodController));
 app.use('/api/users/:userId/meal-logs', mealLogRoutesFactory(mealLogController));
 app.use('/api/units', unitRoutesFactory(unitOfMeasurementController)); 
