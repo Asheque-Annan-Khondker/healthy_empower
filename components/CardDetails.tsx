@@ -47,14 +47,13 @@ const CustomCard = memo((props:cardProps) => {
 export type CardItemType = cardProps | React.ReactElement<typeof CustomCard>
 
 
-
 type  CardListProps = {
     cards: CardItemType[]
     horizontal?: boolean,
-    cardStyles:{}
+    cardStyles?: any
 }
 // Implement scrollable list of cards
-const CustomCardList: React.FC<CardListProps> = ({ cards, horizontal=true, cardStyles=styles}) => {
+const CustomCardList = ({ cards, horizontal=true, cardStyles=styles}: CardListProps) => {
     const offset = useSharedValue(16)
     const scrollHandler = useAnimatedScrollHandler(
         {
