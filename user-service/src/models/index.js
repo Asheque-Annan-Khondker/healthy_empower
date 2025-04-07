@@ -17,11 +17,11 @@ const HealthProfile = require('./HealthProfile')(sequelize, Sequelize.DataTypes)
 const Goal = require('./Goal')(sequelize, Sequelize.DataTypes);
 
 const Exercise = require('./Exercise')(sequelize, Sequelize.DataTypes);
-/*
-const WorkoutLog = require('./WorkoutLog');
-const WorkoutPlan = require('./WorkoutPlan');
-const WorkoutPlanExercise = require('./WorkoutPlanExercise');
-*/
+
+const WorkoutLog = require('./WorkoutLog')(sequelize, Sequelize.DataTypes);
+const WorkoutPlan = require('./WorkoutPlan')(sequelize, Sequelize.DataTypes);
+const WorkoutPlanExercise = require('./WorkoutPlanExercise')(sequelize, Sequelize.DataTypes);
+
 const UnitOfMeasurement = require('./UnitOfMeasurement')(sequelize, Sequelize.DataTypes);
 const Food = require('./Food')(sequelize, Sequelize.DataTypes);
 const MealLog = require('./MealLog')(sequelize, Sequelize.DataTypes);
@@ -30,7 +30,7 @@ const MealLog = require('./MealLog')(sequelize, Sequelize.DataTypes);
 
 User.hasOne(HealthProfile, { foreignKey: 'user_id' });
 User.hasMany(Goal, { foreignKey: 'user_id' });
-//User.hasMany(WorkoutLog, { foreignKey: 'user_id' });
+User.hasMany(WorkoutLog, { foreignKey: 'user_id' });
 User.hasMany(MealLog, { foreignKey: 'user_id' });
 //User.belongsToMany(Achievement, { through: UserAchievement, foreignKey: 'user_id' });
 
@@ -39,13 +39,24 @@ HealthProfile.belongsTo(User, { foreignKey: 'user_id' });
 Goal.belongsTo(User, { foreignKey: 'user_id' });
 
 
-/*
+Exercise.belongsToMany(WorkoutPlan, {
+  through: WorkoutPlanExercise,
+  foreignKey: 'exercise_id',
+  otherKey: 'plan_id'
+});
+
+WorkoutPlan.belongsToMany(Exercise, {
+  through: WorkoutPlanExercise,
+  foreignKey: 'plan_id',
+  otherKey: 'exercise_id'
+});
+
+
 Exercise.hasMany(WorkoutLog, { foreignKey: 'exercise_id' });
-Exercise.belongsToMany(WorkoutPlan, { through: WorkoutPlanExercise, foreignKey: 'exercise_id' });
 WorkoutLog.belongsTo(User, { foreignKey: 'user_id' });
 WorkoutLog.belongsTo(Exercise, { foreignKey: 'exercise_id' });
-WorkoutPlan.belongsToMany(Exercise, { through: WorkoutPlanExercise, foreignKey: 'plan_id' });
-*/
+
+
 Food.belongsTo(UnitOfMeasurement, { foreignKey: 'serving_unit_id' });
 Food.hasMany(MealLog, { foreignKey: 'food_id' });
 UnitOfMeasurement.hasMany(Food, { foreignKey: 'serving_unit_id' });
@@ -62,11 +73,9 @@ const db = {
   User,
   HealthProfile,
   Goal,
-  /*
   WorkoutLog,
   WorkoutPlan,
   WorkoutPlanExercise,
-  */
   UnitOfMeasurement,
   Food,
   MealLog,
