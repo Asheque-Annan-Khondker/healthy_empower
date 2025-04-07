@@ -6,7 +6,7 @@ jest.mock('@/components/screenTransition', () => {
   return ({ children }: any) => <>{children}</>; 
 });
 
-describe('AdvancedGuide', () => {
+describe('BeginnerGuide', () => {
   it('renders the correct guide text', () => {
     const { getByText } = render(<BeginnerGuide />);
     expect(getByText('Guide for noobs')).toBeTruthy();
