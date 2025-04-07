@@ -1,20 +1,17 @@
 const { validateHealthData, validateGoalData } = require('../utils/validation.js'); 
-
+const db = require('../models');
 
 
 class HealthProfileController {
   constructor(users, healthProfiles, goals) {
-    this.users = users; 
-    this.healthProfiles = healthProfiles; 
-    this.goals = goals; 
   }
  
-  createHealthProfile = (req, res) => {
+  createHealthProfile = async (req, res) => {
     try {
       const userId = req.params.id; 
       const healthData = req.body;
     
-    const user = this.users.get(userId); 
+    const user = await db.User.findByPk(userId); 
     if (!user) {
       return res.status(404).json({error: 'User not found'}); 
     }
@@ -24,15 +21,19 @@ class HealthProfileController {
       return res.status(400).json({error: validation.error}); 
     }
 
-    const healthProfile = {
-      'user-id': userId, 
+    const healthProfile = await db.HealthProfile.create({
+      user_id: userId, 
       height: healthData.height,
       weight: healthData.weight,
-      created_at: new Date()
-    };
+      recorded_at: new Date()
+    });
      
-    this.healthProfiles.set(userId, healthProfile);
-    res.status(201).json(healthProfile);
+    res.status(201).json({
+      'user-id': healthProfile.user_id,
+      height: healthProfile.height,
+      weight: healthProfile.weight,
+      recorded_at: healthProfile.recorded_at
+    });
   } catch (error) {
     res.status(500).json({ error: error.message }); 
   }
@@ -40,30 +41,30 @@ class HealthProfileController {
 
 
 
- getHealthProfile = (req, res) => {
+ getHealthProfile = async (req, res) => {
   try {
     const userId = req.params.id; 
 
-    const user = this.users.get(userId); 
+    const user = await db.User.findByPk(userId);
     if (!user) {
       return res.status(404).json({ error: "User not found"});
     }
   
   
-  const healthProfile = this.healthProfiles.get(userId);
-  if (!healthProfile) {
-    return res.status(404).json({ error: "health profile not found"});
-  }
+    const healthProfile = await db.HealthProfile.findOne({
+      where: { user_id: userId }
+    }); 
+  
+    if (!healthProfile) {
+      return res.status(404).json({ error: "health profile not found"});
+    }
 
-  const healthProfileResponse = {
-    'user-id': userId, 
-    height: healthProfile.height,
-    weight: healthProfile.weight,
-    created_at: healthProfile.created_at
-  };
-
-    res.status(200).json(healthProfileResponse)
-
+    res.status(200).json({
+      'user-id': healthProfile.user_id,
+      height: healthProfile.height,
+      weight: healthProfile.weight,
+      recorded_at: healthProfile.recorded_at
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -110,18 +111,21 @@ class HealthProfileController {
 }
 
 
-updateHealthProfile = (req, res) => {
+updateHealthProfile = async (req, res) => {
   try {
     const userId = req.params.id; 
     const healthData = req.body; 
 
-    const user = this.users.get(userId); 
+    const user =  await db.User.findByPk(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found'});
     }
 
-    const existingHealthProfile = this.healthProfiles.get(userId); 
-    if (!existingHealthProfile) {
+    const healthProfile = await db.HealthProfile.findOne({
+      where: { user_id: userId }
+    });
+
+    if (!healthProfile) {
       return res.status(404).json({ error: 'Health profile not found'});
     }
 
@@ -130,27 +134,24 @@ updateHealthProfile = (req, res) => {
       return res.status(400).json({ error: validation.error }); 
     }
 
-    const updatedHealthProfile = {
-      'user-id': userId, 
+    await healthProfile.update({
       height: healthData.height,
-      weight: healthData.weight,
-      created_at: existingHealthProfile.created_at,
-      updated_at: new Date()
-    };
+      weight: healthData.weight
+    });
 
-    this.healthProfiles.set(userId, updatedHealthProfile);
 
     res.status(200).json({
       'user-id': userId,
-      height: updatedHealthProfile.height,
-      weight: updatedHealthProfile.weight,
-      created_at: updatedHealthProfile.created_at, // existingHealthProfile.created_at referenced
-      updated_at: updatedHealthProfile.updated_at
+      height: healthProfile.height,
+      weight: healthProfile.weight,
+      created_at: healthProfile.created_at, // existingHealthProfile.created_at referenced
+      updated_at: healthProfile.updated_at
     })
   } catch (error) {
     res.status(500).json({ error: error.message });
     }
-  }
+  } 
 }
+
 
 module.exports = HealthProfileController; 

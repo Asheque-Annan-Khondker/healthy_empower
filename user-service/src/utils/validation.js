@@ -50,6 +50,31 @@ function validateGoalData(goalData, hasHealthProfile) {
   return { isValid: true }; 
 }
 
+function validateExerciseData(exerciseData) {
+  const { name, type, measurement_type } = exerciseData;
+
+  const REQUIRED_FIELDS_MISSING = !name || !type || !measurement_type;
+  if (REQUIRED_FIELDS_MISSING) {
+    return { isValid: false, error: 'Name, type, and measurement type are required' }; 
+  }
+
+  const VALID_TYPES = ['strength', 'cardio', 'flexibility', 'balance', 'sport'];
+  const VALID_MEASUREMENT_TYPES = ['reps', 'duration', 'distance', 'weight'];
+
+  const INVALID_TYPE = !VALID_TYPES.includes(type); 
+
+  if (INVALID_TYPE) {
+    return { isValid: false, error: 'Invalid exercise type' }; 
+  }
+
+  const INVALID_MEASUREMENT = !VALID_MEASUREMENT_TYPES.includes(measurement_type);
+  if (INVALID_MEASUREMENT) {
+    return { isValid: false, error: 'Invalid measurement type' }; 
+  }
+
+  return { isValid: true }; 
+}
+
 
 function hasRequiredFields(userData) { 
     const { username, email, password, date_of_birth, gender, timezone } = userData; 
@@ -63,5 +88,10 @@ const isEmailAlreadyRegistered = (email, users) => {
 
 
 
-
-module.exports = { validateGoalData, validateHealthData, hasRequiredFields, isEmailAlreadyRegistered }
+module.exports = { 
+  validateGoalData, 
+  validateHealthData, 
+  hasRequiredFields, 
+  isEmailAlreadyRegistered, 
+  validateExerciseData 
+};
