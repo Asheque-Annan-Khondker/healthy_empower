@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import AdvancedGuide from '../app/(drawer)/(guide)/BeginnerGuide';
+import BeginnerGuide from '../app/(drawer)/(guide)/BeginnerGuide';
 
 jest.mock('@/components/screenTransition', () => {
   return ({ children }: any) => <>{children}</>; 
