@@ -1,8 +1,11 @@
 // utils/database.ts
 import  * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
+import { Exercise, Achievement, Guides } from './table.types';
+import { DBModal } from './dbFunctions';
+//TODO: refactor in ORM
 
-async function initializeDatabase() {
+export async function initializeDatabase() {
 
 
   // check for build only mode
@@ -15,7 +18,7 @@ async function initializeDatabase() {
     PRAGMA foreign_keys = ON;
 
     -- Create food entries table
-    CREATE TABLE IF NOT EXISTS food_entries (
+    CREATE TABLE IF NOT EXISTS Food (
       id INTEGER PRIMARY KEY,
       name TEXT NOT NULL,
       calories INTEGER NOT NULL,
@@ -27,7 +30,7 @@ async function initializeDatabase() {
     );
 
     -- Create exercise entries table
-    CREATE TABLE IF NOT EXISTS exercise_entries (
+    CREATE TABLE IF NOT EXISTS Exercises (
       id INTEGER PRIMARY KEY,
       type TEXT NOT NULL,
       custom_name TEXT,
@@ -39,7 +42,7 @@ async function initializeDatabase() {
     );
 
     -- Create achievements table
-    CREATE TABLE IF NOT EXISTS achievements (
+    CREATE TABLE IF NOT EXISTS Achievements (
       id INTEGER PRIMARY KEY,
       title TEXT NOT NULL,
       description TEXT,
@@ -53,7 +56,7 @@ async function initializeDatabase() {
     );
 
     -- Create exercise guides table
-    CREATE TABLE IF NOT EXISTS exercise_guides (
+    CREATE TABLE IF NOT EXISTS Guides (
       id INTEGER PRIMARY KEY,
       title TEXT NOT NULL,
       difficulty TEXTs,
@@ -63,12 +66,11 @@ async function initializeDatabase() {
   `);
   
   console.log('Database initialized successfully');
-  return db;
+  DBModal.init(db);
 }
-
-// Export the database instance
-let dbPromise = initializeDatabase();
-export const getDatabase = () => dbPromise;
+// // Export the database instance
+// let dbPromise = initializeDatabase();
+// export const getDatabase = () => dbPromise;
 
 // Example of how to use this in other files:
 // import { getDatabase } from '@/utils/database';

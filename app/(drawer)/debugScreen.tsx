@@ -1,16 +1,18 @@
 import{ useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, Button } from 'react-native';
-import { getDatabase } from '../../utils/database';
-import GuideCardList from '@/components/CardDetails';
+import {CustomCardList} from '@/components/CardDetails';
 import { react_logo } from '@/assets/images';
 import React from 'react';
 import ScreenTransition from '@/components/screenTransition';
 import CalorieDashboard from '@/components/diet/CalorieDashboard';
+import { Achievement, Exercise, Food } from '@/utils/table.types';
+import { AchievementDBModal, DBModal, ExerciseDBModal, FoodDBModal } from '@/utils/dbFunctions';
 
 export default function DebugDatabaseScreen() {
-  const [foodEntries, setFoodEntries] = useState([]);
-  const [exerciseEntries, setExerciseEntries] = useState([]);
-  const [achievementEntries, setAchievementEntries] = useState([]);
+  //Todo: Add type safety for the content of the state objects
+  const [foodEntries, setFoodEntries] = useState<Food[]>([]);
+  const [exerciseEntries, setExerciseEntries] = useState<Exercise[]>([]);
+  const [achievementEntries, setAchievementEntries] = useState<Achievement[]>([]);
   const [message, setMessage] = useState('Loading...');
   const [error, setError] = useState(null);
   
@@ -18,30 +20,22 @@ export default function DebugDatabaseScreen() {
     try {
       setError(null)
       setMessage('Setting up test data...');
-      const db = await getDatabase();
       console.log("insertion starting")
-      for(const sql of sqlCommands){
-        await db.execAsync(sql)
-      }
+      await DBModal.setDBData(sqlCommands)
         console.log("insertion complete")
         console.log("Load Test Data")
         loadData();
         setMessage('Test data loaded successfully!');
       } catch (err) {
         console.error(err);
-        setError(`Error: ${err.message}`);
       }
     }
     
     async function loadData() {
       try {
-        const db = await getDatabase();
-        const foods = await db.getAllAsync('SELECT * FROM food_entries');
-        setFoodEntries(foods);
-        console.log("Check db:", JSON.stringify(foods)) 
-        const exercises = await db.getAllAsync('SELECT * FROM exercise_entries');
-        setExerciseEntries(exercises);
-        console.log(JSON.stringify(exerciseEntries)) 
+        setFoodEntries(await FoodDBModal.getAll());;
+        setExerciseEntries(await ExerciseDBModal.getAll());
+        setAchievementEntries(await AchievementDBModal.getAll());
       } catch (err) {
         setError(`Error loading data: ${err.message}`);
       }
@@ -71,14 +65,23 @@ export default function DebugDatabaseScreen() {
           `}</Text>
         </View>
       ))}
-      
+       
+      <Text style={styles.heading}>Achievement Entries</Text>
+      {achievementEntries.map(achievement => (
+        <View key={achievement.id} style={styles.item}>
+          <Text>{`
+          Type: ${achievement.category},
+          Title: ${achievement.title},
+          XP: ${achievement.xp}
+          `}</Text>
+        </View>
+      ))}
+
       <Text style={styles.heading}>Exercise Entries:</Text>
       {exerciseEntries.map(ex => (
         <View key={ex.id} style={styles.item}>
         <Text>{`
-            Type: ${ex.type}, 
-            Name: ${ex.custom_name}, 
-            Date: ${ex.date}, 
+            Name: ${ex.name}, 
             Reps: ${ex.reps}, 
             Sets: ${ex.sets}, 
             Minutes: ${ex.duration}min
@@ -88,7 +91,7 @@ export default function DebugDatabaseScreen() {
         
         <View style={{margin:20}}>
         <ScreenTransition>
-        <GuideCardList horizontal={true} cards={cards} />
+        <CustomCardList horizontal={true} cards={cards} />
         <CalorieDashboard/>
         </ScreenTransition>
         </View>
@@ -97,38 +100,82 @@ export default function DebugDatabaseScreen() {
       );
     }
     const sqlCommands = [
-      'DELETE FROM food_entries;',
-      'DELETE FROM exercise_entries;',
-      'DELETE FROM achievements;',
+      'DELETE FROM Food;',
+      'DELETE FROM Exercises;',
+      'DELETE FROM Achievements;',
       
-      `INSERT INTO food_entries (name, calories, protein, carbs, fat, date, meal_type)
+      `INSERT INTO Food (name, calories, protein, carbs, fat, date, meal_type)
        VALUES ('Test Chicken Salad', 350, 30, 15, 12, date('now', '-20 days'), 'lunch');`,
       
-      `INSERT INTO food_entries (name, calories, protein, carbs, fat, date, meal_type)
+      `INSERT INTO Food (name, calories, protein, carbs, fat, date, meal_type)
        VALUES ('Test Protein Shake', 220, 25, 10, 5, date('now', '-15 days'), 'snack');`,
       
-      `INSERT INTO food_entries (name, calories, protein, carbs, fat, date, meal_type)
+      `INSERT INTO Food (name, calories, protein, carbs, fat, date, meal_type)
        VALUES ('Test Protein Shake', 220, 25, 10, 5, date('now', '-10 days'), 'snack');`,
       
-       `INSERT INTO food_entries (name, calories, protein, carbs, fat, date, meal_type)
+       `INSERT INTO Food (name, calories, protein, carbs, fat, date, meal_type)
        VALUES ('Test Protein Shake', 1000, 25, 10, 5, date('now', '-5 days'), 'snack');`,
        
-      `INSERT INTO food_entries (name, calories, protein, carbs, fat, date, meal_type)
+      `INSERT INTO Food (name, calories, protein, carbs, fat, date, meal_type)
       VALUES ('Test Protein Shake', 100, 25, 10, 5, date('now', '-2 days'), 'snack');`,
       
-      `INSERT INTO exercise_entries (type, custom_name, sets, reps, date, notes, duration)
+      `INSERT INTO Exercises (type, custom_name, sets, reps, date, notes, duration)
        VALUES ('strength', 'Test Bench Press', 3, 10, date('now', '-3 days'), 'Felt strong!', 60);`,
-       
+`INSERT INTO Achievements (id, title, description, icon, category, completed, progress, target_progress, completion_date, xp) VALUES
+(1, 'First Steps', 'Complete your first task.', 'first_steps.png', 'Beginner', true, 100, 100, '2023-10-01', 50),
+(2, 'Halfway There', 'Reach 50% progress in your goal.', 'halfway.png', 'Intermediate', false, 50, 100, NULL, 100),
+(3, 'Master Achiever', 'Complete all tasks in the category.', 'master_achiever.png', 'Advanced', 1, 100, 100, '2023-09-15', 500);
+`       
       // `INSERT INTO achievements (title, description, icon, category, completed, progress, target_progress, completion_date, xp)
       //  VALUES ('First Workout', 'Complete your first workout', 'dumbbell', 'fitness', 1, 1, 1, date('now', '-10 days'), 50);`
     ]
-    const cards = [
-      
-      {img: react_logo, title: "React", description:"This is the react logo", link:'https://reactjs.org'},
-      {img: react_logo, title: "React", description:"This is the react logo", link:'https://reactjs.org'},
-      {img: react_logo, title: "React", description:"This is the react logo", link:'https://reactjs.org'},
-      {img: react_logo, title: "React", description:"This is the react logo", link:'https://reactjs.org'},
-    ]
+
+const cards = [
+  // Example 1: Direct cardProps object
+  {
+    onPress: () => console.log('Card 1 pressed'),
+    textContent: {
+      title: "Beginner Workout",
+      subtitle: "30 minutes",
+      paragraph: "Perfect for newcomers to fitness"
+    },
+    icon: {
+      iconProps: { icon: 'dumbbell', size: 24 }
+    },
+    variant: "default"
+  },
+
+  // Example 2: Direct cardProps object with different variant
+  {
+    onPress: () => console.log('Card 2 pressed'),
+    textContent: {
+      title: "Healthy Meal Plan",
+      subtitle: "1500 calories",
+      paragraph: "Balanced nutrition for weight management"
+    },
+    icon: {
+      iconProps: { icon: 'food-apple', size: 24 }
+    },
+    variant: "elevated"
+  },
+
+
+
+  // Example 4: Another direct cardProps object
+  {
+    onPress: () => console.log('Card 4 pressed'),
+    textContent: {
+      title: "Meditation Guide",
+      subtitle: "15 minutes",
+      paragraph: "Reduce stress with guided meditation"
+    },
+    icon: {
+      iconProps: { icon: 'meditation', size: 24 }
+    },
+    variant: "default"
+  }
+]
+
     const styles = StyleSheet.create({
       container: { flex: 1, padding: 16 },
       title: { fontSize: 24, fontWeight: 'bold', marginBottom: 16 },
