@@ -72,7 +72,8 @@ export default function DebugDatabaseScreen() {
           <Text>{`
           Type: ${achievement.category},
           Title: ${achievement.title},
-          XP: ${achievement.xp}
+          XP: ${achievement.xp},
+          completed: ${Boolean(achievement.completed)}
           `}</Text>
         </View>
       ))}
@@ -124,7 +125,7 @@ export default function DebugDatabaseScreen() {
 `INSERT INTO Achievements (id, title, description, icon, category, completed, progress, target_progress, completion_date, xp) VALUES
 (1, 'First Steps', 'Complete your first task.', 'first_steps.png', 'Beginner', true, 100, 100, '2023-10-01', 50),
 (2, 'Halfway There', 'Reach 50% progress in your goal.', 'halfway.png', 'Intermediate', false, 50, 100, NULL, 100),
-(3, 'Master Achiever', 'Complete all tasks in the category.', 'master_achiever.png', 'Advanced', 1, 100, 100, '2023-09-15', 500);
+(3, 'Master Achiever', 'Complete all tasks in the category.', 'master_achiever.png', 'Advanced', false, 100, 100, '2023-09-15', 500);
 `       
       // `INSERT INTO achievements (title, description, icon, category, completed, progress, target_progress, completion_date, xp)
       //  VALUES ('First Workout', 'Complete your first workout', 'dumbbell', 'fitness', 1, 1, 1, date('now', '-10 days'), 50);`

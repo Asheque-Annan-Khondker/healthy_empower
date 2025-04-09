@@ -8,6 +8,9 @@ class DBModal {
     if (!this.db)
       this.db = dbConnection;
       console.log("Connection Established")
+
+
+
     return this.db;
   }
   // protected static async getDB(): Promise<any> {
@@ -65,8 +68,7 @@ class ExerciseDBModal extends DBModal{
 
   static async getById(id: number): Promise<Exercise | null> {
     const rawResult = await this.db.getAllAsync(`SELECT * FROM Exercises WHERE id = ?`, [id]);
-    return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult[0] : null;
-  }
+    return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult[0] : null;  }
 }
 
 class GuideDBModal extends DBModal{

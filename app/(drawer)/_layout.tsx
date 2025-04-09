@@ -1,6 +1,6 @@
 import { Drawer } from "expo-router/drawer";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
-import { router } from "expo-router";
+import {router, useNavigation} from "expo-router";
 import { View, Image, Text, StyleSheet } from "react-native";
 import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { react_logo } from "@/assets/images";
@@ -64,6 +64,7 @@ const CustomDrawerContent = (props) => {
 }
 // Introduce (tabs) into the same stack
 export default function DrawerEntry(){
+    const navigation = useNavigation()
     return (
     <Drawer drawerContent ={(props)=><CustomDrawerContent {...props}/>}screenOptions={{headerShown: false}}>
     <Drawer.Screen name={"settings"} options={{headerShown: true}} />
