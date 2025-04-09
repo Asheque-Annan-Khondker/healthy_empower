@@ -39,4 +39,4 @@ jobs:
 
       # Step 4: Run Jest tests (Override default test script)
       - name: Run unit tests
-        run: yarn jest --ci
+        run: npm jest --ci
