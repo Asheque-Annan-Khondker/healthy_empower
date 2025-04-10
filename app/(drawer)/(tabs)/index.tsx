@@ -5,35 +5,34 @@ import ScreenTransition from "@/components/screenTransition";
 import { ScrollView } from 'react-native-gesture-handler';
 import { FAIcon, IonIcon } from '@/utils/getIcon';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withDelay } from 'react-native-reanimated';
-import PaperCard from '@/components/PaperCard';
 import {Avatar, Card, Paragraph, Searchbar, Title} from "react-native-paper";
-import GuideCardList, { GuideCard } from '@/components/CardDetails';
+import {CustomCardList, CustomCard, cardProps} from '@/components/CardDetails';
 import { react_logo } from '@/assets/images';
 import { useNavigation } from 'expo-router';
 import { DrawerActions } from '@react-navigation/native';
-
+import {SafeAreaView} from "react-native-safe-area-context";
+/*TODO: Implement a MVP of the dashboard. It will have:
+*  1. Calorie Graphs
+* 2. Achievement cards
+* 3. */
 export default function Index() {
  const [searchQuery, setSearchQuery] = useState('');
     const metrics = {steps:"", calories: "", hydration:"",recovery:""}
     const navigation = useNavigation()
   return (
-      <View style={styles.container}>
-        {/*it is possible to combine search with drawer through paper*/}
+        // it is possible to combine search with drawer through paper
+<View>
+  <ScreenTransition type={"bounce"}>
         <Searchbar placeholder={"Search"} onChangeText={setSearchQuery} value={searchQuery}
                   icon={()=><FAIcon name='bars' color='black'/>} onIconPress={()=>navigation.dispatch(DrawerActions.toggleDrawer())}/>
-              <ScreenTransition type='slide'>
-                <GuideCardList cards={testCards} horizontal={true}/>
+  <CustomCardList cards={cardPropsTestArray} horizontal={false}/>
+  </ScreenTransition>
 
-                </ScreenTransition>
-      </View>
+</View>
+        // Make a Level progression graph
   );
 }
-const testCards = [
-    {img: react_logo, title: "Lesson 1", description:"Beginner", link:'/(drawer)/(guide)/BeginnerGuide'},
-    {img: react_logo, title: "Lesson 2", description:"Intermediate", link: '/(drawer)/(guide)/IntermediateGuide'},
-    {img: react_logo, title: "Lesson 3", description:"Advanced", link:'/(drawer)/(guide)/AdvancedrGuide'},
-    {img: react_logo, title: "Lesson 4", description:"Expert", link:'/(drawer)/(guide)/ExpertGuide'},
-]
+
 const healthStats = [
   { label: 'STEPS', value: '8,432', icon: 'footsteps', color: '#5acdff' },
   { label: 'CALORIES', value: '1,842', icon: 'flame', color: '#ff5a87' },
@@ -246,3 +245,81 @@ const styles = StyleSheet.create({
     borderRadius: 1.5,
   },
 });
+
+
+const cardPropsTestArray: cardProps[] = [
+  {
+    onPress: () => console.log("Card one pressed! Exciting!"),
+    longPress: () => console.log("Whoa! Long press on card one detected!"),
+    textContent: {
+      title: "Daily Workout Challenge!",
+      subtitle: "Ready to feel the burn?!",
+      description: "Complete 20 jumping jacks to earn star points!"
+    },
+    iconProps: {
+      icon: "star",
+      color: "#FFC107",
+      size: 40
+    },
+    variant: "elevated"
+  },
+  {
+    onPress: () => console.log("Card two activated! Let's go!"),
+    mainComponent: <></>,
+    textContent: {
+      title: "Meditation Session",
+      subtitle: "Find your inner peace!",
+      paragraph: "Take a five minute break to recharge your mental energy! Even Trailblazers need to rest sometimes!"
+    },
+    iconProps: {
+      icon: "meditation",
+      color: "#4CAF50",
+      size: 36
+    },
+    variant: "default"
+  },
+  {
+    onPress: () => console.log("Card three tapped! Amazing!"),
+    longPress: () => console.log("Super duper long press on card three!"),
+    textContent: {
+      title: "Water Reminder!",
+      description: "Have you had your 8 glasses today? Stay hydrated for maximum power-ups!"
+    },
+    iconProps: {
+      icon: "water",
+      color: "#2196F3",
+      size: 42
+    },
+    variant: "outlined"
+  },
+  {
+    onPress: () => console.log("Card four selected! Yahoo!"),
+    textContent: {
+      title: "Sleep Tracker",
+      subtitle: "Rest well, play better!",
+      description: "Track your sleep patterns!",
+      paragraph: "Getting 8 hours of sleep improves your reaction time by 35%! That's so many percent!"
+    },
+    iconProps: {
+      icon: "sleep",
+      color: "#673AB7",
+      size: 38
+    },
+    variant: "elevated"
+  },
+  {
+    onPress: () => console.log("Card five clicked! Wowee!"),
+    longPress: () => console.log("Extra long press on card five detected! So patient!"),
+    mainComponent: <View style={{ height: 50, backgroundColor: '#ffcdd2' }} />,
+    textContent: {
+      title: "Nutrition Tips!",
+      subtitle: "Fuel your adventures!",
+    },
+    iconProps: {
+      icon: "food-apple",
+      color: "#E91E63",
+      size: 44
+    },
+    variant: "default"
+  }
+];

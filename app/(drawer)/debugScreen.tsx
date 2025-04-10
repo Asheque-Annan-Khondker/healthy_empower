@@ -7,6 +7,7 @@ import ScreenTransition from '@/components/screenTransition';
 import CalorieDashboard from '@/components/diet/CalorieDashboard';
 import { Achievement, Exercise, Food } from '@/utils/table.types';
 import { AchievementDBModal, DBModal, ExerciseDBModal, FoodDBModal } from '@/utils/dbFunctions';
+import MealEntryForm from "@/components/diet/MealEntryForm";
 
 export default function DebugDatabaseScreen() {
   //Todo: Add type safety for the content of the state objects
@@ -54,7 +55,8 @@ export default function DebugDatabaseScreen() {
       
       {error && <Text style={styles.error}>{error}</Text>}
       <Text style={styles.message}>{message}</Text>
-      
+
+          <MealEntryForm/>
       <Text style={styles.heading}>Food Entries:</Text>
       {foodEntries.map(food => (
         <View key={food.id} style={styles.item}>

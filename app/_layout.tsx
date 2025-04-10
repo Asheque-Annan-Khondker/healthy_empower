@@ -7,7 +7,7 @@ import {Drawer} from "expo-router/drawer";
 import {createNativeStackNavigator} from "react-native-screens/native-stack";
 import {createDrawerNavigator} from "@react-navigation/drawer";
 import React from 'react';
-import { DefaultTheme, MD3DarkTheme, MD3LightTheme, PaperProvider } from 'react-native-paper';
+import {DefaultTheme, MD3DarkTheme, MD3LightTheme, PaperProvider, Portal} from 'react-native-paper';
 import {useColorScheme, StyleSheet, View, Dimensions} from 'react-native';
 import {StatusBar} from "expo-status-bar";
 import {SafeAreaProvider, SafeAreaView} from "react-native-safe-area-context";
@@ -37,12 +37,14 @@ export default function Layout() {
   return (
 
     <GestureHandlerRootView>
+      <Portal.Host>
       <PaperProvider theme={papaTheme} >
 
       <Stack screenOptions={{headerShown: false}}>
           <Stack.Screen name="(drawer)" options={{ headerShown:false}} />
       </Stack>
       </PaperProvider>
+      </Portal.Host>
     </GestureHandlerRootView>
   );
 }

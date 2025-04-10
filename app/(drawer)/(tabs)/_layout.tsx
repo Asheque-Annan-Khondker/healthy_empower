@@ -15,7 +15,9 @@ export default function tablayout() {
     const navigation = useNavigation()
   return (
       // * having flex, the entire screen isnt consumed by the appbar
+
       <View style={{flex: 1}}>
+
           <Appbar.Header>
               <Appbar.Action icon={"arrow-left"} onPress={()=>{navigation.dispatch(DrawerActions.toggleDrawer())}} />
           </Appbar.Header>
