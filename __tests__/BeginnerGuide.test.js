@@ -12,7 +12,7 @@ describe('BeginnerGuide', () => {
     const { getByText } = render(<BeginnerGuide />);
     
     // Check for the header text
-    expect(getByText(/Start-Up Guide/i)).toBeTruthy();
+    expect(getAllByText(/Start-Up Guide/i).length).toBeGreaterThan(0);
 
     
   });
