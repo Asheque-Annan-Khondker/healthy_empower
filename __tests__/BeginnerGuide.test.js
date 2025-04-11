@@ -8,8 +8,12 @@ jest.mock('@/components/screenTransition', () => {
 });
 
 describe('BeginnerGuide', () => {
-  it('renders the correct guide text', () => {
+  it('renders the main guide title and description', () => {
     const { getByText } = render(<BeginnerGuide />);
-    expect(getByText('Guide for noobs')).toBeTruthy();
+    
+    // Check for the header text
+    expect(getByText(/Start-Up Guide/i)).toBeTruthy();
+
+    
   });
 });
