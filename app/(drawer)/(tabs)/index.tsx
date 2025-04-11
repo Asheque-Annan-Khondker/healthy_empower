@@ -9,7 +9,7 @@ import PaperCard from '@/components/PaperCard';
 import {Avatar, Card, Paragraph, Searchbar, Title} from "react-native-paper";
 import { CustomCardList } from '@/components/CardDetails';
 import { react_logo } from '@/assets/images';
-import { useNavigation } from 'expo-router';
+import { Redirect, useNavigation } from 'expo-router';
 import { DrawerActions } from '@react-navigation/native';
 import DropdownMenu from '@/components/DropdownMenu';
 import SearchBarComponent from '@/components/SearchBarComponent';
