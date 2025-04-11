@@ -8,8 +8,14 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring, withDelay } fro
 import {Avatar, Card, Paragraph, Searchbar, Title} from "react-native-paper";
 import {CustomCardList, CustomCard, cardProps} from '@/components/CardDetails';
 import { react_logo } from '@/assets/images';
-import { useNavigation } from 'expo-router';
+import { Redirect, useNavigation } from 'expo-router';
 import { DrawerActions } from '@react-navigation/native';
+import DropdownMenu from '@/components/DropdownMenu';
+import SearchBarComponent from '@/components/SearchBarComponent';
+import SlidingToggleButton from '@/components/SlidingToggleButton';
+import CheckButton from '@/components/CheckButton';
+import ProgressBar from '@/components/ProgressBar';
+import CalendarPicker from '@/components/CalendarPicker';
 import {SafeAreaView} from "react-native-safe-area-context";
 /*TODO: Implement a MVP of the dashboard. It will have:
 *  1. Calorie Graphs
@@ -19,7 +25,56 @@ export default function Index() {
  const [searchQuery, setSearchQuery] = useState('');
     const metrics = {steps:"", calories: "", hydration:"",recovery:""}
     const navigation = useNavigation()
-  return (
+
+    return (
+      <View style={styles.container}>
+        <Searchbar
+          placeholder={"Search"}
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+          icon={() => <FAIcon name="bars" color="black" />}
+          onIconPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+        />
+    
+        <ScreenTransition type="slide">
+          <CustomCardList cards={testCards} horizontal={true} />
+        </ScreenTransition>
+    
+        {/* DropDown Menu */}
+        <View style={styles.section}>
+          <DropdownMenu onSelect={(option) => console.log("Selected:", option)} />
+        </View>
+
+        {/*Toggle Button*/}
+        <View style={styles.section}>
+          <SlidingToggleButton />
+        </View>
+
+        {/* Check Button*/}
+        <View style={{ marginTop: 20, paddingHorizontal: 20 }}>
+          <Text style={{ marginBottom: 10 }}>CheckBox Button:</Text>
+          <CheckButton />
+        </View>
+
+        {/* Progress Bar*/}
+      <View style={{ marginTop: 30, paddingHorizontal: 20, marginBottom: 40 }}>
+        <Text style={{ marginBottom: 10 }}>Course Progress</Text>
+        <ProgressBar progress={10} />
+      </View>
+
+      <View style={{ marginBottom: 40 }}>
+        <CalendarPicker />
+      </View>
+      </View>
+      
+    );
+    
+const testCards = [
+    {img: react_logo, title: "Lesson 1", description:"Beginner", link:'/(drawer)/(guide)/BeginnerGuide'},
+    {img: react_logo, title: "Lesson 2", description:"Intermediate", link: '/(drawer)/(guide)/IntermediateGuide'},
+    {img: react_logo, title: "Lesson 3", description:"Advanced", link:'/(drawer)/(guide)/AdvancedGuide'},
+    {img: react_logo, title: "Lesson 4", description:"Expert", link:'/(drawer)/(guide)/ExpertGuide'},
+]
         // it is possible to combine search with drawer through paper
 <View>
   <ScreenTransition type={"bounce"}>
@@ -30,7 +85,6 @@ export default function Index() {
 
 </View>
         // Make a Level progression graph
-  );
 }
 
 const healthStats = [

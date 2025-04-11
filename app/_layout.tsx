@@ -3,10 +3,9 @@
 import { Stack } from 'expo-router/stack';
 import {useMaterial3Theme} from '@pchmn/expo-material3-theme'
 import { GestureHandlerRootView} from 'react-native-gesture-handler'
-import {Drawer} from "expo-router/drawer";
-import {createNativeStackNavigator} from "react-native-screens/native-stack";
-import {createDrawerNavigator} from "@react-navigation/drawer";
 import React from 'react';
+import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
+import { useColorScheme, StyleSheet } from 'react-native';
 import {DefaultTheme, MD3DarkTheme, MD3LightTheme, PaperProvider, Portal} from 'react-native-paper';
 import {useColorScheme, StyleSheet, View, Dimensions} from 'react-native';
 import {StatusBar} from "expo-status-bar";
@@ -23,8 +22,8 @@ const theme = {
   animation:{scale: 3}
 }
 
+
 export default function Layout() {
-  initializeDatabase()
   const colorScheme = useColorScheme()
   const {theme} = useMaterial3Theme()
   const globalTheme = useColorScheme()
@@ -35,21 +34,22 @@ export default function Layout() {
   const papaTheme = colorScheme =="dark" ? {...MD3DarkTheme, colors:theme.dark} : {...MD3LightTheme, colors: theme.light}
 
   return (
-
     <GestureHandlerRootView>
       <Portal.Host>
       <PaperProvider theme={papaTheme} >
-
+    <GestureHandlerRootView>
       <Stack screenOptions={{headerShown: false}}>
+        {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> */}
           <Stack.Screen name="(drawer)" options={{ headerShown:false}} />
       </Stack>
       </PaperProvider>
       </Portal.Host>
     </GestureHandlerRootView>
-  );
-}
+  )  
 // const StackNav = createNativeStackNavigator()
 // const DrawNav = createDrawerNavigator()
+}
+
 
 const styles = StyleSheet.create({
   container: {
