@@ -1,6 +1,6 @@
 import { Drawer } from "expo-router/drawer";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
-import { router } from "expo-router";
+import {router, useNavigation} from "expo-router";
 import { View, Image, Text, StyleSheet } from "react-native";
 import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { react_logo } from "@/assets/images";
@@ -50,28 +50,23 @@ const CustomDrawerContent = (props) => {
         icon={({color, size}) => <FontAwesome5 name="walking" size={size} color={color} />}
       />
       <DrawerItem 
-        label="Advanced" 
-        onPress={() => { router.navigate("/(drawer)/(guide)/AdvancedGuide") }} 
-        icon={({color, size}) => <FontAwesome5 name="running" size={size} color={color} />}
-      />
-      <DrawerItem 
         label="Expert" 
         onPress={() => { router.navigate("/(drawer)/(guide)/ExpertGuide") }} 
-        icon={({color, size}) => <FontAwesome5 name="dumbbell" size={size} color={color} />}
+        icon={({color, size}) => <FontAwesome5 name="running" size={size} color={color} />}
       />
     </DrawerContentScrollView>
    )
 }
 // Introduce (tabs) into the same stack
 export default function DrawerEntry(){
+    const navigation = useNavigation()
     return (
     <Drawer drawerContent ={(props)=><CustomDrawerContent {...props}/>}screenOptions={{headerShown: false}}>
     <Drawer.Screen name={"settings"} options={{headerShown: true}} />
     <Drawer.Screen name={"debugScreen"} options={{headerShown: true}} />
-    <Drawer.Screen name={"(guide)/BeginnerGuide"} options={{headerShown: true, title: 'Beginner Guide'}} />
-    <Drawer.Screen name={"(guide)/IntermediateGuide"} options={{headerShown: true, title: 'Intermediate Guide'}} />
-    <Drawer.Screen name={"(guide)/AdvancedGuide"} options={{headerShown: true, title: 'Advanced Guide'}} />
-    <Drawer.Screen name={"(guide)/ExpertGuide"} options={{headerShown: true, title: 'Expert Guide'}} />
+    <Drawer.Screen name={"(guide)/BeginnerGuide"} options={{headerShown: true, title: 'Start-Up Guide'}} />
+    <Drawer.Screen name={"(guide)/IntermediateGuide"} options={{headerShown: true, title: 'Start-Up Guide'}} />
+    <Drawer.Screen name={"(guide)/ExpertGuide"} options={{headerShown: true, title: 'Start-Up Guide'}} />
   
     </Drawer>
   )

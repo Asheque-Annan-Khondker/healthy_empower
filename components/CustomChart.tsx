@@ -2,8 +2,10 @@
 import {LineChart, RadarChart, LineChartPropsType, RadarChartProps} from "react-native-gifted-charts";
 import {StyleSheet, View} from "react-native";
 import React from "react";
+import {ProgressChartProps} from "react-native-chart-kit/dist/ProgressChart";
+import {ProgressChart} from "react-native-chart-kit";
 
-type ChartType = "line" | "spider" | "area"
+type ChartType = "line" | "spider" | "area" | "progress"
 
 // Base data interface
 interface DataPoint {
@@ -52,10 +54,17 @@ const CustomSpiderChart = (props: EntryRadarChartProps) => {
         </View>
     )
 }
+
+const CustomProgressChart = (props: ProgressChartProps) => {
+    const chart = ProgressChart
+}
+
 interface CustomChartProps {
     type: ChartType
     data: DataPoint[]
 }
+
+
 const CustomChart: React.FC<CustomChartProps> = ({type, data})=> {
     // 3 types: line, spider and area
     // data is dependent on the type
@@ -67,6 +76,8 @@ const CustomChart: React.FC<CustomChartProps> = ({type, data})=> {
             return <CustomSpiderChart data={data}/>
         case "area":
             return <LineBasedChart areaChart data={data}/>
+        case "progress":
+
         default:
             throw new Error(`Unknown type "${type}"`)
     }

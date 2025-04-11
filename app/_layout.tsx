@@ -6,6 +6,22 @@ import { GestureHandlerRootView} from 'react-native-gesture-handler'
 import React from 'react';
 import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
 import { useColorScheme, StyleSheet } from 'react-native';
+import {DefaultTheme, MD3DarkTheme, MD3LightTheme, PaperProvider, Portal} from 'react-native-paper';
+import {useColorScheme, StyleSheet, View, Dimensions} from 'react-native';
+import {StatusBar} from "expo-status-bar";
+import {SafeAreaProvider, SafeAreaView} from "react-native-safe-area-context";
+import { initializeDatabase } from '@/utils/database';
+
+const theme = {
+  ...DefaultTheme,
+  colors: {
+    primary: 'tomato',
+    secondary: 'pink',
+
+  },
+  animation:{scale: 3}
+}
+
 
 export default function Layout() {
   const colorScheme = useColorScheme()
@@ -18,13 +34,16 @@ export default function Layout() {
   const papaTheme = colorScheme =="dark" ? {...MD3DarkTheme, colors:theme.dark} : {...MD3LightTheme, colors: theme.light}
 
   return (
-
-
+    <GestureHandlerRootView>
+      <Portal.Host>
+      <PaperProvider theme={papaTheme} >
     <GestureHandlerRootView>
       <Stack screenOptions={{headerShown: false}}>
         {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> */}
           <Stack.Screen name="(drawer)" options={{ headerShown:false}} />
       </Stack>
+      </PaperProvider>
+      </Portal.Host>
     </GestureHandlerRootView>
   )  
 // const StackNav = createNativeStackNavigator()
