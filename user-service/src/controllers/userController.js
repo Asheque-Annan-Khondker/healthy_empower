@@ -6,7 +6,47 @@ class UserController {
   constructor() {
   }
 
-
+  getUserByEmail = async (req, res) => {
+    try {
+      const { email } = req.query;
+      
+      // Check if email is provided
+      const EMAIL_MISSING = !email;
+      if (EMAIL_MISSING) {
+        return res.status(400).json({ error: 'Email is required' });
+      }
+      
+      // Validate email format
+      const EMAIL_INVALID = !isValidEmail(email);
+      if (EMAIL_INVALID) {
+        return res.status(400).json({ error: 'Invalid email format' });
+      }
+      
+      // Find user by email
+      const user = await db.User.findOne({ 
+        where: { email },
+        attributes: ['user_id', 'username', 'email'] // Only return non-sensitive data
+      });
+      
+      // Check if user exists
+      const USER_NOT_FOUND = !user;
+      if (USER_NOT_FOUND) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      // Return user data
+      const userResponse = {
+        id: user.user_id,
+        username: user.username,
+        email: user.email
+      };
+      
+      res.status(200).json(userResponse);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+  
   createUser = async (req, res) => {
     try {
       // password is currently unhashed
