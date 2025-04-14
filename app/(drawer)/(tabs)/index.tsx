@@ -8,7 +8,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring, withDelay } fro
 import {Avatar, Card, Paragraph, Searchbar, Title} from "react-native-paper";
 import {CustomCardList, CustomCard, cardProps} from '@/components/CardDetails';
 import { react_logo } from '@/assets/images';
-import { Redirect, useNavigation } from 'expo-router';
+import { Redirect, useNavigation, router } from 'expo-router';
 import { DrawerActions } from '@react-navigation/native';
 import DropdownMenu from '@/components/DropdownMenu';
 import SearchBarComponent from '@/components/SearchBarComponent';
@@ -21,102 +21,6 @@ import {SafeAreaView} from "react-native-safe-area-context";
 *  1. Calorie Graphs
 * 2. Achievement cards
 * 3. */
-export default function Index() {
- const [searchQuery, setSearchQuery] = useState('');
-    const metrics = {steps:"", calories: "", hydration:"",recovery:""}
-    const navigation = useNavigation()
-
-    return (
-      <View style={styles.container}>
-        <Searchbar
-          placeholder={"Search"}
-          onChangeText={setSearchQuery}
-          value={searchQuery}
-          icon={() => <FAIcon name="bars" color="black" />}
-          onIconPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
-        />
-    
-        <ScreenTransition type="slide">
-          <CustomCardList cards={testCards} horizontal={true} />
-        </ScreenTransition>
-    
-        {/* DropDown Menu */}
-        <View style={styles.section}>
-          <DropdownMenu onSelect={(option) => console.log("Selected:", option)} />
-        </View>
-
-        {/*Toggle Button*/}
-        <View style={styles.section}>
-          <SlidingToggleButton />
-        </View>
-
-        {/* Check Button*/}
-        <View style={{ marginTop: 20, paddingHorizontal: 20 }}>
-          <Text style={{ marginBottom: 10 }}>CheckBox Button:</Text>
-          <CheckButton />
-        </View>
-
-        {/* Progress Bar*/}
-      <View style={{ marginTop: 30, paddingHorizontal: 20, marginBottom: 40 }}>
-        <Text style={{ marginBottom: 10 }}>Course Progress</Text>
-        <ProgressBar progress={10} />
-      </View>
-
-      <View style={{ marginBottom: 40 }}>
-        <CalendarPicker />
-      </View>
-      </View>
-      
-    );
-    
-const testCards = [
-    {img: react_logo, title: "Lesson 1", description:"Beginner", link:'/(drawer)/(guide)/BeginnerGuide'},
-    {img: react_logo, title: "Lesson 2", description:"Intermediate", link: '/(drawer)/(guide)/IntermediateGuide'},
-    {img: react_logo, title: "Lesson 3", description:"Advanced", link:'/(drawer)/(guide)/AdvancedGuide'},
-    {img: react_logo, title: "Lesson 4", description:"Expert", link:'/(drawer)/(guide)/ExpertGuide'},
-]
-        // it is possible to combine search with drawer through paper
-<View>
-  <ScreenTransition type={"bounce"}>
-        <Searchbar placeholder={"Search"} onChangeText={setSearchQuery} value={searchQuery}
-                  icon={()=><FAIcon name='bars' color='black'/>} onIconPress={()=>navigation.dispatch(DrawerActions.toggleDrawer())}/>
-  <CustomCardList cards={cardPropsTestArray} horizontal={false}/>
-  </ScreenTransition>
-
-</View>
-        // Make a Level progression graph
-}
-
-const healthStats = [
-  { label: 'STEPS', value: '8,432', icon: 'footsteps', color: '#5acdff' },
-  { label: 'CALORIES', value: '1,842', icon: 'flame', color: '#ff5a87' },
-  { label: 'HYDRATION', value: '68%', icon: 'water', color: '#5acdff' },
-  { label: 'RECOVERY', value: '87%', icon: 'pulse', color: '#a5ff5a' }
-];
-
-const objectives = [
-  { 
-    title: 'DAILY EXERCISE',
-    desc: 'Complete 30 minutes of cardio activity',
-    icon: 'fitness',
-    progress: 75,
-    color: '#5acdff'
-  },
-  {
-    title: 'NUTRITION GOAL',
-    desc: 'Stay within macro targets for the day',
-    icon: 'nutrition',
-    progress: 60,
-    color: '#ff5a87'
-  },
-  { 
-    title: 'HYDRATION',
-    desc: 'Drink 2L of water throughout the day',
-    icon: 'water',
-    progress: 80,
-    color: '#5acdff'
-  },
-];
 
 const styles = StyleSheet.create({
   container: {
@@ -184,6 +88,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 20,
   },
+  section: {
+    color: 'white'
+  }, 
   sectionTitle: {
     color: 'white',
     fontSize: 16,
@@ -300,6 +207,80 @@ const styles = StyleSheet.create({
   },
 });
 
+const testCards = [
+  {
+    img: react_logo, 
+    title: "Lesson 1", 
+    description: "Beginner", 
+    link: '/(drawer)/(guide)/BeginnerGuide',
+    onPress: () => router.navigate('/(drawer)/(guide)/BeginnerGuide'),
+    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
+    variant: "default",
+    textContent: { title: "Lesson 1", subtitle: "Beginner" }
+  },
+  {
+    img: react_logo, 
+    title: "Lesson 2", 
+    description: "Intermediate", 
+    link: '/(drawer)/(guide)/IntermediateGuide',
+    onPress: () => router.navigate('/(drawer)/(guide)/IntermediateGuide'),
+    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
+    variant: "default",
+    textContent: { title: "Lesson 2", subtitle: "Intermediate" }
+  },
+  {
+    img: react_logo, 
+    title: "Lesson 3", 
+    description: "Advanced", 
+    link: '/(drawer)/(guide)/AdvancedGuide',
+    onPress: () => router.navigate('/(drawer)/(guide)/AdvancedGuide'),
+    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
+    variant: "default",
+    textContent: { title: "Lesson 3", subtitle: "Advanced" }
+  },
+  {
+    img: react_logo, 
+    title: "Lesson 4", 
+    description: "Expert", 
+    link: '/(drawer)/(guide)/ExpertGuide',
+    onPress: () => router.navigate('/(drawer)/(guide)/ExpertGuide'),
+    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
+    variant: "default",
+    textContent: { title: "Lesson 4", subtitle: "Expert" }
+  }
+];
+
+
+const healthStats = [
+{ label: 'STEPS', value: '8,432', icon: 'footsteps', color: '#5acdff' },
+{ label: 'CALORIES', value: '1,842', icon: 'flame', color: '#ff5a87' },
+{ label: 'HYDRATION', value: '68%', icon: 'water', color: '#5acdff' },
+{ label: 'RECOVERY', value: '87%', icon: 'pulse', color: '#a5ff5a' }
+];
+
+const objectives = [
+{ 
+title: 'DAILY EXERCISE',
+desc: 'Complete 30 minutes of cardio activity',
+icon: 'fitness',
+progress: 75,
+color: '#5acdff'
+},
+{
+title: 'NUTRITION GOAL',
+desc: 'Stay within macro targets for the day',
+icon: 'nutrition',
+progress: 60,
+color: '#ff5a87'
+},
+{ 
+title: 'HYDRATION',
+desc: 'Drink 2L of water throughout the day',
+icon: 'water',
+progress: 80,
+color: '#5acdff'
+},
+];
 
 const cardPropsTestArray: cardProps[] = [
   {
@@ -377,3 +358,55 @@ const cardPropsTestArray: cardProps[] = [
     variant: "default"
   }
 ];
+
+
+
+
+export default function Index() {
+ const [searchQuery, setSearchQuery] = useState('');
+    const metrics = {steps:"", calories: "", hydration:"",recovery:""}
+    const navigation = useNavigation()
+
+    return (
+      <View style={styles.container}>
+        <Searchbar
+          placeholder={"Search"}
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+          icon={() => <FAIcon name="bars" color="black" />}
+          onIconPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+        />
+    
+        <ScreenTransition type="slide">
+          <CustomCardList cards={testCards} horizontal={true} />
+        </ScreenTransition>
+    
+        {/* DropDown Menu */}
+        <View style={styles.section}>
+          <DropdownMenu onSelect={(option) => console.log("Selected:", option)} />
+        </View>
+
+        {/*Toggle Button*/}
+        <View style={styles.section}>
+          <SlidingToggleButton />
+        </View>
+
+        {/* Check Button*/}
+        <View style={{ marginTop: 20, paddingHorizontal: 20 }}>
+          <Text style={{ marginBottom: 10 }}>CheckBox Button:</Text>
+          <CheckButton />
+        </View>
+
+        {/* Progress Bar*/}
+      <View style={{ marginTop: 30, paddingHorizontal: 20, marginBottom: 40 }}>
+        <Text style={{ marginBottom: 10 }}>Course Progress</Text>
+        <ProgressBar progress={10} />
+      </View>
+
+      <View style={{ marginBottom: 40 }}>
+        <CalendarPicker />
+      </View>
+      </View>
+      
+    );
+}

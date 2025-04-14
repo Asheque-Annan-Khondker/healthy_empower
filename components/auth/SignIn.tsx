@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions, KeyboardAvoidingView, Platform, Alert } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
   withTiming, 
   withSequence, 
-  withDelay,
   Easing,
-  FadeIn,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
@@ -22,7 +20,8 @@ const { width, height } = Dimensions.get('window');
 const API_URL = 'http://10.0.2.2:3001'; // Android emulator special IP for localhost
 
 export default function SignInScreen() {
-    const [email, setEmail] = useState('');
+    const params = useLocalSearchParams();
+    const [email, setEmail] = useState(params.email?.toString() || '');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [secureTextEntry, setSecureTextEntry] = useState(true);
@@ -94,6 +93,13 @@ export default function SignInScreen() {
         }
     };
 
+    // Clear error message whenever any input field changes
+    const clearError = () => {
+        if (errorMessage) {
+            setErrorMessage('');
+        }
+    };
+
     const validateInputs = () => {
         if (!email.trim()) {
             setErrorMessage('Email is required');
@@ -117,13 +123,14 @@ export default function SignInScreen() {
     };
 
     const handleSignIn = async () => {
+        clearError();
+        
         // Validate inputs
         if (!validateInputs()) {
             return;
         }
         
         setIsLoading(true);
-        setErrorMessage('');
         
         try {
             // Make API call to backend login endpoint
@@ -208,7 +215,7 @@ export default function SignInScreen() {
                             value={email}
                             onChangeText={(text) => {
                                 setEmail(text);
-                                setErrorMessage('');
+                                clearError();
                             }}
                             keyboardType="email-address"
                             autoCapitalize="none"
@@ -227,7 +234,7 @@ export default function SignInScreen() {
                             value={password}
                             onChangeText={(text) => {
                                 setPassword(text);
-                                setErrorMessage('');
+                                clearError();
                             }}
                             secureTextEntry={secureTextEntry}
                             autoCapitalize="none"
@@ -272,7 +279,7 @@ export default function SignInScreen() {
                 
                 <TouchableOpacity 
                     style={styles.createAccountButton}
-                    onPress={() => alert('Creating an account is coming soon!')}
+                    onPress={() => router.push('/signup')}
                 >
                     <Text style={styles.createAccountText}>Create account</Text>
                 </TouchableOpacity>

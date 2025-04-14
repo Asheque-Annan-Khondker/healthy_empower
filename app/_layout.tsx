@@ -4,8 +4,6 @@ import { Stack } from 'expo-router/stack';
 import {useMaterial3Theme} from '@pchmn/expo-material3-theme'
 import { GestureHandlerRootView} from 'react-native-gesture-handler'
 import React from 'react';
-import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
-import { useColorScheme, StyleSheet } from 'react-native';
 import {DefaultTheme, MD3DarkTheme, MD3LightTheme, PaperProvider, Portal} from 'react-native-paper';
 import {useColorScheme, StyleSheet, View, Dimensions} from 'react-native';
 import {StatusBar} from "expo-status-bar";
@@ -37,7 +35,6 @@ export default function Layout() {
     <GestureHandlerRootView>
       <Portal.Host>
       <PaperProvider theme={papaTheme} >
-    <GestureHandlerRootView>
       <Stack screenOptions={{headerShown: false}}>
         {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> */}
           <Stack.Screen name="(drawer)" options={{ headerShown:false}} />
