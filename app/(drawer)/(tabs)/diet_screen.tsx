@@ -1,18 +1,32 @@
-import CalorieDashboard from "@/components/diet/CalorieDashboard";
-import {Text, View} from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
-import {FAB, Portal} from "react-native-paper";
+import {View} from "react-native";
+import {FAB, List, Portal} from "react-native-paper";
 import {FAIcon} from "@/utils/getIcon";
-import {useState} from "react";
-import {Entitlements} from "@expo/config-plugins/build/ios";
+import {useCallback, useState} from "react";
 import MealEntryForm from "@/components/diet/MealEntryForm";
+import {FoodDBModal} from "@/utils/dbFunctions";
+import {Food} from "@/utils/table.types";
+import {useFocusEffect} from "expo-router";
+import React from "react";
+import GuideScreen from "@/components/guides/GuideDetail";
+import CustomPaperList from "@/components/CustomPaperList";
 
 export default function DietScreen() {
     const [state, setState] = useState( {open: false})
+    const [list, setList] = useState<Food[]>([]);
     const onStageChange = ({open}) =>setState({open: open})
 
     const [modalVisible, setModalVisible] = useState<boolean>(false)
-
+    async function getData() {
+        let res = await FoodDBModal.getAll()
+        setList(res)
+    }
+   // Screen focus refresh
+    useFocusEffect(
+        useCallback(()=>{
+            getData()
+            return ()=>console.log("refreshing list")
+        },[])
+    )
 
     const {open} = state
     // action should have an onpress that shows the modal
@@ -39,6 +53,8 @@ export default function DietScreen() {
                 },
             ]} icon={()=><FAIcon name={"key"} color={"white"}/>}  onStateChange={onStageChange} visible={true} open={open}/>
             </Portal>
+            <GuideScreen/>
+            <CustomPaperList title="Custom PaperList" content={list}/>
         </View>
     )
 }
