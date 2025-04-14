@@ -4,11 +4,26 @@ import {router, useNavigation} from "expo-router";
 import { View, Image, Text, StyleSheet } from "react-native";
 import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { react_logo } from "@/assets/images";
-
+import { logout, getCurrentUser } from "@/components/utils/authUtils";
+import React, { useState, useEffect } from 'react'; 
 
 
 
 const CustomDrawerContent = (props) => {
+   const [userData, setUserData] = useState(null); 
+   const [loading, setLoading] = useState(true); 
+   
+    useEffect(() => {
+      const loadUserData = async () => {
+        setLoading(true);
+        const user = await getCurrentUser(); 
+        setUserData(user); 
+        setLoading(false); 
+      };
+
+      loadUserData();
+    }, []);
+
    return( <DrawerContentScrollView {...props}>
       {/* Profile Section */}
       <View style={styles.profileSection}>
@@ -16,8 +31,10 @@ const CustomDrawerContent = (props) => {
           source={react_logo} 
           style={styles.profileImage} 
         />
-        <Text style={styles.profileName}>Crack</Text>
-        <Text style={styles.profileEmail}>Crack.em@Fries.au</Text>
+        <>
+          <Text style={styles.profileName}>{userData?.username || 'user'}</Text>
+          <Text style={styles.profileEmail}>{userData?.email || 'user@example.com'}</Text>
+        </>
       </View>
     <DrawerItem 
         label="Home" 
@@ -50,15 +67,18 @@ const CustomDrawerContent = (props) => {
         icon={({color, size}) => <FontAwesome5 name="walking" size={size} color={color} />}
       />
       <DrawerItem 
-        label="Advanced" 
-        onPress={() => { router.navigate("/(drawer)/(guide)/AdvancedGuide") }} 
-        icon={({color, size}) => <FontAwesome5 name="running" size={size} color={color} />}
-      />
-      <DrawerItem 
         label="Expert" 
         onPress={() => { router.navigate("/(drawer)/(guide)/ExpertGuide") }} 
-        icon={({color, size}) => <FontAwesome5 name="dumbbell" size={size} color={color} />}
+        icon={({color, size}) => <FontAwesome5 name="running" size={size} color={color} />}
       />
+
+      <DrawerItem 
+        label="Logout"
+        onPress={() => logout()
+        }
+      />
+
+
     </DrawerContentScrollView>
    )
 }
@@ -69,10 +89,9 @@ export default function DrawerEntry(){
     <Drawer drawerContent ={(props)=><CustomDrawerContent {...props}/>}screenOptions={{headerShown: false}}>
     <Drawer.Screen name={"settings"} options={{headerShown: true}} />
     <Drawer.Screen name={"debugScreen"} options={{headerShown: true}} />
-    <Drawer.Screen name={"(guide)/BeginnerGuide"} options={{headerShown: true, title: 'Beginner Guide'}} />
-    <Drawer.Screen name={"(guide)/IntermediateGuide"} options={{headerShown: true, title: 'Intermediate Guide'}} />
-    <Drawer.Screen name={"(guide)/AdvancedGuide"} options={{headerShown: true, title: 'Advanced Guide'}} />
-    <Drawer.Screen name={"(guide)/ExpertGuide"} options={{headerShown: true, title: 'Expert Guide'}} />
+    <Drawer.Screen name={"(guide)/BeginnerGuide"} options={{headerShown: true, title: 'Start-Up Guide'}} />
+    <Drawer.Screen name={"(guide)/IntermediateGuide"} options={{headerShown: true, title: 'Start-Up Guide'}} />
+    <Drawer.Screen name={"(guide)/ExpertGuide"} options={{headerShown: true, title: 'Start-Up Guide'}} />
   
     </Drawer>
   )
