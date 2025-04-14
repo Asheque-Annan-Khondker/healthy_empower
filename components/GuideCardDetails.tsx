@@ -1,4 +1,5 @@
 // Tip: Mat UI is incompatible
+// This is depreciated, use CustomCard instead
 import {Dimensions, ImageSourcePropType, Pressable, StyleSheet, Text, View} from "react-native";
 import React from "react";
 import {Image} from "expo-image";

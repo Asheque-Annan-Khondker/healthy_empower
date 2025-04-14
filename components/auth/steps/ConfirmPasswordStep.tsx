@@ -4,55 +4,42 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
-interface WeightStepProps {
-  weight: string;
-  setWeight: (weight: string) => void;
-  weightUnit: string;
-  setWeightUnit: (unit: string) => void;
-  handleSubmit: () => void;
+interface ConfirmPasswordStepProps {
+  password: string;
+  confirmPassword: string;
+  setConfirmPassword: (confirmPassword: string) => void;
+  handleNext: () => void;
   handleBack: () => void;
-  isLoading: boolean;
   errorMessage: string;
 }
 
-const WeightStep: React.FC<WeightStepProps> = ({ 
-  weight, 
-  setWeight, 
-  weightUnit, 
-  setWeightUnit, 
-  handleSubmit, 
+const ConfirmPasswordStep: React.FC<ConfirmPasswordStepProps> = ({ 
+  password,
+  confirmPassword, 
+  setConfirmPassword, 
+  handleNext, 
   handleBack, 
-  isLoading, 
   errorMessage 
 }) => (
   <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(200)} style={styles.stepContainer}>
-    <Text style={styles.stepTitle}>What's your weight?</Text>
-    <Text style={styles.stepDescription}>Your weight helps us track your fitness progress</Text>
+    <Text style={styles.stepTitle}>Confirm your password</Text>
+    <Text style={styles.stepDescription}>Re-enter the password to confirm</Text>
     
-    <View style={styles.weightContainer}>
-      <View style={styles.weightInputWrapper}>
+    <View style={styles.inputContainer}>
+      <View style={styles.inputWrapper}>
         <TextInput
-          style={styles.weightInput}
-          value={weight}
-          onChangeText={setWeight}
-          keyboardType="numeric"
-          placeholder={weightUnit === 'kg' ? '70' : '154'}
+          style={styles.input}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry
+          autoCapitalize="none"
+          placeholder="••••••••"
           placeholderTextColor="rgba(255,255,255,0.3)"
         />
-        
-        <TouchableOpacity
-          style={styles.unitToggle}
-          onPress={() => setWeightUnit(weightUnit === 'kg' ? 'lb' : 'kg')}
-        >
-          <Text style={styles.unitText}>{weightUnit}</Text>
-          <Ionicons name="swap-vertical" size={16} color="rgba(255,255,255,0.7)" />
-        </TouchableOpacity>
+        <Ionicons name="lock-closed" size={20} color="rgba(255,255,255,0.7)" style={styles.inputIcon} />
       </View>
-      
-      <Text style={styles.weightTip}>Don't worry, you can update this anytime</Text>
+      {errorMessage ? <Text style={styles.inputError}>{errorMessage}</Text> : null}
     </View>
-    
-    {errorMessage ? <Text style={styles.inputError}>{errorMessage}</Text> : null}
     
     <View style={styles.buttonRow}>
       <TouchableOpacity 
@@ -63,9 +50,8 @@ const WeightStep: React.FC<WeightStepProps> = ({
       </TouchableOpacity>
       
       <TouchableOpacity 
-        style={[styles.nextButton, isLoading && styles.nextButtonLoading]}
-        onPress={handleSubmit}
-        disabled={isLoading}
+        style={styles.nextButton}
+        onPress={handleNext}
       >
         <LinearGradient 
           colors={['#D68D54', '#B25B28']} 
@@ -73,9 +59,7 @@ const WeightStep: React.FC<WeightStepProps> = ({
           end={{x: 1, y: 0}}
           style={styles.nextButtonGradient}
         >
-          <Text style={styles.nextButtonText}>
-            {isLoading ? 'Creating account...' : 'Complete Signup'}
-          </Text>
+          <Text style={styles.nextButtonText}>Continue</Text>
         </LinearGradient>
       </TouchableOpacity>
     </View>
@@ -101,46 +85,26 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 30,
   },
-  weightContainer: {
+  inputContainer: {
     width: '100%',
     marginBottom: 25,
-    alignItems: 'center',
   },
-  weightInputWrapper: {
+  inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '80%',
-    marginBottom: 10,
-  },
-  weightInput: {
-    flex: 1,
     backgroundColor: 'rgba(255,255,255,0.1)',
     borderRadius: 8,
-    height: 60,
+    height: 50,
+    paddingHorizontal: 16,
+  },
+  input: {
+    flex: 1,
     color: 'white',
-    fontSize: 24,
-    textAlign: 'center',
-    marginRight: 10,
+    fontSize: 16,
+    height: '100%',
   },
-  unitToggle: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 8,
-    padding: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 60,
-    height: 60,
-  },
-  unitText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  weightTip: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: 14,
-    textAlign: 'center',
+  inputIcon: {
+    marginLeft: 10,
   },
   inputError: {
     color: '#FF5757',
@@ -174,9 +138,6 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 3,
   },
-  nextButtonLoading: {
-    opacity: 0.8,
-  },
   nextButtonGradient: {
     paddingVertical: 14,
     alignItems: 'center',
@@ -188,4 +149,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default WeightStep;
+export default ConfirmPasswordStep;

@@ -5,11 +5,10 @@ import ScreenTransition from "@/components/screenTransition";
 import { ScrollView } from 'react-native-gesture-handler';
 import { FAIcon, IonIcon } from '@/utils/getIcon';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withDelay } from 'react-native-reanimated';
-import PaperCard from '@/components/PaperCard';
 import {Avatar, Card, Paragraph, Searchbar, Title} from "react-native-paper";
-import { CustomCardList } from '@/components/CardDetails';
+import {CustomCardList, CustomCard, cardProps} from '@/components/CardDetails';
 import { react_logo } from '@/assets/images';
-import { Redirect, useNavigation } from 'expo-router';
+import { Redirect, useNavigation, router } from 'expo-router';
 import { DrawerActions } from '@react-navigation/native';
 import DropdownMenu from '@/components/DropdownMenu';
 import SearchBarComponent from '@/components/SearchBarComponent';
@@ -17,98 +16,11 @@ import SlidingToggleButton from '@/components/SlidingToggleButton';
 import CheckButton from '@/components/CheckButton';
 import ProgressBar from '@/components/ProgressBar';
 import CalendarPicker from '@/components/CalendarPicker';
-
-
-
-
-export default function Index() {
- const [searchQuery, setSearchQuery] = useState('');
-    const metrics = {steps:"", calories: "", hydration:"",recovery:""}
-    const navigation = useNavigation()
-
-    return (
-      <View style={styles.container}>
-        <Searchbar
-          placeholder={"Search"}
-          onChangeText={setSearchQuery}
-          value={searchQuery}
-          icon={() => <FAIcon name="bars" color="black" />}
-          onIconPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
-        />
-    
-        <ScreenTransition type="slide">
-          <CustomCardList cards={testCards} horizontal={true} />
-        </ScreenTransition>
-    
-        {/* DropDown Menu */}
-        <View style={styles.section}>
-          <DropdownMenu onSelect={(option) => console.log("Selected:", option)} />
-        </View>
-
-        {/*Toggle Button*/}
-        <View style={styles.section}>
-          <SlidingToggleButton />
-        </View>
-
-        {/* Check Button*/}
-        <View style={{ marginTop: 20, paddingHorizontal: 20 }}>
-          <Text style={{ marginBottom: 10 }}>CheckBox Button:</Text>
-          <CheckButton />
-        </View>
-
-        {/* Progress Bar*/}
-      <View style={{ marginTop: 30, paddingHorizontal: 20, marginBottom: 40 }}>
-        <Text style={{ marginBottom: 10 }}>Course Progress</Text>
-        <ProgressBar progress={10} />
-      </View>
-
-      <View style={{ marginBottom: 40 }}>
-        <CalendarPicker />
-      </View>
-
-
-
-      </View>
-      
-    );
-    
-}
-const testCards = [
-    {img: react_logo, title: "Lesson 1", description:"Beginner", link:'/(drawer)/(guide)/BeginnerGuide'},
-    {img: react_logo, title: "Lesson 2", description:"Intermediate", link: '/(drawer)/(guide)/IntermediateGuide'},
-    {img: react_logo, title: "Lesson 3", description:"Advanced", link:'/(drawer)/(guide)/AdvancedGuide'},
-    {img: react_logo, title: "Lesson 4", description:"Expert", link:'/(drawer)/(guide)/ExpertGuide'},
-]
-const healthStats = [
-  { label: 'STEPS', value: '8,432', icon: 'footsteps', color: '#5acdff' },
-  { label: 'CALORIES', value: '1,842', icon: 'flame', color: '#ff5a87' },
-  { label: 'HYDRATION', value: '68%', icon: 'water', color: '#5acdff' },
-  { label: 'RECOVERY', value: '87%', icon: 'pulse', color: '#a5ff5a' }
-];
-
-const objectives = [
-  { 
-    title: 'DAILY EXERCISE',
-    desc: 'Complete 30 minutes of cardio activity',
-    icon: 'fitness',
-    progress: 75,
-    color: '#5acdff'
-  },
-  {
-    title: 'NUTRITION GOAL',
-    desc: 'Stay within macro targets for the day',
-    icon: 'nutrition',
-    progress: 60,
-    color: '#ff5a87'
-  },
-  { 
-    title: 'HYDRATION',
-    desc: 'Drink 2L of water throughout the day',
-    icon: 'water',
-    progress: 80,
-    color: '#5acdff'
-  },
-];
+import {SafeAreaView} from "react-native-safe-area-context";
+/*TODO: Implement a MVP of the dashboard. It will have:
+*  1. Calorie Graphs
+* 2. Achievement cards
+* 3. */
 
 const styles = StyleSheet.create({
   container: {
@@ -176,6 +88,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 20,
   },
+  section: {
+    color: 'white'
+  }, 
   sectionTitle: {
     color: 'white',
     fontSize: 16,
@@ -291,3 +206,207 @@ const styles = StyleSheet.create({
     borderRadius: 1.5,
   },
 });
+
+const testCards = [
+  {
+    img: react_logo, 
+    title: "Lesson 1", 
+    description: "Beginner", 
+    link: '/(drawer)/(guide)/BeginnerGuide',
+    onPress: () => router.navigate('/(drawer)/(guide)/BeginnerGuide'),
+    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
+    variant: "default",
+    textContent: { title: "Lesson 1", subtitle: "Beginner" }
+  },
+  {
+    img: react_logo, 
+    title: "Lesson 2", 
+    description: "Intermediate", 
+    link: '/(drawer)/(guide)/IntermediateGuide',
+    onPress: () => router.navigate('/(drawer)/(guide)/IntermediateGuide'),
+    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
+    variant: "default",
+    textContent: { title: "Lesson 2", subtitle: "Intermediate" }
+  },
+  {
+    img: react_logo, 
+    title: "Lesson 3", 
+    description: "Advanced", 
+    link: '/(drawer)/(guide)/AdvancedGuide',
+    onPress: () => router.navigate('/(drawer)/(guide)/AdvancedGuide'),
+    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
+    variant: "default",
+    textContent: { title: "Lesson 3", subtitle: "Advanced" }
+  },
+  {
+    img: react_logo, 
+    title: "Lesson 4", 
+    description: "Expert", 
+    link: '/(drawer)/(guide)/ExpertGuide',
+    onPress: () => router.navigate('/(drawer)/(guide)/ExpertGuide'),
+    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
+    variant: "default",
+    textContent: { title: "Lesson 4", subtitle: "Expert" }
+  }
+];
+
+
+const healthStats = [
+{ label: 'STEPS', value: '8,432', icon: 'footsteps', color: '#5acdff' },
+{ label: 'CALORIES', value: '1,842', icon: 'flame', color: '#ff5a87' },
+{ label: 'HYDRATION', value: '68%', icon: 'water', color: '#5acdff' },
+{ label: 'RECOVERY', value: '87%', icon: 'pulse', color: '#a5ff5a' }
+];
+
+const objectives = [
+{ 
+title: 'DAILY EXERCISE',
+desc: 'Complete 30 minutes of cardio activity',
+icon: 'fitness',
+progress: 75,
+color: '#5acdff'
+},
+{
+title: 'NUTRITION GOAL',
+desc: 'Stay within macro targets for the day',
+icon: 'nutrition',
+progress: 60,
+color: '#ff5a87'
+},
+{ 
+title: 'HYDRATION',
+desc: 'Drink 2L of water throughout the day',
+icon: 'water',
+progress: 80,
+color: '#5acdff'
+},
+];
+
+const cardPropsTestArray: cardProps[] = [
+  {
+    onPress: () => console.log("Card one pressed! Exciting!"),
+    longPress: () => console.log("Whoa! Long press on card one detected!"),
+    textContent: {
+      title: "Daily Workout Challenge!",
+      subtitle: "Ready to feel the burn?!",
+      description: "Complete 20 jumping jacks to earn star points!"
+    },
+    iconProps: {
+      icon: "star",
+      color: "#FFC107",
+      size: 40
+    },
+    variant: "elevated"
+  },
+  {
+    onPress: () => console.log("Card two activated! Let's go!"),
+    mainComponent: <></>,
+    textContent: {
+      title: "Meditation Session",
+      subtitle: "Find your inner peace!",
+      paragraph: "Take a five minute break to recharge your mental energy! Even Trailblazers need to rest sometimes!"
+    },
+    iconProps: {
+      icon: "meditation",
+      color: "#4CAF50",
+      size: 36
+    },
+    variant: "default"
+  },
+  {
+    onPress: () => console.log("Card three tapped! Amazing!"),
+    longPress: () => console.log("Super duper long press on card three!"),
+    textContent: {
+      title: "Water Reminder!",
+      description: "Have you had your 8 glasses today? Stay hydrated for maximum power-ups!"
+    },
+    iconProps: {
+      icon: "water",
+      color: "#2196F3",
+      size: 42
+    },
+    variant: "outlined"
+  },
+  {
+    onPress: () => console.log("Card four selected! Yahoo!"),
+    textContent: {
+      title: "Sleep Tracker",
+      subtitle: "Rest well, play better!",
+      description: "Track your sleep patterns!",
+      paragraph: "Getting 8 hours of sleep improves your reaction time by 35%! That's so many percent!"
+    },
+    iconProps: {
+      icon: "sleep",
+      color: "#673AB7",
+      size: 38
+    },
+    variant: "elevated"
+  },
+  {
+    onPress: () => console.log("Card five clicked! Wowee!"),
+    longPress: () => console.log("Extra long press on card five detected! So patient!"),
+    mainComponent: <View style={{ height: 50, backgroundColor: '#ffcdd2' }} />,
+    textContent: {
+      title: "Nutrition Tips!",
+      subtitle: "Fuel your adventures!",
+    },
+    iconProps: {
+      icon: "food-apple",
+      color: "#E91E63",
+      size: 44
+    },
+    variant: "default"
+  }
+];
+
+
+
+
+export default function Index() {
+ const [searchQuery, setSearchQuery] = useState('');
+    const metrics = {steps:"", calories: "", hydration:"",recovery:""}
+    const navigation = useNavigation()
+
+    return (
+      <View style={styles.container}>
+        <Searchbar
+          placeholder={"Search"}
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+          icon={() => <FAIcon name="bars" color="black" />}
+          onIconPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+        />
+    
+        <ScreenTransition type="slide">
+          <CustomCardList cards={testCards} horizontal={true} />
+        </ScreenTransition>
+    
+        {/* DropDown Menu */}
+        <View style={styles.section}>
+          <DropdownMenu onSelect={(option) => console.log("Selected:", option)} />
+        </View>
+
+        {/*Toggle Button*/}
+        <View style={styles.section}>
+          <SlidingToggleButton />
+        </View>
+
+        {/* Check Button*/}
+        <View style={{ marginTop: 20, paddingHorizontal: 20 }}>
+          <Text style={{ marginBottom: 10 }}>CheckBox Button:</Text>
+          <CheckButton />
+        </View>
+
+        {/* Progress Bar*/}
+      <View style={{ marginTop: 30, paddingHorizontal: 20, marginBottom: 40 }}>
+        <Text style={{ marginBottom: 10 }}>Course Progress</Text>
+        <ProgressBar progress={10} />
+      </View>
+
+      <View style={{ marginBottom: 40 }}>
+        <CalendarPicker />
+      </View>
+      </View>
+      
+    );
+}

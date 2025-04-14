@@ -1,138 +1,163 @@
-// a container for lists of achievements
-
-import React from "react";
-import { getDatabase } from "@/utils/database";
-import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
-import Animated, {} from "react-native-reanimated";
-import { Achievement, ACHIEVEMENT_CATEGORIES, AchievementCategories } from "./achievement.types";
-import { Avatar, Card, Chip, ProgressBar } from "react-native-paper";
-import { react_logo } from "@/assets/images";
-import { ScrollView } from "react-native-gesture-handler";
+import { StyleSheet, View, ActivityIndicator } from "react-native";
+import { List, Surface, Text, Avatar, Divider, Badge, Card, Title, Paragraph, ProgressBar, useTheme } from 'react-native-paper';
+import { AchievementDBModal} from "@/utils/dbFunctions";
+import { Achievement } from "@/utils/table.types"; // Make sure this import exists
+import { useFocusEffect } from "expo-router";
 
-export default function AchievementWall(){
-    const [achievements, setAchievements] = useState<Array<Achievement>>([])
-    const [loading, setLoading] = useState(true)
-    const [selectCategory, setSelectCategory] = useState('all')
-    
-    // when screen is focused
-    useFocusEffect(
-        useCallback(()=>{
-            async function loadAchievements() {
-                try{
-                    setLoading(true)
-                    // retrieve achievements from the db
-                    const db = await getDatabase()
-                    const results = await db.execAsync(`
-                select * from achievements
-                order by completed asc, progress desc`)
-                        // check any achievements are unlocked
-                        if (results && results.length > 0){
-                            setAchievements(results)
-                        } else {
-                            setAchievements(PLACEHOLDER_ACHIEVEMENTS)
-                        }
-                        // 
-                        
-                    } catch (err){
-                        console.error('err in achievement wall: ', err)
-                    } finally{
-                        setLoading(false)
-                    }
-                }
-                    loadAchievements()
-                    // clean up
-                    return () => {
-                        // clean up any residue data when the component unmounts
-                    }
-            }, []
-        )
-    )
-    // animation for highlighting achievement
-    useEffect(()=>{
-    })
-    //category filter
-    const filteredAchievements = selectCategory === 'all' ? achievements : achievements.filter(a=>a.category === selectCategory)
-    const totalAchievements = achievements.length
-    return (
-        <View>
-            <ScrollView>
-                <Chip
-                    selected={selectCategory==='all'}
-                    onPress={()=>setSelectCategory('all')}
-                    >HI
-                        </Chip>
-                        {/* Make a list of the achievements based on the category */}
-                        {Object.values(ACHIEVEMENT_CATEGORIES).map(category =>(
-                            <Chip key={category} selected={selectCategory===category}
-                                    onPress={()=>setSelectCategory(category)}>{category</Chip>
+export default function AchievementWall() {
+  const [completedAchievementData, setCompletedAchievementData] = useState<Achievement[]>([]);
+  const [count, setCount] = useState<number>(0);
+  const [completed, setCompleted] = useState<number>(0);
+  const [threeBlindAchievements, setThreeBlindAchievements] = useState<Achievement[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState<number| null>(null);
+  const theme = useTheme();
 
-                        ))}
-                        
-            </ScrollView>
-        </View>
-    )
-}
-
-
-const AchievementCard = (props:Achievement)=>{
-    <Card>
-            <Card.Title
-                title="Howdy, I'm ya paps"
-                subtitle="Can't believe it, eh?"
-                left={(props)=><Avatar.Icon {...props} icon={"trophy"}/>}
-                right={(props)=><Text style={styles.xp}> +? XP</Text>}
-                
-            />
-            <Card.Cover source={react_logo} style={styles.cardCover} />
-        <Card.Content>
-        <ProgressBar progress={22} />
-        <Text>Completed on march 7th</Text>
-        </Card.Content>
-    </Card>
-}
-
-const PLACEHOLDER_ACHIEVEMENTS = [
-    {
-        id: 1,
-        title: 'First Workout',
-        description: 'Complete your first workout',
-        icon: 'weight-lifter',
-        category: ACHIEVEMENT_CATEGORIES.FITNESS,
-        completed: true,
-        progress: 1,
-        target_progress: 0,
-        completion_date: '2025-02-20',
-        xp_reward: 50
-    },
-    {
-        id: 2,
-        title: 'Calorie Tracker',
-        description: 'Log your meals for 7 consecutive days',
-        icon: 'food-apple',
-        category: ACHIEVEMENT_CATEGORIES.NUTRITION,
-        completed: false,
-        progress: 5,
-        target_progress: 7,
-        completion_date: '',
-        xp_reward: 100
-    },
-    {
-        id: 3,
-        title: 'Protein Champion',
-        description: 'Meet your protein goal for 5 days',
-        icon: 'food-steak',
-        category: ACHIEVEMENT_CATEGORIES.NUTRITION,
-        completed: false,
-        progress: 2,
-        target_progress: 5,
-        completion_date: '',
-        xp_reward: 75
+    async function fetchData() {
+      try {
+        const [count, completedCount, completedAchievements, nearbyAchievements] = await retrieveAchievements() as [number, number, Achievement[], Achievement[]];
+        console.log(`count: ${count}, completedCount: ${completedCount}, completedAchievements: ${completedAchievements}, nearbyAchievements: ${(nearbyAchievements)}`);
+        setCompletedAchievementData(completedAchievements );
+        setCount(count );
+        setCompleted(completedCount );
+        setThreeBlindAchievements(nearbyAchievements );
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching achievements:", error);
+        setLoading(false);
+      }
     }
-];
+
+  //subsequent refreshes
+   useFocusEffect(
+    useCallback(() => {
+      fetchData()
+      return () =>{
+        console.log("Refreshing Achievements")
+      }
+    }, [])
+  ) 
+  const handleAccordionToggle = (id:number) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+        <Text>Loading achievements...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <Surface style={styles.container}>
+      {/* Progress Summary */}
+      <Card style={styles.summaryCard}>
+        <Card.Content>
+          <Title>Achievement Progress</Title>
+          <ProgressBar progress={count > 0 ? completed / count : 0} color={theme.colors.primary} style={styles.progressBar} />
+          <Text style={styles.progressText}>{completed} of {count} completed</Text>
+        </Card.Content>
+      </Card>
+      
+      {/*Completed Achievements */}
+      {/*May have to convert to component*/}
+      <List.Section title="Completed Achievements">
+        {completedAchievementData ? (
+          completedAchievementData.map((achievement) => (
+            <List.Accordion
+              key={achievement.id?.toString()}
+              id={achievement.id?.toString()}
+              title={achievement.title || 'Unnamed Achievement'}
+              description={achievement.description || ''}
+              left={props => <Avatar.Icon {...props} icon="trophy" />}
+              expanded={expandedId == achievement.id}
+              onPress={() => handleAccordionToggle(achievement.id || null)}>
+              <List.Item
+                title={achievement.title || 'Unnamed Achievement'}
+                description={achievement.description || achievement.description || 'No description available'}
+                right={props => <Badge {...props} style={styles.badgeComplete}>Completed</Badge>}
+              left={props => <Avatar.Icon {...props} icon="trophy" />}
+                
+              />
+              <Divider />
+            </List.Accordion>
+          ))
+        ) : (
+          <List.Item title="No achievements completed yet" />
+        )}
+      </List.Section>
+
+      {/* Nearby Achievements */}
+      <List.Section title="Upcoming Achievements">
+        {threeBlindAchievements.length > 0 ? (
+          threeBlindAchievements.map((achievement) => (
+            <List.Item
+              key={achievement.id}
+              title={achievement.title}
+              description={achievement.description }
+              left={props => <Avatar.Icon {...props} icon="star-outline" />}
+            />
+          ))
+        ) : (
+          <List.Item title="No upcoming achievements found" />
+        )}
+      </List.Section>
+    </Surface>
+  );
+}
+
+ async function retrieveAchievements(): Promise<[number, number, Achievement[], Achievement[]]> {
+  // return an array of achievements, number of achievements and completed
+
+    // use type guarding incase void is returned
+    const results = await AchievementDBModal.getAll()
+    console.log("Achievements retrieved: ", results)
+    // get count of Achievements
+    const count = results.length
+    // get completed achievements
+    const completed = results.filter((row) => row.completed == true)
+    // get and array of completed achievements and the three uncompleted, with closest id after the recent completed
+    let threeBlindAchievements: Achievement[] = []  
+    // completed may be undefined if there are no subsequent achievements
+
+    if(completed.length > 0){
+      const lCompleted = completed.at(-1)
+      threeBlindAchievements = results.filter(row => {
+      return row.id > lCompleted.id && row.id < lCompleted.id + 3
+   })}
+  console.log("threeBlindAchievements: ", threeBlindAchievements)
+   return [count, completed.length, completed, threeBlindAchievements] 
+
+
+
+}
 
 const styles = StyleSheet.create({
-    xp: {},
-    cardCover:{}
-})
+  container: {
+    padding: 16,
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  summaryCard: {
+    marginBottom: 16,
+  },
+  progressBar: {
+    height: 10,
+    borderRadius: 5,
+    marginVertical: 10,
+  },
+  progressText: {
+    textAlign: 'center',
+  },
+  badgeComplete: {
+    backgroundColor: 'green',
+  }
+});
+
