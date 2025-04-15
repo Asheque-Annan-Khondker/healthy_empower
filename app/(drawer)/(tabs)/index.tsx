@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { StyleSheet, Text, View, Pressable, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import ScreenTransition from "@/components/screenTransition";
-import { ScrollView } from 'react-native-gesture-handler';
+//import { ScrollView } from 'react-native-gesture-handler';
 import { FAIcon, IonIcon } from '@/utils/getIcon';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withDelay } from 'react-native-reanimated';
 import {Avatar, Card, Paragraph, Searchbar, Title} from "react-native-paper";
@@ -17,6 +17,13 @@ import CheckButton from '@/components/CheckButton';
 import ProgressBar from '@/components/ProgressBar';
 import CalendarPicker from '@/components/CalendarPicker';
 import {SafeAreaView} from "react-native-safe-area-context";
+import PlaceCard from '@/components/PlaceCard';
+import bannerImg from '@/assets/images/yoga.png';
+import yogaStudio from '@/assets/images/yogastudio.png';
+import walkingTrack from '@/assets/images/walkingtrack.png';
+import gymSession from '@/assets/images/gym.png';
+
+
 /*TODO: Implement a MVP of the dashboard. It will have:
 *  1. Calorie Graphs
 * 2. Achievement cards
@@ -26,6 +33,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
+    paddingHorizontal: 16,
+    paddingBottom: 40,
   },
   card: {
     marginBottom: 16,
@@ -39,6 +48,8 @@ const styles = StyleSheet.create({
   header: {
     height: 180,
     overflow: 'hidden',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   headerGradient: {
     flex: 1,
@@ -89,7 +100,9 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   section: {
-    color: 'white'
+    color: 'white',
+    paddingHorizontal: 20,
+    marginTop: 20,
   }, 
   sectionTitle: {
     color: 'white',
@@ -206,6 +219,8 @@ const styles = StyleSheet.create({
     borderRadius: 1.5,
   },
 });
+
+
 
 const testCards = [
   {
@@ -363,12 +378,13 @@ const cardPropsTestArray: cardProps[] = [
 
 
 export default function Index() {
- const [searchQuery, setSearchQuery] = useState('');
-    const metrics = {steps:"", calories: "", hydration:"",recovery:""}
-    const navigation = useNavigation()
+  const [searchQuery, setSearchQuery] = useState('');
+  const metrics = { steps: "", calories: "", hydration: "", recovery: "" };
+  const navigation = useNavigation();
 
-    return (
-      <View style={styles.container}>
+  return (
+    <SafeAreaView style={{ flex: 1, marginBottom: 0 }}>
+      <ScrollView contentContainerStyle={styles.container}>
         <Searchbar
           placeholder={"Search"}
           onChangeText={setSearchQuery}
@@ -376,14 +392,49 @@ export default function Index() {
           icon={() => <FAIcon name="bars" color="black" />}
           onIconPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
         />
-    
-        <ScreenTransition type="slide">
-          <CustomCardList cards={testCards} horizontal={true} />
-        </ScreenTransition>
-    
+
+        {/* card scroll section*/}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10, marginBottom: 1, height: 300 }} contentContainerStyle={{ paddingLeft: 16 }}
+>          <PlaceCard
+            title="Easy Stretch Routine"
+            address="Home"
+            distance="5 mins"
+            tag="Beginner"
+            image = {bannerImg}
+          />
+          <PlaceCard
+            title="Yoga Studio"
+            address="21 Uni Rd, Wollongong"
+            distance="30 mins"
+            tag="Intermediate"
+            image= {yogaStudio}
+          />
+          <PlaceCard
+            title="Community Walk Track"
+            address="Riverside Park"
+            distance="7 km"
+            tag="Expert"
+            image= {walkingTrack}
+          />
+          <PlaceCard
+            title="Intro Gym Session"
+            address="Start Fitness"
+            distance="20 mins"
+            tag="Beginner"
+            image={gymSession}
+          />
+          
+        </ScrollView>
+
         {/* DropDown Menu */}
-        <View style={styles.section}>
+        <View style={{ marginTop: 1 }}>
           <DropdownMenu onSelect={(option) => console.log("Selected:", option)} />
+        </View>
+        
+        {/* Check Button*/}
+        <View style={{ marginTop: 2, paddingHorizontal: 20 }}>
+          <Text style={{ marginBottom: 10 }}>CheckBox Button:</Text>
+          <CheckButton />
         </View>
 
         {/*Toggle Button*/}
@@ -391,22 +442,19 @@ export default function Index() {
           <SlidingToggleButton />
         </View>
 
-        {/* Check Button*/}
-        <View style={{ marginTop: 20, paddingHorizontal: 20 }}>
-          <Text style={{ marginBottom: 10 }}>CheckBox Button:</Text>
-          <CheckButton />
-        </View>
 
         {/* Progress Bar*/}
-      <View style={{ marginTop: 30, paddingHorizontal: 20, marginBottom: 40 }}>
-        <Text style={{ marginBottom: 10 }}>Course Progress</Text>
-        <ProgressBar progress={10} />
-      </View>
+        <View style={{ marginTop: 0, paddingHorizontal: 20, marginBottom: 4 }}>
+          <Text style={{ marginBottom: 10 }}>Course Progress</Text>
+          <ProgressBar progress={10} />
+        </View>
 
-      <View style={{ marginBottom: 40 }}>
-        <CalendarPicker />
-      </View>
-      </View>
-      
-    );
+        <View style={{ marginBottom: 4 }}>
+          <CalendarPicker />
+        </View>
+
+
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
