@@ -22,6 +22,9 @@ import bannerImg from '@/assets/images/yoga.png';
 import yogaStudio from '@/assets/images/yogastudio.png';
 import walkingTrack from '@/assets/images/walkingtrack.png';
 import gymSession from '@/assets/images/gym.png';
+import Modal from 'react-native-modal';
+import FitnessForm from '@/app/FitnessForm';
+import ModalFitnessForm from '@/app/ModalFitnessForm';
 
 
 /*TODO: Implement a MVP of the dashboard. It will have:
@@ -425,6 +428,10 @@ export default function Index() {
           />
           
         </ScrollView>
+
+        {/* Modal Fitness Form, opens up a view within the home page */}
+        <ModalFitnessForm/>
+
 
         {/* DropDown Menu */}
         <View style={{ marginTop: 1 }}>
