@@ -35,9 +35,9 @@ export default function FitnessForm() {
         <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.container}>
         
-                <Text style={{fontWeight: 600, fontSize: 30, alignItems: 'center'}}>Fitness Form</Text>
+                <Text style={styles.title}>Fitness Quiz</Text>
 
-                <Text style={styles.question}>How often do you exercise?</Text>
+                <Text style={styles.questionWrapper}>How often do you exercise?</Text>
                 <View style={styles.radioGroup}>
                     {q1.map((option, index) => (
                     <TouchableOpacity
@@ -54,7 +54,7 @@ export default function FitnessForm() {
                 </View>
                 
 
-                <Text style={styles.question}>How much time do you spend on a regular exercise?</Text>
+                <Text style={styles.questionWrapper}>How much time do you spend on a regular exercise?</Text>
                 <View style={styles.radioGroup}>
                     {q2.map((option, index) => (
                     <TouchableOpacity
@@ -70,7 +70,7 @@ export default function FitnessForm() {
                     ))}
                 </View>
 
-                <Text style={styles.question}>How often do you exercise?</Text>
+                <Text style={styles.questionWrapper}>What type of exercise do you prefer to do?</Text>
                 <View style={styles.radioGroup}>
                     {q3.map((option, index) => (
                     <TouchableOpacity
@@ -86,7 +86,7 @@ export default function FitnessForm() {
                     ))}
                 </View>
 
-                <Text style={styles.question}>How often do you exercise?</Text>
+                <Text style={styles.questionWrapper}>What are your main goals for exercising?</Text>
                 <View style={styles.radioGroup}>
                     {q4.map((option, index) => (
                     <TouchableOpacity
@@ -102,7 +102,7 @@ export default function FitnessForm() {
                     ))}
                 </View>
 
-                <Text style={styles.question}>Do you have a nutrition plan?</Text>
+                <Text style={styles.questionWrapper}>Do you have a nutrition plan?</Text>
                 <View style={styles.q5View}>
                   {q5.map((option, index) => (
                     <TouchableOpacity
@@ -118,8 +118,10 @@ export default function FitnessForm() {
                   ))}  
                 </View>
                 
+                <View style={styles.buttonWrapper}>
+                    <Button title="Submit" onPress={handleSubmit} />
+                </View>
                 
-                <Button title="Submit" onPress={handleSubmit} />
         
             </View>
         </ScrollView>
@@ -168,8 +170,16 @@ const styles = StyleSheet.create({
     q5View: {
         paddingRight: 20
     },
-    question: {
+    questionWrapper: {
         paddingVertical: 10,
         fontSize: 18
+    },
+    buttonWrapper: {
+        padding: 16
+    },
+    title: {
+        fontWeight: 600, 
+        fontSize: 30, 
+        textAlign: 'center'
     }
 })

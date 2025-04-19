@@ -32,6 +32,263 @@ import ModalFitnessForm from '@/app/ModalFitnessForm';
 * 2. Achievement cards
 * 3. */
 
+const testCards = [
+  {
+    img: react_logo, 
+    title: "Lesson 1", 
+    description: "Beginner", 
+    link: '/(drawer)/(guide)/BeginnerGuide',
+    onPress: () => router.navigate('/(drawer)/(guide)/BeginnerGuide'),
+    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
+    variant: "default",
+    textContent: { title: "Lesson 1", subtitle: "Beginner" }
+  },
+  {
+    img: react_logo, 
+    title: "Lesson 2", 
+    description: "Intermediate", 
+    link: '/(drawer)/(guide)/IntermediateGuide',
+    onPress: () => router.navigate('/(drawer)/(guide)/IntermediateGuide'),
+    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
+    variant: "default",
+    textContent: { title: "Lesson 2", subtitle: "Intermediate" }
+  },
+  {
+    img: react_logo, 
+    title: "Lesson 3", 
+    description: "Advanced", 
+    link: '/(drawer)/(guide)/AdvancedGuide',
+    onPress: () => router.navigate('/(drawer)/(guide)/AdvancedGuide'),
+    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
+    variant: "default",
+    textContent: { title: "Lesson 3", subtitle: "Advanced" }
+  },
+  {
+    img: react_logo, 
+    title: "Lesson 4", 
+    description: "Expert", 
+    link: '/(drawer)/(guide)/ExpertGuide',
+    onPress: () => router.navigate('/(drawer)/(guide)/ExpertGuide'),
+    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
+    variant: "default",
+    textContent: { title: "Lesson 4", subtitle: "Expert" }
+  }
+];
+
+
+const healthStats = [
+{ label: 'STEPS', value: '8,432', icon: 'footsteps', color: '#5acdff' },
+{ label: 'CALORIES', value: '1,842', icon: 'flame', color: '#ff5a87' },
+{ label: 'HYDRATION', value: '68%', icon: 'water', color: '#5acdff' },
+{ label: 'RECOVERY', value: '87%', icon: 'pulse', color: '#a5ff5a' }
+];
+
+const objectives = [
+{ 
+title: 'DAILY EXERCISE',
+desc: 'Complete 30 minutes of cardio activity',
+icon: 'fitness',
+progress: 75,
+color: '#5acdff'
+},
+{
+title: 'NUTRITION GOAL',
+desc: 'Stay within macro targets for the day',
+icon: 'nutrition',
+progress: 60,
+color: '#ff5a87'
+},
+{ 
+title: 'HYDRATION',
+desc: 'Drink 2L of water throughout the day',
+icon: 'water',
+progress: 80,
+color: '#5acdff'
+},
+];
+
+const cardPropsTestArray: cardProps[] = [
+  {
+    onPress: () => console.log("Card one pressed! Exciting!"),
+    longPress: () => console.log("Whoa! Long press on card one detected!"),
+    textContent: {
+      title: "Daily Workout Challenge!",
+      subtitle: "Ready to feel the burn?!",
+      description: "Complete 20 jumping jacks to earn star points!"
+    },
+    iconProps: {
+      icon: "star",
+      color: "#FFC107",
+      size: 40
+    },
+    variant: "elevated"
+  },
+  {
+    onPress: () => console.log("Card two activated! Let's go!"),
+    mainComponent: <></>,
+    textContent: {
+      title: "Meditation Session",
+      subtitle: "Find your inner peace!",
+      paragraph: "Take a five minute break to recharge your mental energy! Even Trailblazers need to rest sometimes!"
+    },
+    iconProps: {
+      icon: "meditation",
+      color: "#4CAF50",
+      size: 36
+    },
+    variant: "default"
+  },
+  {
+    onPress: () => console.log("Card three tapped! Amazing!"),
+    longPress: () => console.log("Super duper long press on card three!"),
+    textContent: {
+      title: "Water Reminder!",
+      description: "Have you had your 8 glasses today? Stay hydrated for maximum power-ups!"
+    },
+    iconProps: {
+      icon: "water",
+      color: "#2196F3",
+      size: 42
+    },
+    variant: "outlined"
+  },
+  {
+    onPress: () => console.log("Card four selected! Yahoo!"),
+    textContent: {
+      title: "Sleep Tracker",
+      subtitle: "Rest well, play better!",
+      description: "Track your sleep patterns!",
+      paragraph: "Getting 8 hours of sleep improves your reaction time by 35%! That's so many percent!"
+    },
+    iconProps: {
+      icon: "sleep",
+      color: "#673AB7",
+      size: 38
+    },
+    variant: "elevated"
+  },
+  {
+    onPress: () => console.log("Card five clicked! Wowee!"),
+    longPress: () => console.log("Extra long press on card five detected! So patient!"),
+    mainComponent: <View style={{ height: 50, backgroundColor: '#ffcdd2' }} />,
+    textContent: {
+      title: "Nutrition Tips!",
+      subtitle: "Fuel your adventures!",
+    },
+    iconProps: {
+      icon: "food-apple",
+      color: "#E91E63",
+      size: 44
+    },
+    variant: "default"
+  }
+];
+
+
+
+
+export default function Index() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const metrics = { steps: "", calories: "", hydration: "", recovery: "" };
+  const navigation = useNavigation();
+
+  return (
+    <SafeAreaView style={{ flex: 1, marginBottom: 0 }}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Searchbar
+          placeholder={"Search"}
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+          icon={() => <FAIcon name="bars" color="black" />}
+          onIconPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+        />
+
+        {/* card scroll section*/}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10, marginBottom: 1, height: 300, backgroundColor: '#eddeff6b' }} contentContainerStyle={{ padding: 16 }}
+>          <PlaceCard
+            title="Easy Stretch Routine"
+            address="Home"
+            distance="5 mins"
+            tag="Beginner"
+            image = {bannerImg}
+          />
+          <PlaceCard
+            title="Yoga Studio"
+            address="21 Uni Rd, Wollongong"
+            distance="30 mins"
+            tag="Intermediate"
+            image= {yogaStudio}
+          />
+          <PlaceCard
+            title="Community Walk Track"
+            address="Riverside Park"
+            distance="7 km"
+            tag="Expert"
+            image= {walkingTrack}
+          />
+          <PlaceCard
+            title="Intro Gym Session"
+            address="Start Fitness"
+            distance="20 mins"
+            tag="Beginner"
+            image={gymSession}
+          />
+          
+        </ScrollView>
+
+        {/* Modal Fitness Form, opens up a view within the home page 
+            - styling subject to change
+        */}
+        <View style={styles.modalContainer}>
+          <View>
+            <Text style={styles.modalTitle}>Welcome to Healthy Empower!</Text>
+            <Text style={styles.modalDescription}>
+              Need help getting started?{"\n"}
+              Take this short quiz.
+            </Text>
+          </View>
+          
+          <ModalFitnessForm/>
+        </View>
+        
+        {/* DropDown Menu 
+        <View style={{ marginTop: 1 }}>
+          <DropdownMenu onSelect={(option) => console.log("Selected:", option)} />
+        </View>
+        */}
+        
+        {/* Check Button // COMMENTED OUT BY JONO, IF U NEED IT JUST UNCOMMENT
+        <View style={{ marginTop: 2, paddingHorizontal: 20 }}>
+          <Text style={{ marginBottom: 10 }}>CheckBox Button:</Text>
+          <CheckButton />
+        </View>
+        */}
+
+        {/*Toggle Button // COMMENTED OUT BY JONO, IF U NEED IT JUST UNCOMMENT
+        <View style={styles.section}>
+          <SlidingToggleButton />
+        </View>
+        
+        */}
+
+        {/* Progress Bar*/}
+        <View style={styles.progressBarWrapper}>
+          <Text style={{ marginBottom: 10 }}>Course Progress</Text>
+          <ProgressBar progress={10} />
+        </View>
+      
+        {/*
+        <View>
+          <CalendarPicker />
+        </View>
+        */}
+
+
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -221,247 +478,33 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.3)',
     borderRadius: 1.5,
   },
+  modalTitle: {
+    fontWeight: 500,
+    fontSize: 18,
+    //paddingTop: 8
+  },
+  modalDescription: {
+    fontWeight: 400,
+    fontSize: 16,
+    padding: 5,
+    //lineHeight: 20,
+    textAlign: 'center'
+  },
+  modalContainer: {
+    backgroundColor: '#eddeff',
+    alignItems: 'center',
+    padding: 10,
+    //border...Radius is curves
+    borderTopRightRadius: 30, // topRight
+    borderTopLeftRadius: 30, //topLeft
+    borderBottomLeftRadius: 30, //bottomLeft
+    borderBottomRightRadius: 30, //bottomRight
+    marginHorizontal: 12
+  },
+  progressBarWrapper: { 
+    marginTop: 0, 
+    paddingHorizontal: 20, 
+    marginBottom: 4,
+    padding: 16 
+  }
 });
-
-
-
-const testCards = [
-  {
-    img: react_logo, 
-    title: "Lesson 1", 
-    description: "Beginner", 
-    link: '/(drawer)/(guide)/BeginnerGuide',
-    onPress: () => router.navigate('/(drawer)/(guide)/BeginnerGuide'),
-    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
-    variant: "default",
-    textContent: { title: "Lesson 1", subtitle: "Beginner" }
-  },
-  {
-    img: react_logo, 
-    title: "Lesson 2", 
-    description: "Intermediate", 
-    link: '/(drawer)/(guide)/IntermediateGuide',
-    onPress: () => router.navigate('/(drawer)/(guide)/IntermediateGuide'),
-    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
-    variant: "default",
-    textContent: { title: "Lesson 2", subtitle: "Intermediate" }
-  },
-  {
-    img: react_logo, 
-    title: "Lesson 3", 
-    description: "Advanced", 
-    link: '/(drawer)/(guide)/AdvancedGuide',
-    onPress: () => router.navigate('/(drawer)/(guide)/AdvancedGuide'),
-    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
-    variant: "default",
-    textContent: { title: "Lesson 3", subtitle: "Advanced" }
-  },
-  {
-    img: react_logo, 
-    title: "Lesson 4", 
-    description: "Expert", 
-    link: '/(drawer)/(guide)/ExpertGuide',
-    onPress: () => router.navigate('/(drawer)/(guide)/ExpertGuide'),
-    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
-    variant: "default",
-    textContent: { title: "Lesson 4", subtitle: "Expert" }
-  }
-];
-
-
-const healthStats = [
-{ label: 'STEPS', value: '8,432', icon: 'footsteps', color: '#5acdff' },
-{ label: 'CALORIES', value: '1,842', icon: 'flame', color: '#ff5a87' },
-{ label: 'HYDRATION', value: '68%', icon: 'water', color: '#5acdff' },
-{ label: 'RECOVERY', value: '87%', icon: 'pulse', color: '#a5ff5a' }
-];
-
-const objectives = [
-{ 
-title: 'DAILY EXERCISE',
-desc: 'Complete 30 minutes of cardio activity',
-icon: 'fitness',
-progress: 75,
-color: '#5acdff'
-},
-{
-title: 'NUTRITION GOAL',
-desc: 'Stay within macro targets for the day',
-icon: 'nutrition',
-progress: 60,
-color: '#ff5a87'
-},
-{ 
-title: 'HYDRATION',
-desc: 'Drink 2L of water throughout the day',
-icon: 'water',
-progress: 80,
-color: '#5acdff'
-},
-];
-
-const cardPropsTestArray: cardProps[] = [
-  {
-    onPress: () => console.log("Card one pressed! Exciting!"),
-    longPress: () => console.log("Whoa! Long press on card one detected!"),
-    textContent: {
-      title: "Daily Workout Challenge!",
-      subtitle: "Ready to feel the burn?!",
-      description: "Complete 20 jumping jacks to earn star points!"
-    },
-    iconProps: {
-      icon: "star",
-      color: "#FFC107",
-      size: 40
-    },
-    variant: "elevated"
-  },
-  {
-    onPress: () => console.log("Card two activated! Let's go!"),
-    mainComponent: <></>,
-    textContent: {
-      title: "Meditation Session",
-      subtitle: "Find your inner peace!",
-      paragraph: "Take a five minute break to recharge your mental energy! Even Trailblazers need to rest sometimes!"
-    },
-    iconProps: {
-      icon: "meditation",
-      color: "#4CAF50",
-      size: 36
-    },
-    variant: "default"
-  },
-  {
-    onPress: () => console.log("Card three tapped! Amazing!"),
-    longPress: () => console.log("Super duper long press on card three!"),
-    textContent: {
-      title: "Water Reminder!",
-      description: "Have you had your 8 glasses today? Stay hydrated for maximum power-ups!"
-    },
-    iconProps: {
-      icon: "water",
-      color: "#2196F3",
-      size: 42
-    },
-    variant: "outlined"
-  },
-  {
-    onPress: () => console.log("Card four selected! Yahoo!"),
-    textContent: {
-      title: "Sleep Tracker",
-      subtitle: "Rest well, play better!",
-      description: "Track your sleep patterns!",
-      paragraph: "Getting 8 hours of sleep improves your reaction time by 35%! That's so many percent!"
-    },
-    iconProps: {
-      icon: "sleep",
-      color: "#673AB7",
-      size: 38
-    },
-    variant: "elevated"
-  },
-  {
-    onPress: () => console.log("Card five clicked! Wowee!"),
-    longPress: () => console.log("Extra long press on card five detected! So patient!"),
-    mainComponent: <View style={{ height: 50, backgroundColor: '#ffcdd2' }} />,
-    textContent: {
-      title: "Nutrition Tips!",
-      subtitle: "Fuel your adventures!",
-    },
-    iconProps: {
-      icon: "food-apple",
-      color: "#E91E63",
-      size: 44
-    },
-    variant: "default"
-  }
-];
-
-
-
-
-export default function Index() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const metrics = { steps: "", calories: "", hydration: "", recovery: "" };
-  const navigation = useNavigation();
-
-  return (
-    <SafeAreaView style={{ flex: 1, marginBottom: 0 }}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Searchbar
-          placeholder={"Search"}
-          onChangeText={setSearchQuery}
-          value={searchQuery}
-          icon={() => <FAIcon name="bars" color="black" />}
-          onIconPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
-        />
-
-        {/* card scroll section*/}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10, marginBottom: 1, height: 300 }} contentContainerStyle={{ paddingLeft: 16 }}
->          <PlaceCard
-            title="Easy Stretch Routine"
-            address="Home"
-            distance="5 mins"
-            tag="Beginner"
-            image = {bannerImg}
-          />
-          <PlaceCard
-            title="Yoga Studio"
-            address="21 Uni Rd, Wollongong"
-            distance="30 mins"
-            tag="Intermediate"
-            image= {yogaStudio}
-          />
-          <PlaceCard
-            title="Community Walk Track"
-            address="Riverside Park"
-            distance="7 km"
-            tag="Expert"
-            image= {walkingTrack}
-          />
-          <PlaceCard
-            title="Intro Gym Session"
-            address="Start Fitness"
-            distance="20 mins"
-            tag="Beginner"
-            image={gymSession}
-          />
-          
-        </ScrollView>
-
-        {/* Modal Fitness Form, opens up a view within the home page */}
-        <ModalFitnessForm/>
-
-
-        {/* DropDown Menu */}
-        <View style={{ marginTop: 1 }}>
-          <DropdownMenu onSelect={(option) => console.log("Selected:", option)} />
-        </View>
-        
-        {/* Check Button*/}
-        <View style={{ marginTop: 2, paddingHorizontal: 20 }}>
-          <Text style={{ marginBottom: 10 }}>CheckBox Button:</Text>
-          <CheckButton />
-        </View>
-
-        {/*Toggle Button*/}
-        <View style={styles.section}>
-          <SlidingToggleButton />
-        </View>
-
-
-        {/* Progress Bar*/}
-        <View style={{ marginTop: 0, paddingHorizontal: 20, marginBottom: 4 }}>
-          <Text style={{ marginBottom: 10 }}>Course Progress</Text>
-          <ProgressBar progress={10} />
-        </View>
-
-        <View style={{ marginBottom: 4 }}>
-          <CalendarPicker />
-        </View>
-
-
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
