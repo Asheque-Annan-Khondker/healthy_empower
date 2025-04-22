@@ -57,7 +57,7 @@ app.use('/api/users/:userId/workout-logs', workoutLogRoutesFactory(workoutLogCon
 
 
 if (require.main === module) {
-  app.listen(port, () => {
+  app.listen(port, '0.0.0.0', () => {
   console.log(`user-service listening on port ${port}`)
 }); 
 }

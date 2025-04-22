@@ -26,7 +26,6 @@ const DropdownMenu = () => {
       >
         <Menu.Item onPress={() => handleSelect("Beginner", "/(drawer)/(guide)/BeginnerGuide")} title="Beginner" />
         <Menu.Item onPress={() => handleSelect("Intermediate", "/(drawer)/(guide)/IntermediateGuide")} title="Intermediate" />
-        <Menu.Item onPress={() => handleSelect("Advanced", "/(drawer)/(guide)/AdvancedGuide")} title="Advanced" />
         <Menu.Item onPress={() => handleSelect("Expert", "/(drawer)/(guide)/ExpertGuide")} title="Expert" />
 
       </Menu>

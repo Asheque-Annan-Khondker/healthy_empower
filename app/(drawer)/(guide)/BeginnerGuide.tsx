@@ -3,6 +3,8 @@ import bannerImg from '@/assets/images/icon.png';
 import React from 'react';
 import {Text, View, ScrollView, Image} from 'react-native';
 import styles from '@/app/(drawer)/(guide)/guideStyle';
+import PlaceCard from '@/components/PlaceCard';
+
 
 /* !!!!!! NEEDS MORE STYLING  !!!!!!
       just barebone structure, we can fill in details later, we have more pressing matters 
@@ -51,6 +53,7 @@ export default function BeginnerGuide(){
             {"\n"}We are here to boost your confidence and productivity to reach your health and fitness goals!  
           </Text>
         </View>
+
         
 
       </ScrollView>
