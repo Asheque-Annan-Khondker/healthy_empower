@@ -1,7 +1,8 @@
 
 
-export {Exercise, Food, Guide, Achievement, ACHIEVEMENT_CATEGORIES, AchievementCategories}
+export {Exercise, Food, Guide, Achievement, ACHIEVEMENT_CATEGORIES,MealLog, AchievementCategories}
 
+// The server database has different properties
 interface Exercise {
   id: number;
   name: string;
@@ -36,14 +37,24 @@ interface Achievement{
 }
 
 interface Food {
-    id: number
+    food_id: number
     name: string
     calories: number
     protein: number
     carbs: number
     fat: number
-    date: string
+    serving_size: string
+    serving_unit_id: number
+    created_at: string
     meal_type: string
+}
+interface MealLog{
+  meal_id: number
+  user_id: number
+  food_id: number
+  meal_type: string
+  servings: number
+  logged_at: string
 }
 
 const ACHIEVEMENT_CATEGORIES = {

@@ -284,7 +284,7 @@ export default function SignInScreen() {
                 
                 <TouchableOpacity 
                     style={styles.createAccountButton}
-                    onPress={() => router.push('/signup')}
+                    // onPress={() => router.push('/signup')}
                 >
                     <Text style={styles.createAccountText}>Create account</Text>
                 </TouchableOpacity>
