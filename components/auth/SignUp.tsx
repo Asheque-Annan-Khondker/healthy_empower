@@ -36,11 +36,12 @@ import {
 } from '../utils/validationUtils';
 
 // Configure API base URL - Special IP for Android emulator to access host machine
-//const API_URL = 'http://10.0.2.2:3001'; // Android emulator special IP for localhost
+const API_URL = 'http://10.0.2.2:3001'; // Android emulator special IP for localhost
+export var USER_ID: number;
 
 /* my (jono) IP for localhost. I'm using an actual android device. 
   Not sure what's the appropriate solution for all devices to work. But this works for me*/
-const API_URL = 'http://192.168.1.104:3001'; 
+// const API_URL = 'http://192.168.1.104:3001'; 
 
 // Main component
 export default function StepByStepSignUp() {
@@ -239,6 +240,7 @@ export default function StepByStepSignUp() {
             );
 
             const userId = userByEmailResponse.data.id; 
+            USER_ID = userId
 
             console.log(userId);
             

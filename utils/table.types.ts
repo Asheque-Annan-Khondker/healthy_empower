@@ -4,11 +4,13 @@ export {Exercise, Food, Guide, Achievement, ACHIEVEMENT_CATEGORIES,MealLog, Achi
 
 // The server database has different properties
 interface Exercise {
-  id: number;
+  exercise_id: number;
   name: string;
   description: string;
-  duration: number; // in minutes
-  caloriesBurned: number; // per minute
+  type: string;
+  measurementType: string;
+  difficulty_level: string;
+  target_muscle_group: string;
   sets?: number,
   reps?: number
   notes?: string

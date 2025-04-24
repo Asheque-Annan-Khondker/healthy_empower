@@ -17,8 +17,11 @@ export default function DietScreen() {
 
     const [modalVisible, setModalVisible] = useState<boolean>(false)
     async function getData() {
-        let res = await FoodDBModal.getAll()
+      try{
+        let res =  await FoodDBModal.getAll()
         setList(res)
+      } catch(err){console.error(err);
+      }
     }
    // Screen focus refresh
     useFocusEffect(

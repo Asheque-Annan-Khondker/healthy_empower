@@ -2,8 +2,15 @@
 import { Achievement, Exercise, Food, Guide } from "./table.types";
 import { SQLiteDatabase } from "expo-sqlite";
 import axios from "axios";
-import { API_URL, USER_ID } from "@/constants/DBAPI";
+import { API_URL } from "@/constants/DBAPI";
+import { USER_ID } from "@/components/auth/SignUp";
 //TODO: make a filter function
+
+async function dropall(): Promise<void>{
+  try {
+  await axios.delete(`${API_URL}/api/foods`)
+  } catch(err){console.error('Can\'t drop | wont drop', err)}
+}
 
 class AchievementDBModal {
   static async getAll(): Promise<Achievement[]> {
@@ -32,7 +39,7 @@ const rawResult = await axios.get(`${API_URL}/api/exercises`);
 
   static async getById(id: number): Promise<Exercise | null> {
     //TODO: Learn how to request from  property
-const rawResult = await axios.get(`${API_URL}/api/${USER_ID}/`);
+const rawResult = await axios.get(`${API_URL}/api/exercises/${id}`);
     return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult[0] : null;  }
 }
 
@@ -51,18 +58,28 @@ const rawResult = await axios.get(`${API_URL}/api/${USER_ID}/`);
 
 class FoodDBModal {
   static async getAll(): Promise<Food[]> {
-const rawResult = await axios.get(`${API_URL}/api/foods`).then(res => res.data);
+    const rawResult = await axios.get(`${API_URL}/api/foods`).then(res => res.data.foods);
+    console.log("Raw results for food array: ", rawResult )
     return Array.isArray(rawResult)? rawResult : []
   }
   static async insert(content: Partial<Food>): Promise<void>{
-      await axios.post(`${API_URL}/api/foods`, content).then(res => console.log('Inserted successfully: ', res.data))
+      const submit = {
+        name: content.name,
+        calories: content.calories,
+        protein: content.protein,
+        carbs: content.carbs,
+        fat: content.fat,
+        serving_size: content.serving_size,
+        serving_unit_id: content.serving_unit_id
+      }
+      await axios.post(`${API_URL}/api/foods`, submit).then(res => console.log('Inserted successfully: ', res.data))
                                                        .catch(err => console.log('Error inserting', err));
   }
   static async getById(id: number): Promise<Food | null> {
     //TODO: Learn how to request from  property
-const rawResult = await axios.get(`${API_URL}/api/foods?food_id=${id}`).then(res=>res,data);
+const rawResult = await axios.get(`${API_URL}/api/foods?food_id=${id}`).then(res=>res.data);
     return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult[0] : null;
   }
 }
 
-export { AchievementDBModal, ExerciseDBModal, GuideDBModal, FoodDBModal }
+export { AchievementDBModal, ExerciseDBModal, GuideDBModal, FoodDBModal, dropall }
