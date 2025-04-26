@@ -16,7 +16,7 @@ module.exports = {
     '^.+\\.[jt]sx?$': 'babel-jest',
   },
   transformIgnorePatterns: [
-    //'node_modules/(?!(sequelize|expo|react-native|other-esm-packages)/)',
-    "node_modules/(?!(expo|react-native|@react-native|@expo|expo-router)/)",
+    'node_modules/(?!(sequelize|expo|react-native|other-esm-packages)/)',
+    //"node_modules/(?!(expo|react-native|@react-native|@expo|expo-router)/)",
   ],
 };
