@@ -71,8 +71,7 @@
     "react-native-web": "~0.19.13",
     "reanimated-bottom-sheet": "^1.0.0-alpha.22",
     "victory-native": "^41.16.1",
-    "yarn": "^1.22.22",
-    "expo-modules-core": "^1.7.2"
+    "yarn": "^1.22.22"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
