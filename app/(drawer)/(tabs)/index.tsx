@@ -449,13 +449,6 @@ export default function Index() {
           <SlidingToggleButton />
         </View>
 
-
-        {/* Progress Bar*/}
-        <View style={{ marginTop: 0, paddingHorizontal: 20, marginBottom: 4 }}>
-          <Text style={{ marginBottom: 10 }}>Course Progress</Text>
-          <ProgressBar progress={10} />
-        </View>
-
         <View style={{ marginBottom: 4 }}>
           <CalendarPicker />
         </View>
