@@ -22,10 +22,6 @@ const SlidingToggleButton: React.FC = () => {
         <Animated.View style={[styles.slider, animatedStyle]} />
       </Pressable>
 
-      {/*On and Off text*/}
-      <Text style={[styles.label, isOn ? styles.onText : styles.offText]}>
-        {isOn ? "ON" : "OFF"}
-      </Text>
     </View>
   );
 };
@@ -69,10 +65,10 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   onText: {
-    color: "#27AE60", //green for ON
+    color: "#27AE60", //green for On
   },
   offText: {
-    color: "#E74C3C", //red for OFF
+    color: "#E74C3C", //red for Off
   },
   on: {
     backgroundColor: "#A3E4D7", //light green
