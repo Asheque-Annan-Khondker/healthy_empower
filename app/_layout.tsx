@@ -32,6 +32,7 @@ export default function Layout() {
   const papaTheme = colorScheme =="dark" ? {...MD3DarkTheme, colors:theme.dark} : {...MD3LightTheme, colors: theme.light}
 
   return (
+      <SafeAreaProvider>
     <GestureHandlerRootView>
       <Portal.Host>
       <PaperProvider theme={papaTheme} >
@@ -42,6 +43,7 @@ export default function Layout() {
       </PaperProvider>
       </Portal.Host>
     </GestureHandlerRootView>
+      </SafeAreaProvider>
   )  
 // const StackNav = createNativeStackNavigator()
 // const DrawNav = createDrawerNavigator()

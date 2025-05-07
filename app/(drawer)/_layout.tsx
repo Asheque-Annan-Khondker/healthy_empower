@@ -61,6 +61,11 @@ const CustomDrawerContent = (props) => {
         onPress={() => { router.navigate("/(drawer)/(guide)/BeginnerGuide") }} 
         icon={({color, size}) => <FontAwesome5 name="baby" size={size} color={color} />}
       />
+           <DrawerItem
+               label="Guide Selection"
+               onPress={() => { router.navigate("/(drawer)/(guide)/guideSelection") }}
+               icon={({color, size}) => <FontAwesome5 name="baby" size={size} color={color} />}
+           />
       <DrawerItem 
         label="Intermediate" 
         onPress={() => { router.navigate("/(drawer)/(guide)/IntermediateGuide") }} 
@@ -91,6 +96,7 @@ export default function DrawerEntry(){
     <Drawer.Screen name={"debugScreen"} options={{headerShown: true}} />
     <Drawer.Screen name={"(guide)/BeginnerGuide"} options={{headerShown: true, title: 'Start-Up Guide'}} />
     <Drawer.Screen name={"(guide)/IntermediateGuide"} options={{headerShown: true, title: 'Start-Up Guide'}} />
+    <Drawer.Screen name={"(guide)/guideSelection"} options={{headerShown: true, title: 'Guide Selection'}} />
     <Drawer.Screen name={"(guide)/ExpertGuide"} options={{headerShown: true, title: 'Start-Up Guide'}} />
   
     </Drawer>

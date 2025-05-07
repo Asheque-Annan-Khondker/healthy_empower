@@ -7,18 +7,20 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 interface PlaceCardProps {
   title: string;
-  address: string;
-  distance: string;
+  subtext: string;
+  leftBottomText: string;
   tag: string;
   image: any;
+  onPress?: () => void;
 }
 
 const PlaceCard: React.FC<PlaceCardProps> = ({
   title,
-  address,
-  distance,
+  subtext,
+  leftBottomText,
   tag,
   image,
+  onPress
 }) => {
   return (
     <View style={styles.card}>
@@ -36,12 +38,12 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
         <Text style={styles.title}>{title}</Text>
         <View style={styles.row}>
           <MaterialIcons name="location-on" size={14} color="#666" />
-          <Text style={styles.address}>{address}</Text>
+          <Text style={styles.address}>{subtext}</Text>
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.distance}>{distance}</Text>
-          <TouchableOpacity style={styles.button}>
+          <Text style={styles.distance}>{leftBottomText}</Text>
+          <TouchableOpacity style={styles.button} onPress={onPress}>
             <Text style={styles.buttonText}>Read More</Text>
           </TouchableOpacity>
         </View>
