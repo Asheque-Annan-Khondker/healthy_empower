@@ -386,7 +386,7 @@ export default function Index() {
   const navigation = useNavigation();
 
   return (
-    <SafeAreaView style={{ flex: 1, marginBottom: 0 }}>
+    <SafeAreaView style={{ flex: 1, marginBottom: 100 }}>
       <ScrollView contentContainerStyle={styles.container}>
         <Searchbar
           placeholder={"Search"}
@@ -434,19 +434,8 @@ export default function Index() {
 
 
         {/* DropDown Menu */}
-        <View style={{ marginTop: 1 }}>
+        <View style={{ marginTop: 5 }}>
           <DropdownMenu onSelect={(option) => console.log("Selected:", option)} />
-        </View>
-        
-        {/* Check Button*/}
-        <View style={{ marginTop: 2, paddingHorizontal: 20 }}>
-          <Text style={{ marginBottom: 10 }}>CheckBox Button:</Text>
-          <CheckButton />
-        </View>
-
-        {/*Toggle Button*/}
-        <View style={styles.section}>
-          <SlidingToggleButton />
         </View>
 
         <View style={{ marginBottom: 4 }}>
