@@ -7,8 +7,12 @@ const SlidingToggleButton: React.FC = () => {
   const translateX = useSharedValue(5); //starting position
 
   const toggleSwitch = () => {
-    setIsOn(!isOn);
-    translateX.value = isOn ? 5 : 45; //toggles slider left or right
+    const newState = !isOn;
+    setIsOn(newState);
+    translateX.value = newState ? 45 : 5; //toggles slider left or right
+
+    // 🔊 Console log
+    console.log(`Toggle is now ${newState ? 'ON' : 'OFF'}`);
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
