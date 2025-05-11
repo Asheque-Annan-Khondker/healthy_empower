@@ -1,6 +1,7 @@
-import { createMaterialBottomTabNavigator } from "react-native-paper/react-navigation";
-import React from "react";
 
+import React from "react";
+import { NavigationContainer, CommonActions } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Index from ".";
 import DietScreen from "./diet_screen";
 import AchievementScreen from "./achievement_screen";
@@ -10,8 +11,9 @@ import {Appbar} from "react-native-paper";
 import {DrawerToggleButton} from "@react-navigation/drawer";
 import {useNavigation} from "expo-router";
 import {DrawerActions} from "@react-navigation/native";
+import { BottomTabNavigator } from "expo-router/build/layouts/TabsClient";
 export default function tablayout() {
-  const tabs = createMaterialBottomTabNavigator()
+  const tabs = createBottomTabNavigator()
     const navigation = useNavigation()
   return (
       // * having flex, the entire screen isnt consumed by the appbar
@@ -20,8 +22,9 @@ export default function tablayout() {
 
           <Appbar.Header>
               <Appbar.Action icon={"arrow-left"} onPress={()=>{navigation.dispatch(DrawerActions.toggleDrawer())}} />
+              <Appbar.Content title={navigation.getState()?.routes[navigation.getState().index]?.name || ''}/>
           </Appbar.Header>
-    <tabs.Navigator style={{flex: 1}}>
+    <tabs.Navigator screenOptions={{headerShown: false} }>
 
       <tabs.Screen
         name="diet_screen"

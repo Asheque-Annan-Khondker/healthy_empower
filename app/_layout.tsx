@@ -2,8 +2,8 @@
 // )layout files are for persistent compoenents for the current and child screens.
 import { Stack } from 'expo-router/stack';
 import {useMaterial3Theme} from '@pchmn/expo-material3-theme'
-import { GestureHandlerRootView} from 'react-native-gesture-handler'
-import React from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import React = require('react');
 import {DefaultTheme, MD3DarkTheme, MD3LightTheme, PaperProvider, Portal} from 'react-native-paper';
 import {useColorScheme, StyleSheet, View, Dimensions} from 'react-native';
 import {StatusBar} from "expo-status-bar";
