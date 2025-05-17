@@ -14,7 +14,7 @@ import DropdownMenu from '@/components/DropdownMenu';
 import SearchBarComponent from '@/components/SearchBarComponent';
 import SlidingToggleButton from '@/components/SlidingToggleButton';
 import CheckButton from '@/components/CheckButton';
-import ProgressBar from '@/components/ProgressBar';
+import {ProgressBar} from '@/components/ProgressBar';
 import CalendarPicker from '@/components/CalendarPicker';
 import {SafeAreaView} from "react-native-safe-area-context";
 import PlaceCard from '@/components/PlaceCard';
@@ -400,29 +400,29 @@ export default function Index() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10, marginBottom: 1, height: 300 }} contentContainerStyle={{ paddingLeft: 16 }}
 >          <PlaceCard
             title="Easy Stretch Routine"
-            address="Home"
-            distance="5 mins"
+            subtext="Home"
+            leftBottomText="5 mins"
             tag="Beginner"
             image = {bannerImg}
           />
           <PlaceCard
             title="Yoga Studio"
-            address="21 Uni Rd, Wollongong"
-            distance="30 mins"
+            subtext="21 Uni Rd, Wollongong"
+            leftBottomText="30 mins"
             tag="Intermediate"
             image= {yogaStudio}
           />
           <PlaceCard
             title="Community Walk Track"
-            address="Riverside Park"
-            distance="7 km"
+            subtext="Riverside Park"
+            leftBottomText="7 km"
             tag="Expert"
             image= {walkingTrack}
           />
           <PlaceCard
             title="Intro Gym Session"
-            address="Start Fitness"
-            distance="20 mins"
+            subtext="Start Fitness"
+            leftBottomText="20 mins"
             tag="Beginner"
             image={gymSession}
           />

@@ -4,6 +4,7 @@ import {View, StyleSheet} from "react-native";
 
 
 const MealEntryForm = ({visibility, onDismiss}) => {
+    // use the inputter from paper
     return (
         <Portal>
         <Modal

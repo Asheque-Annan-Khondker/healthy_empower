@@ -1,6 +1,7 @@
 const { Op } = require('sequelize');
 const db = require('../models');
 const { validateExerciseData } = require('../utils/validation');
+const get = require('../utils/universalGet');
 
 class ExerciseContoller { 
     createExercise = async (req, res) => {
@@ -29,7 +30,7 @@ class ExerciseContoller {
         res.status(500).json({ error: error.message });
         }
     }
-
+    get = get(db.Exercise)
     getExerciseById = async (req, res) => {
         try {
             const exerciseId = req.params.id; 

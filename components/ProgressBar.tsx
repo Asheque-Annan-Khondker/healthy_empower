@@ -1,5 +1,20 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { ProgressBar as PaperBar } from 'react-native-paper';
+export {ProgressBar, GuideCompletionProgressBar}
+const GuideCompletionProgressBar = ({checkpoints:[]}) => {
+  // the state of the bar is dependent on the caller
+
+  return (
+    <View style={styles.container}>
+     
+
+    </View>
+  )
+}
+
+
+
 
 type Props = {
   progress: number; // choose 0 to 100
@@ -42,4 +57,3 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProgressBar;

@@ -1,8 +1,11 @@
 const { Op } = require('sequelize');
 const db = require('../models');
+const { default: buildSeqWhere } = require('../utils/buildSeqWhere');
+const get = require('../utils/universalGet');
 
 class FoodController {
   // Get all foods with pagination and search
+  // req = request, res = response
   getAllFoods = async (req, res) => {
     try {
       const { search, page = 1, limit = 20 } = req.query;
@@ -32,7 +35,7 @@ class FoodController {
       res.status(500).json({ error: error.message });
     }
   }
-  
+  get = get(db.Food, [{ model: db.UnitOfMeasurement }])
   // Get food by ID
   getFoodById = async (req, res) => {
     try {

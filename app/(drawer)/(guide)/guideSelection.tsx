@@ -17,7 +17,9 @@ export default function GuideSelection() {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   async function fetchData(){
-    const response = await WorkoutPlanDBModal.getAll();
+    const response = await WorkoutPlanDBModal.get({
+      plan_id: {eq: 2}
+    });
     setGuideList(response);
   }
 

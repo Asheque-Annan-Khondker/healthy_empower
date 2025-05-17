@@ -108,7 +108,7 @@ export default function CalorieDashboard() {
             }
         }, [])
     )
-    if (loading == true) {
+    if (loading) {
         return (
             <Card>
                 <Card.Content>
