@@ -52,7 +52,6 @@ export default function DietScreen() {
     async function getFoodData() {
         try {
             const foodres = await FoodDBModal.get({
-              food_id: {between: [1, 100]},
               protein: {gte: 4 },
             } )           
 

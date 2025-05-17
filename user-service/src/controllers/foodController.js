@@ -1,6 +1,5 @@
 const { Op } = require('sequelize');
 const db = require('../models');
-const { default: buildSeqWhere } = require('../utils/buildSeqWhere');
 const get = require('../utils/universalGet');
 
 class FoodController {

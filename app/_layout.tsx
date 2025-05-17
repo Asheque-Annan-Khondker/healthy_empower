@@ -1,63 +1,37 @@
-// This should be the entire app container. Thhe profile header should be called here.
-// )layout files are for persistent compoenents for the current and child screens.
-import { Stack } from 'expo-router/stack';
-import {useMaterial3Theme} from '@pchmn/expo-material3-theme'
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { Stack } from 'expo-router';
+import { PaperProvider, Portal, Provider } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import React = require('react');
-import {DefaultTheme, MD3DarkTheme, MD3LightTheme, PaperProvider, Portal} from 'react-native-paper';
-import {useColorScheme, StyleSheet, View, Dimensions} from 'react-native';
-import {StatusBar} from "expo-status-bar";
-import {SafeAreaProvider, SafeAreaView} from "react-native-safe-area-context";
-import { initializeDatabase } from '@/utils/database';
-
-const theme = {
-  ...DefaultTheme,
-  colors: {
-    primary: 'tomato',
-    secondary: 'pink',
-
-  },
-  animation:{scale: 3}
-}
-
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Layout() {
-  const colorScheme = useColorScheme()
-  const {theme} = useMaterial3Theme()
-  const globalTheme = useColorScheme()
-  const themeTextStyle = colorScheme === 'light' ? styles.lightThemeText : styles.darkThemeText;
-  const themeContainerStyle =
-      colorScheme === 'light' ? styles.lightContainer : styles.darkContainer;
-
-  const papaTheme = colorScheme =="dark" ? {...MD3DarkTheme, colors:theme.dark} : {...MD3LightTheme, colors: theme.light}
-
   return (
-      <SafeAreaProvider>
-    <GestureHandlerRootView>
+   <SafeAreaProvider> 
+    <Provider>
+
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <Portal.Host>
-      <PaperProvider theme={papaTheme} >
-      <Stack screenOptions={{headerShown: false}}>
-        {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> */}
-          <Stack.Screen name="(drawer)" options={{ headerShown:false}} />
+        <PaperProvider>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="signin" options={{ headerShown: false }} />
+        <Stack.Screen name="signup" options={{ headerShown: false }} />
       </Stack>
       </PaperProvider>
       </Portal.Host>
     </GestureHandlerRootView>
-      </SafeAreaProvider>
-  )  
-// const StackNav = createNativeStackNavigator()
-// const DrawNav = createDrawerNavigator()
+    </Provider>
+    </SafeAreaProvider>
+  );
 }
-
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  text: {
-    fontSize: 20,
   },
   lightContainer: {
     backgroundColor: '#d0d0c0',

@@ -1,423 +1,152 @@
-import React, {useEffect, useState} from 'react';
-import { StyleSheet, Text, View, Pressable, ScrollView, Image } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import ScreenTransition from "@/components/screenTransition";
-//import { ScrollView } from 'react-native-gesture-handler';
-import { FAIcon, IonIcon } from '@/utils/getIcon';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, withDelay } from 'react-native-reanimated';
-import {Avatar, Card, Paragraph, Searchbar, Title} from "react-native-paper";
-import {CustomCardList, CustomCard, cardProps} from '@/components/CardDetails';
-import { react_logo } from '@/assets/images';
-import { Redirect, useNavigation, router } from 'expo-router';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Modal, Image } from 'react-native';
+import { Searchbar } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from 'expo-router';
 import { DrawerActions } from '@react-navigation/native';
-import DropdownMenu from '@/components/DropdownMenu';
-import SearchBarComponent from '@/components/SearchBarComponent';
-import SlidingToggleButton from '@/components/SlidingToggleButton';
-import CheckButton from '@/components/CheckButton';
-import {ProgressBar} from '@/components/ProgressBar';
-import CalendarPicker from '@/components/CalendarPicker';
-import {SafeAreaView} from "react-native-safe-area-context";
+
+
+// Components
 import PlaceCard from '@/components/PlaceCard';
+import ModalFitnessForm from '@/app/ModalFitnessForm';
+import DailyFoodLog from '@/components/DailyFoodLog';
+import FoodEntryForm from '@/components/FoodEntryForm';
+import { FAIcon } from '@/utils/getIcon';
+
+// Assets
 import bannerImg from '@/assets/images/yoga.png';
 import yogaStudio from '@/assets/images/yogastudio.png';
 import walkingTrack from '@/assets/images/walkingtrack.png';
 import gymSession from '@/assets/images/gym.png';
-import Modal from 'react-native-modal';
-import FitnessForm from '@/app/FitnessForm';
-import ModalFitnessForm from '@/app/ModalFitnessForm';
-
-
-/*TODO: Implement a MVP of the dashboard. It will have:
-*  1. Calorie Graphs
-* 2. Achievement cards
-* 3. */
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-    paddingHorizontal: 16,
-    paddingBottom: 40,
-  },
-  card: {
-    marginBottom: 16,
-    borderRadius: 12,
-    elevation: 4, // Adds shadow for Android
-    shadowColor: '#000', // Adds shadow for iOS
-    shadowOffset: { width: 0, height: 2 }, // Adds shadow for iOS
-    shadowOpacity: 0.25, // Adds shadow for iOS
-    shadowRadius: 3.84, // Adds shadow for iOS
-  },
-  header: {
-    height: 180,
-    overflow: 'hidden',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  headerGradient: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 40,
-    paddingBottom: 20,
-  },
-  headerTitle: {
-    color: 'white',
-    fontSize: 24,
-    fontWeight: 'bold',
-    letterSpacing: 1,
-  },
-  headerDate: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 14,
-    letterSpacing: 1,
-    marginTop: 4,
-  },
-  statusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  statusItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statusText: {
-    color: 'white',
-    marginLeft: 6,
-    fontSize: 14,
-    letterSpacing: 1,
-  },
-  divider: {
-    width: 1,
-    height: 20,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    marginHorizontal: 15,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  section: {
-    color: 'white',
-    paddingHorizontal: 20,
-    marginTop: 20,
-  }, 
-  sectionTitle: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-    letterSpacing: 1,
-  },
-  sectionLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    marginLeft: 10,
-  },
-  statsContainer: {
-    marginBottom: 15,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  statCard: {
-    width: '48%',
-    height: 100,
-    marginBottom: 15,
-    borderRadius: 10,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  statGradient: {
-    flex: 1,
-    padding: 15,
-    justifyContent: 'space-between',
-  },
-  statValue: {
-    color: 'white',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  statLabelContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statLabel: {
-    color: 'rgba(255,255,255,0.8)',
-    marginLeft: 6,
-    fontSize: 12,
-    letterSpacing: 1,
-  },
-  activityContainer: {
-    marginBottom: 30,
-  },
-  objectiveCard: {
-    marginBottom: 15,
-    borderRadius: 10,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  objectiveGradient: {
-    flexDirection: 'row',
-    padding: 15,
-    alignItems: 'center',
-  },
-  objectiveIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  objectiveContent: {
-    flex: 1,
-  },
-  objectiveTitle: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-    letterSpacing: 1,
-  },
-  objectiveDesc: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 12,
-    marginTop: 2,
-    marginBottom: 8,
-  },
-  progressContainer: {
-    height: 4,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 2,
-  },
-  progressBar: {
-    height: '100%',
-    borderRadius: 2,
-    backgroundColor: '#5acdff',
-  },
-  objectivePercent: {
-    color: 'white',
-    marginLeft: 10,
-    fontWeight: 'bold',
-  },
-  navIndicator: {
-    height: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  navLine: {
-    width: 50,
-    height: 3,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    borderRadius: 1.5,
-  },
-});
-
-
-
-const testCards = [
-  {
-    img: react_logo, 
-    title: "Lesson 1", 
-    description: "Beginner", 
-    link: '/(drawer)/(guide)/BeginnerGuide',
-    onPress: () => router.navigate('/(drawer)/(guide)/BeginnerGuide'),
-    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
-    variant: "default",
-    textContent: { title: "Lesson 1", subtitle: "Beginner" }
-  },
-  {
-    img: react_logo, 
-    title: "Lesson 2", 
-    description: "Intermediate", 
-    link: '/(drawer)/(guide)/IntermediateGuide',
-    onPress: () => router.navigate('/(drawer)/(guide)/IntermediateGuide'),
-    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
-    variant: "default",
-    textContent: { title: "Lesson 2", subtitle: "Intermediate" }
-  },
-  {
-    img: react_logo, 
-    title: "Lesson 3", 
-    description: "Advanced", 
-    link: '/(drawer)/(guide)/AdvancedGuide',
-    onPress: () => router.navigate('/(drawer)/(guide)/AdvancedGuide'),
-    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
-    variant: "default",
-    textContent: { title: "Lesson 3", subtitle: "Advanced" }
-  },
-  {
-    img: react_logo, 
-    title: "Lesson 4", 
-    description: "Expert", 
-    link: '/(drawer)/(guide)/ExpertGuide',
-    onPress: () => router.navigate('/(drawer)/(guide)/ExpertGuide'),
-    iconProps: { icon: 'book', color: '#8465c2', size: 24 },
-    variant: "default",
-    textContent: { title: "Lesson 4", subtitle: "Expert" }
-  }
-];
-
-
-const healthStats = [
-{ label: 'STEPS', value: '8,432', icon: 'footsteps', color: '#5acdff' },
-{ label: 'CALORIES', value: '1,842', icon: 'flame', color: '#ff5a87' },
-{ label: 'HYDRATION', value: '68%', icon: 'water', color: '#5acdff' },
-{ label: 'RECOVERY', value: '87%', icon: 'pulse', color: '#a5ff5a' }
-];
-
-const objectives = [
-{ 
-title: 'DAILY EXERCISE',
-desc: 'Complete 30 minutes of cardio activity',
-icon: 'fitness',
-progress: 75,
-color: '#5acdff'
-},
-{
-title: 'NUTRITION GOAL',
-desc: 'Stay within macro targets for the day',
-icon: 'nutrition',
-progress: 60,
-color: '#ff5a87'
-},
-{ 
-title: 'HYDRATION',
-desc: 'Drink 2L of water throughout the day',
-icon: 'water',
-progress: 80,
-color: '#5acdff'
-},
-];
-
-const cardPropsTestArray: cardProps[] = [
-  {
-    onPress: () => console.log("Card one pressed! Exciting!"),
-    longPress: () => console.log("Whoa! Long press on card one detected!"),
-    textContent: {
-      title: "Daily Workout Challenge!",
-      subtitle: "Ready to feel the burn?!",
-      description: "Complete 20 jumping jacks to earn star points!"
-    },
-    iconProps: {
-      icon: "star",
-      color: "#FFC107",
-      size: 40
-    },
-    variant: "elevated"
-  },
-  {
-    onPress: () => console.log("Card two activated! Let's go!"),
-    mainComponent: <></>,
-    textContent: {
-      title: "Meditation Session",
-      subtitle: "Find your inner peace!",
-      paragraph: "Take a five minute break to recharge your mental energy! Even Trailblazers need to rest sometimes!"
-    },
-    iconProps: {
-      icon: "meditation",
-      color: "#4CAF50",
-      size: 36
-    },
-    variant: "default"
-  },
-  {
-    onPress: () => console.log("Card three tapped! Amazing!"),
-    longPress: () => console.log("Super duper long press on card three!"),
-    textContent: {
-      title: "Water Reminder!",
-      description: "Have you had your 8 glasses today? Stay hydrated for maximum power-ups!"
-    },
-    iconProps: {
-      icon: "water",
-      color: "#2196F3",
-      size: 42
-    },
-    variant: "outlined"
-  },
-  {
-    onPress: () => console.log("Card four selected! Yahoo!"),
-    textContent: {
-      title: "Sleep Tracker",
-      subtitle: "Rest well, play better!",
-      description: "Track your sleep patterns!",
-      paragraph: "Getting 8 hours of sleep improves your reaction time by 35%! That's so many percent!"
-    },
-    iconProps: {
-      icon: "sleep",
-      color: "#673AB7",
-      size: 38
-    },
-    variant: "elevated"
-  },
-  {
-    onPress: () => console.log("Card five clicked! Wowee!"),
-    longPress: () => console.log("Extra long press on card five detected! So patient!"),
-    mainComponent: <View style={{ height: 50, backgroundColor: '#ffcdd2' }} />,
-    textContent: {
-      title: "Nutrition Tips!",
-      subtitle: "Fuel your adventures!",
-    },
-    iconProps: {
-      icon: "food-apple",
-      color: "#E91E63",
-      size: 44
-    },
-    variant: "default"
-  }
-];
-
-
-
 
 export default function Index() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const metrics = { steps: "", calories: "", hydration: "", recovery: "" };
-  const navigation = useNavigation();
+const [searchQuery, setSearchQuery] = useState('');
+const [currentDate, setCurrentDate] = useState(new Date());
+const [isFoodModalVisible, setIsFoodModalVisible] = useState(false);
+const navigation = useNavigation();
 
-  return (
-    <SafeAreaView style={{ flex: 1, marginBottom: 100 }}>
-      <ScrollView contentContainerStyle={styles.container}>
+// Format the date as DD/MM/YYYY
+const formatDate = (date) => {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+// Navigate to previous day
+const goToPreviousDay = () => {
+  const newDate = new Date(currentDate);
+  newDate.setDate(newDate.getDate() - 1);
+  setCurrentDate(newDate);
+};
+
+// Navigate to next day
+const goToNextDay = () => {
+  const newDate = new Date(currentDate);
+  newDate.setDate(newDate.getDate() + 1);
+  setCurrentDate(newDate);
+};
+
+// Handle Add Food button press
+const handleAddFood = () => {
+  setIsFoodModalVisible(true);
+};
+
+// Handle close food modal
+const handleCloseFood = () => {
+  setIsFoodModalVisible(false);
+};
+
+return (
+  <SafeAreaView style={styles.safeArea}>
+    <View style={styles.mainContainer}>
+      {/* Scrollable content area */}
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Search bar */}
         <Searchbar
-          placeholder={"Search"}
+          placeholder="Search"
           onChangeText={setSearchQuery}
           value={searchQuery}
-          icon={() => <FAIcon name="bars" color="black" />}
+          icon={() => <FAIcon name="bars" color="#B25B28" />}
           onIconPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+          style={styles.searchBar}
+          inputStyle={styles.searchInput}
+        />
+  
+        {/* Welcome message with logo */}
+        <View style={styles.welcomeContainer}>
+          <View style={styles.welcomeTextContainer}>
+            <Text style={styles.welcomeTitle}>Welcome back!</Text>
+            <Text style={styles.welcomeSubtitle}>Let's continue your fitness journey</Text>
+          </View>
+          <Image 
+            source={require('@/assets/images/squirrel_flex.png')} 
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+        </View>
+  
+        {/* Date header with navigation */}
+        <View style={styles.dateHeaderContainer}>
+          <TouchableOpacity 
+            style={styles.dateNavButton}
+            onPress={goToPreviousDay}
+            activeOpacity={0.7}
+          >
+            <FAIcon name="chevron-left" size={20} color="#666" />
+          </TouchableOpacity>
+          
+          <Text style={styles.dateText}>{formatDate(currentDate)}</Text>
+          
+          <TouchableOpacity 
+            style={styles.dateNavButton}
+            onPress={goToNextDay}
+            activeOpacity={0.7}
+          >
+            <FAIcon name="chevron-right" size={20} color="#666" />
+          </TouchableOpacity>
+        </View>
+        
+        {/* Daily Food Log Section */}
+        <DailyFoodLog 
+          date={currentDate}
+          onAddPress={handleAddFood}
         />
 
-        {/* card scroll section*/}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10, marginBottom: 1, height: 300 }} contentContainerStyle={{ paddingLeft: 16 }}
->          <PlaceCard
+        {/* Cards section */}
+        <Text style={styles.cardSectionTitle}>Recommended Workouts</Text>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          style={styles.cardScroll} 
+          contentContainerStyle={styles.cardsContainer}
+        >          
+          <PlaceCard
             title="Easy Stretch Routine"
             subtext="Home"
             leftBottomText="5 mins"
             tag="Beginner"
-            image = {bannerImg}
+            image={bannerImg}
+            onPress={() => console.log("Easy Stretch Routine pressed")}
           />
           <PlaceCard
             title="Yoga Studio"
             subtext="21 Uni Rd, Wollongong"
             leftBottomText="30 mins"
             tag="Intermediate"
-            image= {yogaStudio}
+            image={yogaStudio}
+            onPress={() => console.log("Yoga Studio pressed")}
           />
           <PlaceCard
             title="Community Walk Track"
             subtext="Riverside Park"
             leftBottomText="7 km"
             tag="Expert"
-            image= {walkingTrack}
+            image={walkingTrack}
+            onPress={() => console.log("Community Walk Track pressed")}
           />
           <PlaceCard
             title="Intro Gym Session"
@@ -425,25 +154,356 @@ export default function Index() {
             leftBottomText="20 mins"
             tag="Beginner"
             image={gymSession}
+            onPress={() => console.log("Intro Gym Session pressed")}
           />
-          
         </ScrollView>
-
-        {/* Modal Fitness Form, opens up a view within the home page */}
-        <ModalFitnessForm/>
-
-
-        {/* DropDown Menu */}
-        <View style={{ marginTop: 5 }}>
-          <DropdownMenu onSelect={(option) => console.log("Selected:", option)} />
-        </View>
-
-        <View style={{ marginBottom: 4 }}>
-          <CalendarPicker />
-        </View>
-
-
       </ScrollView>
-    </SafeAreaView>
-  );
+      
+      {/* Modal Fitness Form */}
+      <ModalFitnessForm />
+
+      {/* Food Entry Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isFoodModalVisible}
+        onRequestClose={handleCloseFood}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Add Food Entry</Text>
+              <TouchableOpacity onPress={handleCloseFood}>
+                <FAIcon name="times" size={24} color="#3A2A1F" />
+              </TouchableOpacity>
+            </View>
+            
+            <FoodEntryForm 
+              onSave={(foodEntry) => {
+                console.log('Food entry saved:', foodEntry);
+                // Here you would typically save the food entry to your database
+                // For now, we'll just close the modal
+                handleCloseFood();
+              }}
+              onCancel={handleCloseFood}
+            />
+          </View>
+        </View>
+      </Modal>
+    </View>
+  </SafeAreaView>
+);
 }
+
+const styles = StyleSheet.create({
+safeArea: {
+  flex: 1,
+  backgroundColor: '#FAF7F4',
+},
+mainContainer: {
+  flex: 1,
+  position: 'relative', // For positioning the fixed START button
+},
+scrollContent: {
+  paddingHorizontal: 16,
+  paddingBottom: 80, // Add padding for the START button
+},
+searchBar: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: 24,
+  marginVertical: 16,
+  elevation: 2,
+  shadowColor: '#3A2A1F',
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.1,
+  shadowRadius: 2,
+  borderWidth: 1,
+  borderColor: 'rgba(214, 141, 84, 0.2)',
+},
+searchInput: {
+  color: '#3A2A1F',
+},
+welcomeContainer: {
+  marginTop: 10,
+  marginBottom: 20,
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+},
+welcomeTextContainer: {
+  flex: 1,
+},
+welcomeTitle: {
+  fontSize: 24,
+  fontWeight: 'bold',
+  color: '#3A2A1F',
+  marginBottom: 4,
+},
+welcomeSubtitle: {
+  fontSize: 16,
+  color: '#9B8579',
+},
+logoImage: {
+  width: 60,
+  height: 60,
+  marginLeft: 10,
+  borderRadius: 30, // Makes it circular if desired
+  backgroundColor: 'rgba(214, 141, 84, 0.1)', // Light background to match your theme
+  padding: 5,
+},
+dropdownContainer: {
+  marginBottom: 16,
+},
+dateHeaderContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginVertical: 15,
+  backgroundColor: '#D68D54',
+  paddingVertical: 12,
+  paddingHorizontal: 10,
+  borderRadius: 8,
+  alignSelf: 'center', // Center horizontally
+  width: '100%', // Full width
+},
+dateText: {
+  fontSize: 16, // Slightly smaller font
+  fontWeight: 'bold',
+  color: '#FFFFFF',
+  textAlign: 'center',
+  letterSpacing: 1,
+},
+dateNavButton: {
+  padding: 4, // Smaller padding
+  justifyContent: 'center',
+  alignItems: 'center',
+  width: 30, // Smaller width
+  height: 30, // Smaller height
+  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  borderRadius: 15,
+},
+foodTrackingContainer: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: 10,
+  padding: 16,
+  marginTop: 16,
+  marginBottom: 20,
+  elevation: 3,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.2,
+  shadowRadius: 2,
+  borderWidth: 1,
+  borderColor: 'rgba(214, 141, 84, 0.2)',
+},
+foodTrackingHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 16,
+  borderBottomWidth: 1,
+  borderBottomColor: 'rgba(214, 141, 84, 0.1)',
+  paddingBottom: 8,
+},
+foodTrackingTitle: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: '#3A2A1F',
+},
+calorieCount: {
+  fontSize: 20,
+  fontWeight: 'bold',
+  color: '#D68D54',
+},
+macroContainer: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  marginTop: 10,
+},
+macroItem: {
+  alignItems: 'center',
+  flex: 1,
+  backgroundColor: 'rgba(214, 141, 84, 0.05)',
+  padding: 10,
+  borderRadius: 8,
+  marginHorizontal: 4,
+},
+macroValue: {
+  fontSize: 16,
+  fontWeight: 'bold',
+  color: '#3A2A1F',
+},
+macroLabel: {
+  fontSize: 12,
+  color: '#9B8579',
+  marginTop: 4,
+},
+// Workout card styles
+workoutCardsContainer: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  flexWrap: 'wrap',
+  marginBottom: 100, // Space for the START button
+},
+workoutCard: {
+  width: '48%',
+  backgroundColor: '#FFFFFF',
+  borderRadius: 10,
+  marginBottom: 16,
+  overflow: 'hidden',
+  elevation: 2,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.2,
+  shadowRadius: 2,
+},
+workoutImage: {
+  width: '100%',
+  height: 100,
+  resizeMode: 'cover',
+},
+tagContainer: {
+  position: 'absolute',
+  right: 8,
+  top: 8,
+  backgroundColor: '#FFFFFF',
+  paddingHorizontal: 8,
+  paddingVertical: 4,
+  borderRadius: 10,
+},
+intermediateTag: {
+  backgroundColor: '#FFFFFF',
+},
+tagText: {
+  fontSize: 10,
+  fontWeight: 'bold',
+  color: '#3A2A1F',
+},
+workoutCardContent: {
+  padding: 10,
+},
+workoutCardTitle: {
+  fontSize: 14,
+  fontWeight: 'bold',
+  color: '#3A2A1F',
+  marginBottom: 4,
+},
+locationContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: 8,
+},
+locationText: {
+  fontSize: 12,
+  color: '#666',
+  marginLeft: 4,
+},
+workoutCardFooter: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginTop: 4,
+},
+durationText: {
+  fontSize: 12,
+  color: '#666',
+},
+readMoreButton: {
+  backgroundColor: '#E6EFF9',
+  paddingHorizontal: 8,
+  paddingVertical: 4,
+  borderRadius: 10,
+},
+readMoreText: {
+  fontSize: 10,
+  fontWeight: 'bold',
+  color: '#4285F4',
+},
+cardSectionTitle: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: '#3A2A1F',
+  marginBottom: 16,
+  marginTop: 20,
+},
+cardScroll: {
+  height: 240, // Reduced height for the card section
+},
+cardsContainer: {
+  paddingLeft: 0, // No left padding since parent already has padding
+  paddingRight: 16,
+},
+startButton: {
+  position: 'absolute',
+  bottom: 80, // Position well above the nav bar
+  left: 16,
+  right: 16,
+  backgroundColor: '#D68D54',
+  paddingVertical: 14,
+  borderRadius: 24,
+  alignItems: 'center',
+  justifyContent: 'center',
+  elevation: 3,
+  shadowColor: '#B25B28',
+  shadowOffset: { width: 0, height: 3 },
+  shadowOpacity: 0.2,
+  shadowRadius: 4,
+},
+startButtonText: {
+  color: 'white',
+  fontSize: 18, // Slightly larger text
+  fontWeight: 'bold',
+  letterSpacing: 2, // More letter spacing
+},
+// Modal styles
+modalContainer: {
+  flex: 1,
+  justifyContent: 'flex-end',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+},
+modalContent: {
+  backgroundColor: 'white',
+  borderTopLeftRadius: 20,
+  borderTopRightRadius: 20,
+  padding: 20,
+  maxHeight: '80%',
+},
+modalHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 20,
+  paddingBottom: 10,
+  borderBottomWidth: 1,
+  borderBottomColor: 'rgba(214, 141, 84, 0.2)',
+},
+modalTitle: {
+  fontSize: 20,
+  fontWeight: 'bold',
+  color: '#3A2A1F',
+},
+modalText: {
+  fontSize: 16,
+  color: '#3A2A1F',
+  marginBottom: 10,
+},
+modalItemText: {
+  fontSize: 14,
+  color: '#9B8579',
+  marginLeft: 10,
+  marginBottom: 5,
+},
+saveButton: {
+  backgroundColor: '#D68D54',
+  paddingVertical: 12,
+  borderRadius: 24,
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginTop: 20,
+},
+saveButtonText: {
+  color: 'white',
+  fontSize: 16,
+  fontWeight: 'bold',
+},
+});
