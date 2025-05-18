@@ -17,17 +17,31 @@ class WorkoutPlanController {
     getWorkoutPlanById = async (req, res) => {
         try {
             const planId = req.params.id;
-
-            const plan = await db.WorkoutPlan.findByPk(planId, {
-                include: [{
-                    model: db.Exercise,
-                    through: {
-                        attributes: ['sets', 'reps_targets', 'duration']
-                    }
-                }]
-            });
-
-            res.status(200).json(plan);
+            
+            // First try to find the plan without includes to verify it exists
+            const basicPlan = await db.WorkoutPlan.findByPk(planId);
+            
+            if (!basicPlan) {
+                return res.status(404).json({ error: 'Workout plan not found' });
+            }
+            
+            // Now try to include the exercises
+            try {
+                const plan = await db.WorkoutPlan.findByPk(planId, {
+                    include: [{
+                        model: db.Exercise,
+                        through: {
+                            attributes: ['sets', 'reps_targets', 'duration']
+                        }
+                    }]
+                });
+                
+                res.status(200).json(plan);
+            } catch (includeError) {
+                // If including exercises fails, at least return the basic plan
+                console.error("Error including exercises:", includeError);
+                res.status(200).json(basicPlan);
+            }
         } catch (error) {
             res.status(500).json({ error: error.message }); 
         }
