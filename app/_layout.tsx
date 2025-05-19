@@ -1,17 +1,19 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
+import { StyleSheet } from 'react-native';
+import { WorkoutProvider } from '../Context/WorkoutContext';
 
-export default function Layout() {
+export default function AppLayout() {
   return (
-    <View style={{ flex: 1 }}>
+    <WorkoutProvider>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="signin" options={{ headerShown: false }} />
         <Stack.Screen name="signup" options={{ headerShown: false }} />
+        <Stack.Screen name="guideContent" options={{ headerShown: false }} />
       </Stack>
-    </View>
+    </WorkoutProvider>
   );
 }
 

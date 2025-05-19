@@ -1,28 +1,37 @@
-import { createMaterialBottomTabNavigator } from "react-native-paper/react-navigation";
-import React from "react";
-
-import Index from ".";
-import DietScreen from "./diet_screen";
-import AchievementScreen from "./achievement_screen";
-import {FAIcon, MatIcon} from "@/utils/getIcon";
-import {View} from "react-native";
-import {Appbar} from "react-native-paper";
-import {DrawerToggleButton} from "@react-navigation/drawer";
-import {Tabs, useNavigation} from "expo-router";
-import {DrawerActions} from "@react-navigation/native";
+import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
 
 export default function TabLayout() {
-  // Super simple version to test if it works
+  // Super simple version with achievement tab added
   return (
     <Tabs screenOptions={{ headerShown: false }}>
-      <Tabs.Screen 
-        name="index" 
+      <Tabs.Screen
+        name="index"
         options={{
           title: 'Home',
-          tabBarLabel: 'Home'
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ color }) => <Ionicons name="home" size={24} color={color} />
+        }}
+      />
+      
+      <Tabs.Screen
+        name="shop_screen"
+        options={{
+          title: 'Shop',
+          tabBarLabel: 'Shop',
+          tabBarIcon: ({ color }) => <Ionicons name="cart" size={24} color={color} />
+        }}
+      />
+      
+      <Tabs.Screen
+        name="achievement_screen"
+        options={{
+          title: 'Achievements',
+          tabBarLabel: 'Achievements',
+          tabBarIcon: ({ color }) => <Ionicons name="trophy" size={24} color={color} />
         }}
       />
     </Tabs>
   );
 }
-
