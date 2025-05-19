@@ -1,4 +1,5 @@
 const db = require('../models');
+const get = require('../utils/universalGet');
 
 class WorkoutLogController {
     logWorkout = async (req, res) => {
@@ -40,7 +41,7 @@ class WorkoutLogController {
             res.status(500).json({ error: error.message });
         }
     }
-
+    get = get(db.WorkoutLog)
     getUserWorkoutLog = async (req, res) => {
         try {
             const userId = req.params.userId;

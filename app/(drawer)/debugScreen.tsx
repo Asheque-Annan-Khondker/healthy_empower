@@ -6,7 +6,7 @@ import React from 'react';
 import ScreenTransition from '@/components/screenTransition';
 import CalorieDashboard from '@/components/diet/CalorieDashboard';
 import { Achievement, Exercise, Food } from '@/utils/table.types';
-import { AchievementDBModal, DBModal, ExerciseDBModal, FoodDBModal } from '@/utils/dbFunctions';
+import { AchievementDBModal, DBModal, ExerciseDBModal, FoodDBModal, dropall } from '@/utils/dbFunctions';
 import MealEntryForm from "@/components/diet/MealEntryForm";
 import DropdownMenu from "@/components/DropdownMenu";
 
@@ -20,8 +20,10 @@ export default function DebugDatabaseScreen() {
   
   async function setupTestData() {
     try {
+      dropall()
+      
       // Food db
-      for(const food in foodData){
+      for(const food of foodData){
         await FoodDBModal.insert(food)
       }
      } catch (err) {
@@ -31,7 +33,7 @@ export default function DebugDatabaseScreen() {
     
     async function loadData() {
       try {
-        setFoodEntries(await FoodDBModal.getAll());;
+        setFoodEntries(await FoodDBModal.get());;
         setExerciseEntries(await ExerciseDBModal.getAll());
         setAchievementEntries(await AchievementDBModal.getAll());
       } catch (err) {
@@ -102,129 +104,98 @@ export default function DebugDatabaseScreen() {
     }
 
 
-    const foodData: Food[] = [
-
-      {
-        food_id: 1001,
-        name: "Grilled Chicken Breast",
-        calories: 165,
-        protein: 31,
-        carbs: 0,
-        fat: 3.6,
-        serving_size: "100",
-        serving_unit_id: 1, // grams
-        created_at: "2025-03-15T14:30:45Z",
-        meal_type: "lunch"
-      },
-      {
-        food_id: 1002,
-        name: "Quinoa",
-        calories: 120,
-        protein: 4.4,
-        carbs: 21.3,
-        fat: 1.9,
-        serving_size: "100",
-        serving_unit_id: 1, // grams
-        created_at: "2025-03-10T09:15:22Z",
-        meal_type: "dinner"
-      },
-      {
-        food_id: 1003,
-        name: "Avocado",
-        calories: 160,
-        protein: 2,
-        carbs: 8.5,
-        fat: 14.7,
-        serving_size: "1",
-        serving_unit_id: 5, // whole
-        created_at: "2025-03-12T11:45:30Z",
-        meal_type: "snack"
-      },
-      {
-        food_id: 1004,
-        name: "Greek Yogurt",
-        calories: 100,
-        protein: 10,
-        carbs: 3.6,
-        fat: 5.5,
-        serving_size: "170",
-        serving_unit_id: 1, // grams
-        created_at: "2025-03-18T07:20:15Z",
-        meal_type: "breakfast"
-      },
-      {
-        food_id: 1005,
-        name: "Salmon Fillet",
-        calories: 208,
-        protein: 20.4,
-        carbs: 0,
-        fat: 13.4,
-        serving_size: "100",
-        serving_unit_id: 1, // grams
-        created_at: "2025-03-22T18:10:05Z",
-        meal_type: "dinner"
-      },
-      {
-        food_id: 1006,
-        name: "Spinach",
-        calories: 23,
-        protein: 2.9,
-        carbs: 3.6,
-        fat: 0.4,
-        serving_size: "100",
-        serving_unit_id: 1, // grams
-        created_at: "2025-03-14T10:35:18Z",
-        meal_type: "lunch"
-      },
-      {
-        food_id: 1007,
-        name: "Banana",
-        calories: 105,
-        protein: 1.3,
-        carbs: 27,
-        fat: 0.4,
-        serving_size: "1",
-        serving_unit_id: 5, // whole
-        created_at: "2025-03-19T15:25:40Z",
-        meal_type: "snack"
-      },
-      {
-        food_id: 1008,
-        name: "Oatmeal",
-        calories: 150,
-        protein: 5,
-        carbs: 27,
-        fat: 2.5,
-        serving_size: "40",
-        serving_unit_id: 1, // grams (dry)
-        created_at: "2025-03-16T06:50:30Z",
-        meal_type: "breakfast"
-      },
-      {
-        food_id: 1009,
-        name: "Almonds",
-        calories: 164,
-        protein: 6,
-        carbs: 6,
-        fat: 14,
-        serving_size: "28",
-        serving_unit_id: 1, // grams
-        created_at: "2025-03-20T13:40:55Z",
-        meal_type: "snack"
-      },
-      {
-        food_id: 1010,
-        name: "Sweet Potato",
-        calories: 86,
-        protein: 1.6,
-        carbs: 20.1,
-        fat: 0.1,
-        serving_size: "100",
-        serving_unit_id: 1, // grams
-        created_at: "2025-03-17T19:05:10Z",
-        meal_type: "dinner"
-      }
-    ]
+   const foodData: Partial<Food>[] = [
+  {
+    name: "Grilled Chicken Breast",
+      calories: 165,
+      protein: 31,
+      carbs: 0,
+      fat: 3.6,
+    serving_size: "100",
+    serving_unit_id: 1, // grams
+  },
+  {
+    name: "Quinoa",
+      calories: 120,
+      protein: 4.4,
+      carbs: 21.3,
+      fat: 1.9,
+    serving_size: "100",
+    serving_unit_id: 1, // grams
+  },
+  {
+    name: "Avocado",
+      calories: 160,
+      protein: 2,
+      carbs: 8.5,
+      fat: 14.7,
+    serving_size: "1",
+    serving_unit_id: 5, // whole
+  },
+  {
+    name: "Greek Yogurt",
+      calories: 100,
+      protein: 10,
+      carbs: 3.6,
+      fat: 5.5,
+    serving_size: "170",
+    serving_unit_id: 1, // grams
+  },
+  {
+    name: "Salmon Fillet",
+      calories: 208,
+      protein: 20.4,
+      carbs: 0,
+      fat: 13.4,
+    serving_size: "100",
+    serving_unit_id: 1, // grams
+  },
+  {
+    name: "Spinach",
+      calories: 23,
+      protein: 2.9,
+      carbs: 3.6,
+      fat: 0.4,
+    serving_size: "100",
+    serving_unit_id: 1, // grams
+  },
+  {
+    name: "Banana",
+      calories: 105,
+      protein: 1.3,
+      carbs: 27,
+      fat: 0.4,
+    serving_size: "1",
+    serving_unit_id: 5, // whole
+  },
+  {
+    name: "Oatmeal",
+      calories: 150,
+      protein: 5,
+      carbs: 27,
+      fat: 2.5,
+    serving_size: "40",
+    serving_unit_id: 1, // grams (dry)
+  },
+  {
+    name: "Almonds",
+      calories: 164,
+      protein: 6,
+      carbs: 6,
+      fat: 14,
+    serving_size: "28",
+    serving_unit_id: 1, // grams
+  },
+  {
+    name: "Sweet Potato",
+      calories: 86,
+      protein: 1.6,
+      carbs: 20.1,
+      fat: 0.1,
+    serving_size: "100",
+    serving_unit_id: 1, // grams
+  }
+]
     const sqlCommands = [
       'DELETE FROM Food;',
       'DELETE FROM Exercises;',

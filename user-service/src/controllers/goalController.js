@@ -1,5 +1,6 @@
 const { validateGoalData } = require('../utils/validation.js'); 
 const db = require('../models');
+const get = require('../utils/universalGet.js');
 
 class GoalController {  
   constructor() { 
@@ -42,7 +43,7 @@ class GoalController {
       res.status(500).json({ error: error.message });
     }
   }
-
+  get = get(db.Goal)
   getAllGoals =  async (req, res) => {
     try {
       const userId = req.params.userId;

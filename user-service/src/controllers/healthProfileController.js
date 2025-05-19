@@ -1,5 +1,6 @@
 const { validateHealthData, validateGoalData } = require('../utils/validation.js'); 
 const db = require('../models');
+const get = require('../utils/universalGet.js');
 
 
 class HealthProfileController {
@@ -38,7 +39,7 @@ class HealthProfileController {
     res.status(500).json({ error: error.message }); 
   }
 }
-
+get = get(db.HealthProfile)
 
 
  getHealthProfile = async (req, res) => {

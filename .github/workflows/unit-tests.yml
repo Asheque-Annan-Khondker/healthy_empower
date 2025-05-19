@@ -23,7 +23,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Used the version provided in package.json
+          node-version: '20'  # Used the version provided in package.json
 
       # for debugging purpose
       - name: Print current directory

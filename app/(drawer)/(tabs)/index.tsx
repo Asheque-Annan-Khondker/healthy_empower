@@ -5,7 +5,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from 'expo-router';
 import { DrawerActions } from '@react-navigation/native';
 
+import DropdownMenu from '@/components/DropdownMenu';
+import SearchBarComponent from '@/components/SearchBarComponent';
+import SlidingToggleButton from '@/components/SlidingToggleButton';
+import CheckButton from '@/components/CheckButton';
+import {ProgressBar} from '@/components/ProgressBar';
+import CalendarPicker from '@/components/CalendarPicker';
+
 // Components
+
 import PlaceCard from '@/components/PlaceCard';
 import ModalFitnessForm from '@/app/ModalFitnessForm';
 import DailyFoodLog from '@/components/DailyFoodLog';

@@ -35,26 +35,26 @@ export default function SignInScreen() {
     useEffect(() => {
         // Check if user is already logged in
         checkExistingToken();
-        
+
         // Subtle bouncing animation for the logo
         const startLogoAnimation = () => {
             logoScale.value = withSequence(
                 withTiming(1.05, { duration: 800, easing: Easing.out(Easing.sin) }),
                 withTiming(0.95, { duration: 800, easing: Easing.in(Easing.sin) })
             );
-            
+
             logoY.value = withSequence(
                 withTiming(-5, { duration: 800, easing: Easing.out(Easing.sin) }),
                 withTiming(5, { duration: 800, easing: Easing.in(Easing.sin) })
             );
         };
-        
+
         // Start animation and repeat
         startLogoAnimation();
         const interval = setInterval(() => {
             startLogoAnimation();
         }, 1600);
-        
+
         return () => clearInterval(interval);
     }, []);
     
