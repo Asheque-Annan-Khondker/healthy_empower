@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View, ActivityIndicator } from "react-native";
 import { List, Surface, Text, Avatar, Divider, Badge, Card, Title, Paragraph, ProgressBar, useTheme } from 'react-native-paper';
 import { AchievementDBModal} from "@/utils/dbFunctions";
+import React from "react";
 import { Achievement } from "@/utils/table.types"; // Make sure this import exists
 import { useFocusEffect } from "expo-router";
 

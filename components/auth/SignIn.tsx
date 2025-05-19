@@ -13,15 +13,13 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-
+import {API_URL} from "@/constants/DBAPI";
 const { width, height } = Dimensions.get('window');
 
-//const API_URL = 'http://10.0.2.2:3001'; // Android emulator special IP for localhost
-
-/* my (jono) IP for localhost. I'm using an actual android device. 
-  Not sure what's the appropriate solution for all devices to work. But this works for me*/
-  const API_URL = 'http://192.168.1.104:3001'; 
-
+// Configure API base URL - Special IP for Android emulator to access host machine
+export const USER = {
+    id: -1
+}
 export default function SignInScreen() {
     const params = useLocalSearchParams();
     const [email, setEmail] = useState(params.email?.toString() || '');
@@ -37,26 +35,26 @@ export default function SignInScreen() {
     useEffect(() => {
         // Check if user is already logged in
         checkExistingToken();
-        
+
         // Subtle bouncing animation for the logo
         const startLogoAnimation = () => {
             logoScale.value = withSequence(
                 withTiming(1.05, { duration: 800, easing: Easing.out(Easing.sin) }),
                 withTiming(0.95, { duration: 800, easing: Easing.in(Easing.sin) })
             );
-            
+
             logoY.value = withSequence(
                 withTiming(-5, { duration: 800, easing: Easing.out(Easing.sin) }),
                 withTiming(5, { duration: 800, easing: Easing.in(Easing.sin) })
             );
         };
-        
+
         // Start animation and repeat
         startLogoAnimation();
         const interval = setInterval(() => {
             startLogoAnimation();
         }, 1600);
-        
+
         return () => clearInterval(interval);
     }, []);
     
@@ -72,6 +70,7 @@ export default function SignInScreen() {
     // Check for existing authentication token
     const checkExistingToken = async () => {
         try {
+            //? Could this be the used to get user id?
             const token = await AsyncStorage.getItem('authToken');
             const refreshToken = await AsyncStorage.getItem('refreshToken');
             
@@ -141,11 +140,14 @@ export default function SignInScreen() {
                 email,
                 password
             });
-            
             // Store authentication data
             const { token, refreshToken, user } = response.data;
             await storeAuthTokens(token, refreshToken, user);
-            
+
+            const userbyemailresponse = await axios.get(
+                `${API_URL}/api/users/by-email?email=${encodeURIComponent(email)}`
+            );
+            USER.id = userbyemailresponse.data.id;
             // Navigate to main app
             router.replace('/(drawer)/(tabs)');
         } catch (error) {

@@ -4,6 +4,9 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ## Local Development
 
+0. Set appropriate API_URL
+   Navigate to file /healthy-empower/constants/DBAPI.ts and set the appropriate API_URL for yourself.
+
 1. Install dependencies
 
    ```bash
@@ -17,7 +20,15 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    ```
 
 
-2. Start the app
+2. Start the backend service
+   Navigate to folder /healthy-empower/user-service/src/ and run
+
+   ```bash
+    node app.js
+   ```
+
+3. Start the frontend app
+   Navigate to main project folder /healthy-empower/ and run
 
    ```bash
     npx expo start

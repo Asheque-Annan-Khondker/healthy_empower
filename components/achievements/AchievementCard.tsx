@@ -1,5 +1,5 @@
 import {Card, CardProps, List} from "react-native-paper";
-import { Achievement } from "./achievement.types";
+import { Achievement } from "@/utils/table.types";
 import React from "react";
 import { StyleSheet } from "react-native";
 import {CustomCard} from "@/components/CardDetails";
@@ -14,7 +14,7 @@ interface AchievementProps{
 
 const AchievementCard= (props: AchievementProps) =>{
 
-  return (<List.Item title= />)
+  return (<List.Item title={""} />)
     
 
 }

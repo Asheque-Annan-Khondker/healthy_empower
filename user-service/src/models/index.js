@@ -25,14 +25,14 @@ const WorkoutPlanExercise = require('./WorkoutPlanExercise')(sequelize, Sequeliz
 const UnitOfMeasurement = require('./UnitOfMeasurement')(sequelize, Sequelize.DataTypes);
 const Food = require('./Food')(sequelize, Sequelize.DataTypes);
 const MealLog = require('./MealLog')(sequelize, Sequelize.DataTypes);
-//const Achievement = require('./Achievement');
-//const UserAchievement = require('./UserAchievement');
+const Achievement = require('./Achievement')(sequelize, Sequelize.DataTypes);
+const UserAchievement = require('./UserAchievement')(sequelize, Sequelize.DataTypes);
 
 User.hasOne(HealthProfile, { foreignKey: 'user_id' });
 User.hasMany(Goal, { foreignKey: 'user_id' });
 User.hasMany(WorkoutLog, { foreignKey: 'user_id' });
 User.hasMany(MealLog, { foreignKey: 'user_id' });
-//User.belongsToMany(Achievement, { through: UserAchievement, foreignKey: 'user_id' });
+User.belongsToMany(Achievement, { through: UserAchievement, foreignKey: 'user_id' });
 
 
 HealthProfile.belongsTo(User, { foreignKey: 'user_id' });
@@ -62,7 +62,7 @@ Food.hasMany(MealLog, { foreignKey: 'food_id' });
 UnitOfMeasurement.hasMany(Food, { foreignKey: 'serving_unit_id' });
 MealLog.belongsTo(User, { foreignKey: 'user_id' });
 MealLog.belongsTo(Food, { foreignKey: 'food_id' });
-//Achievement.belongsToMany(User, { through: UserAchievement, foreignKey: 'achievement_id' });
+Achievement.belongsToMany(User, { through: UserAchievement, foreignKey: 'achievement_id' });
  
 
 
@@ -79,9 +79,9 @@ const db = {
   UnitOfMeasurement,
   Food,
   MealLog,
-  Exercise
- // Achievement,
-  //UserAchievement
+  Exercise,
+  Achievement,
+  UserAchievement
   
 };
 

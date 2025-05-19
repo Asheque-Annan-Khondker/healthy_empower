@@ -7,7 +7,7 @@ export const logout = async () => {
         await AsyncStorage.removeItem('refreshToken');
         await AsyncStorage.removeItem('userData'); 
 
-        router.replace('/');
+        router.replace('/signin');
     } catch (error) {
         console.error("couldnt logout", error); 
         router.replace('/'); // even if error return to login screen

@@ -1,5 +1,6 @@
 const { Op } = require('sequelize');
 const db = require('../models');
+const get = require('../utils/universalGet');
 
 class MealLogController {
   // Create meal log
@@ -53,7 +54,7 @@ class MealLogController {
       res.status(500).json({ error: error.message });
     }
   }
-  
+  get = get(db.MealLog)
   // Get meal logs with filtering
   getMealLogs = async (req, res) => {
     try {

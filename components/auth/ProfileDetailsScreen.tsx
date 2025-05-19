@@ -5,12 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
-
-//const API_URL = 'http://10.0.2.2:3001'; // Android emulator special IP for localhost
-
-/* my (jono) IP for localhost. I'm using an actual android device. 
-  Not sure what's the appropriate solution for all devices to work. But this works for me*/
-const API_URL = 'http://192.168.1.104:3001'; 
+import {API_URL} from "@/constants/DBAPI";
 
 // Simple date input component instead of native DatePicker
 const SimpleDateInput = ({ value, onChange }) => {

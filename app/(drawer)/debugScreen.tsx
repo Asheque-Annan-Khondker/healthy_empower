@@ -6,8 +6,9 @@ import React from 'react';
 import ScreenTransition from '@/components/screenTransition';
 import CalorieDashboard from '@/components/diet/CalorieDashboard';
 import { Achievement, Exercise, Food } from '@/utils/table.types';
-import { AchievementDBModal, DBModal, ExerciseDBModal, FoodDBModal } from '@/utils/dbFunctions';
+import { AchievementDBModal, DBModal, ExerciseDBModal, FoodDBModal, dropall } from '@/utils/dbFunctions';
 import MealEntryForm from "@/components/diet/MealEntryForm";
+import DropdownMenu from "@/components/DropdownMenu";
 
 export default function DebugDatabaseScreen() {
   //Todo: Add type safety for the content of the state objects
@@ -19,22 +20,20 @@ export default function DebugDatabaseScreen() {
   
   async function setupTestData() {
     try {
-      setError(null)
-      setMessage('Setting up test data...');
-      console.log("insertion starting")
-      await DBModal.setDBData(sqlCommands)
-        console.log("insertion complete")
-        console.log("Load Test Data")
-        loadData();
-        setMessage('Test data loaded successfully!');
-      } catch (err) {
+      dropall()
+      
+      // Food db
+      for(const food of foodData){
+        await FoodDBModal.insert(food)
+      }
+     } catch (err) {
         console.error(err);
       }
     }
     
     async function loadData() {
       try {
-        setFoodEntries(await FoodDBModal.getAll());;
+        setFoodEntries(await FoodDBModal.get());;
         setExerciseEntries(await ExerciseDBModal.getAll());
         setAchievementEntries(await AchievementDBModal.getAll());
       } catch (err) {
@@ -96,12 +95,107 @@ export default function DebugDatabaseScreen() {
         <ScreenTransition>
         <CustomCardList horizontal={true} cards={cards} />
         <CalorieDashboard/>
+          <DropdownMenu />
         </ScreenTransition>
         </View>
         </ScreenTransition>
         </ScrollView>
       );
     }
+
+
+   const foodData: Partial<Food>[] = [
+  {
+    name: "Grilled Chicken Breast",
+      calories: 165,
+      protein: 31,
+      carbs: 0,
+      fat: 3.6,
+    serving_size: "100",
+    serving_unit_id: 1, // grams
+  },
+  {
+    name: "Quinoa",
+      calories: 120,
+      protein: 4.4,
+      carbs: 21.3,
+      fat: 1.9,
+    serving_size: "100",
+    serving_unit_id: 1, // grams
+  },
+  {
+    name: "Avocado",
+      calories: 160,
+      protein: 2,
+      carbs: 8.5,
+      fat: 14.7,
+    serving_size: "1",
+    serving_unit_id: 5, // whole
+  },
+  {
+    name: "Greek Yogurt",
+      calories: 100,
+      protein: 10,
+      carbs: 3.6,
+      fat: 5.5,
+    serving_size: "170",
+    serving_unit_id: 1, // grams
+  },
+  {
+    name: "Salmon Fillet",
+      calories: 208,
+      protein: 20.4,
+      carbs: 0,
+      fat: 13.4,
+    serving_size: "100",
+    serving_unit_id: 1, // grams
+  },
+  {
+    name: "Spinach",
+      calories: 23,
+      protein: 2.9,
+      carbs: 3.6,
+      fat: 0.4,
+    serving_size: "100",
+    serving_unit_id: 1, // grams
+  },
+  {
+    name: "Banana",
+      calories: 105,
+      protein: 1.3,
+      carbs: 27,
+      fat: 0.4,
+    serving_size: "1",
+    serving_unit_id: 5, // whole
+  },
+  {
+    name: "Oatmeal",
+      calories: 150,
+      protein: 5,
+      carbs: 27,
+      fat: 2.5,
+    serving_size: "40",
+    serving_unit_id: 1, // grams (dry)
+  },
+  {
+    name: "Almonds",
+      calories: 164,
+      protein: 6,
+      carbs: 6,
+      fat: 14,
+    serving_size: "28",
+    serving_unit_id: 1, // grams
+  },
+  {
+    name: "Sweet Potato",
+      calories: 86,
+      protein: 1.6,
+      carbs: 20.1,
+      fat: 0.1,
+    serving_size: "100",
+    serving_unit_id: 1, // grams
+  }
+]
     const sqlCommands = [
       'DELETE FROM Food;',
       'DELETE FROM Exercises;',

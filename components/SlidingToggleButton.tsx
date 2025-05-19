@@ -7,8 +7,12 @@ const SlidingToggleButton: React.FC = () => {
   const translateX = useSharedValue(5); //starting position
 
   const toggleSwitch = () => {
-    setIsOn(!isOn);
-    translateX.value = isOn ? 5 : 45; //toggles slider left or right
+    const newState = !isOn;
+    setIsOn(newState);
+    translateX.value = newState ? 45 : 5; //toggles slider left or right
+
+    // 🔊 Console log
+    console.log(`Toggle is now ${newState ? 'ON' : 'OFF'}`);
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -22,10 +26,6 @@ const SlidingToggleButton: React.FC = () => {
         <Animated.View style={[styles.slider, animatedStyle]} />
       </Pressable>
 
-      {/*On and Off text*/}
-      <Text style={[styles.label, isOn ? styles.onText : styles.offText]}>
-        {isOn ? "ON" : "OFF"}
-      </Text>
     </View>
   );
 };
@@ -69,10 +69,10 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   onText: {
-    color: "#27AE60", //green for ON
+    color: "#27AE60", //green for On
   },
   offText: {
-    color: "#E74C3C", //red for OFF
+    color: "#E74C3C", //red for Off
   },
   on: {
     backgroundColor: "#A3E4D7", //light green

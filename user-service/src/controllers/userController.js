@@ -1,6 +1,7 @@
 const { encrypt_user_password, isValidEmail } = require('../utils/password-utils.js')
 const { hasRequiredFields, isEmailAlreadyRegistered } = require('../utils/validation.js')
 const db = require('../models');
+const get = require('../utils/universalGet.js');
 
 class UserController {
   constructor() {
@@ -46,7 +47,7 @@ class UserController {
       res.status(500).json({ error: error.message });
     }
   }
-  
+  get = get(db.User) 
   createUser = async (req, res) => {
     try {
       // password is currently unhashed
