@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { logout } from '@/components/utils/authUtils';
+import { Colors } from '@/constants/Colors';
 
 // Setting item with toggle
 const ToggleSetting = ({ icon, iconColor, label, description, isEnabled }) => (
