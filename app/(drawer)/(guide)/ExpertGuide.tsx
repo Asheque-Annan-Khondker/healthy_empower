@@ -1,8 +1,12 @@
 import ScreenTransition from '@/components/screenTransition';
 import bannerImg from '@/assets/images/icon.png';
 import React from 'react';
-import {Text, View, ScrollView, Image} from 'react-native';
+import {Text, View, ScrollView, Image, SafeAreaView } from 'react-native';
+import { Card, Provider as PaperProvider } from 'react-native-paper'
 import styles from '@/app/(drawer)/(guide)/guideStyle';
+import ExpertCard1 from '@/app/(drawer)/(guide)/cards/ExpertCard1';
+import ExpertCard2 from '@/app/(drawer)/(guide)/cards/ExpertCard2';
+import ExpertCard3 from '@/app/(drawer)/(guide)/cards/ExpertCard3';
 
 /* !!!!!! NEEDS MORE STYLING  !!!!!!
       just barebone structure, we can fill in details later, we have more pressing matters 
@@ -23,8 +27,7 @@ export default function ExpertGuide(){
           <Text style={styles.header}>Start-Up Guide:{"\n"}For Experts</Text>
 
           <Text style={styles.subHeader}>
-            Welcome to your first start-up guide!{"\n\n"}These guides are here to help you get moving in the right direction. 
-            {"\n"}We are here to boost your confidence and productivity to reach your health and fitness goals!
+            GOAL: Optimise performance, aesthetics, or competition prep
           </Text>
           
           {/* temporary image, will change later */}
@@ -37,19 +40,17 @@ export default function ExpertGuide(){
             - description/ content/ writing
             - Maybe some workout guides, whether theyre general or specific
           */}
-          <Text style={styles.description}> 
-            Fill text later WE ARE SO COOKED {"\n"}
-            Welcome to your first start-up guide!{"\n\n"}These guides are here to help you get moving in the right direction. 
-            {"\n"}We are here to boost your confidence and productivity to reach your health and fitness goals!
-            Welcome to your first start-up guide!{"\n\n"}These guides are here to help you get moving in the right direction. 
-            {"\n"}We are here to boost your confidence and productivity to reach your health and fitness goals!
-            Welcome to your first start-up guide!{"\n\n"}These guides are here to help you get moving in the right direction. 
-            {"\n"}We are here to boost your confidence and productivity to reach your health and fitness goals!
-            Welcome to your first start-up guide!{"\n\n"}These guides are here to help you get moving in the right direction. 
-            {"\n"}We are here to boost your confidence and productivity to reach your health and fitness goals!
-            Welcome to your first start-up guide!{"\n\n"}These guides are here to help you get moving in the right direction. 
-            {"\n"}We are here to boost your confidence and productivity to reach your health and fitness goals!  
-          </Text>
+
+
+          {/* Content description displayed in the form of cards */}
+          <PaperProvider>
+            <SafeAreaView>
+              <ExpertCard1 />
+              <ExpertCard2 />
+              <ExpertCard3 />
+            </SafeAreaView>
+          </PaperProvider>
+
         </View>
         
 
