@@ -6,9 +6,8 @@ import {Text, View, ScrollView, Image, SafeAreaView } from 'react-native';
 import { Card, Provider as PaperProvider } from 'react-native-paper'
 import styles from '@/app/(drawer)/(guide)/guideStyle';
 import PlaceCard from '@/components/PlaceCard';
-import BegCard1 from '@/app/(drawer)/(guide)/cards/BegCard1';
-import BegCard2 from '@/app/(drawer)/(guide)/cards/BegCard2';
-import BegCard3 from '@/app/(drawer)/(guide)/cards/BegCard3';
+import BegCardsDisplay from '@/app/(drawer)/(guide)/cards/BegCardsDisplay';
+
 
 
 /* !!!!!! NEEDS MORE STYLING  !!!!!!
@@ -52,9 +51,7 @@ export default function BeginnerGuide(){
           {/* Content description displayed in the form of cards */}
           <PaperProvider>
             <SafeAreaView>
-              <BegCard1 />
-              <BegCard2 />
-              <BegCard3 />
+              <BegCardsDisplay />
             </SafeAreaView>
           </PaperProvider>
 

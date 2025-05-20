@@ -72,12 +72,12 @@ const CustomDrawerContent = (props) => {
         <Text style={styles.email}>{userData?.email || 'user@example.com'}</Text>
       </LinearGradient>
 
-      {/* Drawer items */}
+      {/************** Drawer items **************/}
       <DrawerContentScrollView
         {...props}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Main navigation section */}
+        {/*************************** Main navigation section ***************************/}
         <DrawerItem
           icon={<Ionicons name="home-outline" size={22} color={getIconColor('/')} />}
           label="Home"
@@ -97,18 +97,12 @@ const CustomDrawerContent = (props) => {
           active={activeItem === '/(drawer)/debugScreen'}
         />
 
-        {/* Fitness Guides section */}
+        {/************************** Start-Up Guides section ***********************************************************/}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Fitness Guides</Text>
+          <Text style={styles.sectionTitle}>Start-Up Guides</Text>
           <View style={styles.divider} />
         </View>
 
-        <DrawerItem
-          icon={<Ionicons name="list-outline" size={22} color={getIconColor('/(drawer)/(guide)/guideSelection')} />}
-          label="Guide Selection"
-          onPress={() => handleNavigation('/(drawer)/(guide)/guideSelection')}
-          active={activeItem === '/(drawer)/(guide)/guideSelection'}
-        />
         <DrawerItem
           icon={<FontAwesome5 name="baby" size={18} color={getIconColor('/(drawer)/(guide)/BeginnerGuide')} />}
           label="Beginner"
@@ -127,6 +121,20 @@ const CustomDrawerContent = (props) => {
           onPress={() => handleNavigation('/(drawer)/(guide)/ExpertGuide')}
           active={activeItem === '/(drawer)/(guide)/ExpertGuide'}
         />
+
+        {/**********************************  Fitness Guides section **********************************/}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Fitness Guides</Text>
+          <View style={styles.divider} />
+        </View>
+
+        <DrawerItem
+          icon={<Ionicons name="list-outline" size={22} color={getIconColor('/(drawer)/(guide)/guideSelection')} />}
+          label="Guide Selection"
+          onPress={() => handleNavigation('/(drawer)/(guide)/guideSelection')}
+          active={activeItem === '/(drawer)/(guide)/guideSelection'}
+        />
+      
       </DrawerContentScrollView>
 
       {/* Logout button */}

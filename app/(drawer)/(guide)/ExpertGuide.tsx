@@ -4,9 +4,7 @@ import React from 'react';
 import {Text, View, ScrollView, Image, SafeAreaView } from 'react-native';
 import { Card, Provider as PaperProvider } from 'react-native-paper'
 import styles from '@/app/(drawer)/(guide)/guideStyle';
-import ExpertCard1 from '@/app/(drawer)/(guide)/cards/ExpertCard1';
-import ExpertCard2 from '@/app/(drawer)/(guide)/cards/ExpertCard2';
-import ExpertCard3 from '@/app/(drawer)/(guide)/cards/ExpertCard3';
+import ExpertCardsDisplay from '@/app/(drawer)/(guide)/cards/ExpertCardsDisplay';
 
 /* !!!!!! NEEDS MORE STYLING  !!!!!!
       just barebone structure, we can fill in details later, we have more pressing matters 
@@ -45,9 +43,7 @@ export default function ExpertGuide(){
           {/* Content description displayed in the form of cards */}
           <PaperProvider>
             <SafeAreaView>
-              <ExpertCard1 />
-              <ExpertCard2 />
-              <ExpertCard3 />
+              <ExpertCardsDisplay />
             </SafeAreaView>
           </PaperProvider>
 
