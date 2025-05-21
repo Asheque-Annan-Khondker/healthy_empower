@@ -1,10 +1,18 @@
-import AchievementWall from "@/components/achievements/AchievementWall";
-import {View} from "react-native";
-import {Text} from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import AchievementWall from '@/components/achievements/AchievementWall';
 
-export default function AchievementScreen(){
-    return (
-    <AchievementWall/> 
-    );
+export default function AchievementScreen() {
+  return (
+    <View style={styles.container}>
+      <AchievementWall />
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FAF7F4',
+  },
+});

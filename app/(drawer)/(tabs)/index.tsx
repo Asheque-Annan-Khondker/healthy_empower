@@ -18,6 +18,7 @@ import PlaceCard from '@/components/PlaceCard';
 import ModalFitnessForm from '@/app/ModalFitnessForm';
 import DailyFoodLog from '@/components/DailyFoodLog';
 import FoodEntryForm from '@/components/FoodEntryForm';
+import CurrencyStreakIndicator from '@/components/CurrencyStreakIndicator';
 import { FAIcon } from '@/utils/getIcon';
 
 // Assets
@@ -95,6 +96,8 @@ return (
             resizeMode="contain"
           />
         </View>
+
+        <CurrencyStreakIndicator chestnuts={250} streakDays={5} />
   
         {/* Date header with navigation */}
         <View style={styles.dateHeaderContainer}>

@@ -1,9 +1,13 @@
 import ScreenTransition from '@/components/screenTransition';
-import bannerImg from '@/assets/images/icon.png';
+import bannerImg from '@/assets/images/yoga.png';
 import React from 'react';
-import {Text, View, ScrollView, Image} from 'react-native';
+import {Text, View, ScrollView, Image, SafeAreaView } from 'react-native';
+//import { Card, MD3LightTheme as DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import { Card, Provider as PaperProvider } from 'react-native-paper'
 import styles from '@/app/(drawer)/(guide)/guideStyle';
 import PlaceCard from '@/components/PlaceCard';
+import BegCardsDisplay from '@/app/(drawer)/(guide)/cards/BegCardsDisplay';
+
 
 
 /* !!!!!! NEEDS MORE STYLING  !!!!!!
@@ -32,26 +36,17 @@ export default function BeginnerGuide(){
           {/* temporary image, will change later */}
           <Image source={bannerImg} style={styles.img} />
           
-          {/* all of these content ideas is subject to change
-            content here will be based on 
-            - GOAL: Build consistency, master form, improve general health
-            - Nutrition goal/tips: 
-            - description/ content/ writing
-            - Maybe some workout guides, whether theyre general or specific
-          */}
-          <Text style={styles.description}> 
-            Fill text later WE ARE SO COOKED {"\n"}
-            Welcome to your first start-up guide!{"\n\n"}These guides are here to help you get moving in the right direction. 
-            {"\n"}We are here to boost your confidence and productivity to reach your health and fitness goals!
-            Welcome to your first start-up guide!{"\n\n"}These guides are here to help you get moving in the right direction. 
-            {"\n"}We are here to boost your confidence and productivity to reach your health and fitness goals!
-            Welcome to your first start-up guide!{"\n\n"}These guides are here to help you get moving in the right direction. 
-            {"\n"}We are here to boost your confidence and productivity to reach your health and fitness goals!
-            Welcome to your first start-up guide!{"\n\n"}These guides are here to help you get moving in the right direction. 
-            {"\n"}We are here to boost your confidence and productivity to reach your health and fitness goals!
-            Welcome to your first start-up guide!{"\n\n"}These guides are here to help you get moving in the right direction. 
-            {"\n"}We are here to boost your confidence and productivity to reach your health and fitness goals!  
+          <Text style={styles.subHeader}>
+            GOAL: Build consistency, learn form, and improve general health
           </Text>
+
+          {/* Content description displayed in the form of cards */}
+          <PaperProvider>
+            <SafeAreaView>
+              <BegCardsDisplay />
+            </SafeAreaView>
+          </PaperProvider>
+
         </View>
 
         

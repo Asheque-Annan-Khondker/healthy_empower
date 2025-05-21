@@ -1,54 +1,37 @@
-import { createMaterialBottomTabNavigator } from "react-native-paper/react-navigation";
-import React from "react";
+import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
 
-import Index from ".";
-import DietScreen from "./diet_screen";
-import AchievementScreen from "./achievement_screen";
-import {FAIcon, MatIcon} from "@/utils/getIcon";
-import {View} from "react-native";
-import {Appbar} from "react-native-paper";
-import {DrawerToggleButton} from "@react-navigation/drawer";
-import {useNavigation} from "expo-router";
-import {DrawerActions} from "@react-navigation/native";
-export default function tablayout() {
-  const tabs = createMaterialBottomTabNavigator()
-    const navigation = useNavigation()
+export default function TabLayout() {
+  // Super simple version with achievement tab added
   return (
-      // * having flex, the entire screen isnt consumed by the appbar
-
-      <View style={{flex: 1}}>
-
-          <Appbar.Header>
-              <Appbar.Action icon={"arrow-left"} onPress={()=>{navigation.dispatch(DrawerActions.toggleDrawer())}} />
-          </Appbar.Header>
-    <tabs.Navigator style={{flex: 1}}>
-
-      <tabs.Screen
-        name="diet_screen"
-        component={DietScreen}
+    <Tabs screenOptions={{ headerShown: false }}>
+      <Tabs.Screen
+        name="index"
         options={{
-          title: 'diet',
-          tabBarIcon: ({ color }) => <FAIcon size={28} name="square" color={color} />,
+          title: 'Home',
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ color }) => <Ionicons name="home" size={24} color={color} />
         }}
       />
-
-        <tabs.Screen
-            name="index"
-            component={Index}
-            options={{
-                title: 'home',
-                tabBarIcon: ({ color }) => <FAIcon size={28} name="home" color={color} />,
-            }}
-        />
-        <tabs.Screen
-            name={"achievement_screen"}
-            component={AchievementScreen}
-            options={{
-                title: 'achievements',
-                tabBarIcon: ({ color }) => <FAIcon size={28} name="trophy" color={color} />,
-            }}
-        />
-    </tabs.Navigator>
-      </View>
+      
+      <Tabs.Screen
+        name="shop_screen"
+        options={{
+          title: 'Shop',
+          tabBarLabel: 'Shop',
+          tabBarIcon: ({ color }) => <Ionicons name="cart" size={24} color={color} />
+        }}
+      />
+      
+      <Tabs.Screen
+        name="achievement_screen"
+        options={{
+          title: 'Achievements',
+          tabBarLabel: 'Achievements',
+          tabBarIcon: ({ color }) => <Ionicons name="trophy" size={24} color={color} />
+        }}
+      />
+    </Tabs>
   );
 }
