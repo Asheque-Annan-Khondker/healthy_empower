@@ -1,6 +1,6 @@
 
 
-export {Goal, Exercise, Food, FoodMacros, Guide, Achievement, ACHIEVEMENT_CATEGORIES,MealLog, AchievementCategories, WorkoutPlan, WorkoutExercise}
+export {Goal, Exercise, Food, FoodMacros, Guide, Achievement, ACHIEVEMENT_CATEGORIES,MealLog, AchievementCategories}
 
 // The server database has different properties
 interface Exercise {
@@ -13,21 +13,6 @@ interface Exercise {
   target_muscle_group: string;
 }
 
-interface WorkoutPlan {
-  plan_id: number;
-  name: string;
-  exercises: WorkoutExercise[]
-  description: string;
-  difficulty: string;
-  created_at: string;
-}
-interface WorkoutExercise {
-  workout_plan_id: number;
-  exercise_id: number;
-  sets: number;
-  reps_target: number;
-  duration: number;
-}
 interface Guide {
   id: number;
   title: string;

@@ -1,4 +1,4 @@
-import {Achievement, Exercise, Food, Goal, Guide, MealLog, WorkoutPlan} from "./table.types";
+import { Achievement, Exercise, Food, Goal, Guide, MealLog, WorkoutPlan } from "./table.types";
 import axios from "axios";
 import { API_URL } from "@/constants/DBAPI";
 import { USER_ID } from "@/components/auth/SignUp";
@@ -35,19 +35,19 @@ async function dropall(): Promise<void>{
   } catch(err){console.error('Can\'t drop | wont drop', err)}
 }
 class AchievementDBModal {
-  static async get(filter?: Filter<Achievement>): Promise<Achievement[]> {
-    let params = filter && Object.keys(filter).length > 0
-                  ? '?filters=' + encodeURIComponent(JSON.stringify(filter))
-                  : '';
- 
-const rawResult = await axios.get(`${API_URL}/api/users/${USER_ID}/achievements${params}`).then(res=>res.data.data);
-    return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult : []
-
-
+  static async getAll(): Promise<Achievement[]> {
+  const rawResult = await axios.get(`${API_URL}/api/${USER_ID}/achievements`).then(res=>res.data);
+    return Array.isArray(rawResult)? rawResult : []
   }
+
+  static async getById(id: number): Promise<Achievement | null> {
+    //TODO: Learn how to request from  property
+    const rawResult = await axios.get(`${API_URL}/api/${USER_ID}/achievements?achievement_id=${id}`);
+    return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult[0] : null;
+  }
+
   static async updateAchievement(id: number, updates: Partial<Achievement>): Promise<void>{
     // Only the completed and progress properties may be updated. the progress may only rise too 100
-
 
     
   }
@@ -65,8 +65,9 @@ class ExerciseDBModal {
 
   static async getById(id: number): Promise<Exercise | null> {
     //TODO: Learn how to request from  property
-const rawResult = await axios.get(`${API_URL}/api/exercises?exercise_id=${id}`);
-    return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult[0] : null;  }
+    const rawResult = await axios.get(`${API_URL}/api/exercises?exercise_id=${id}`);
+    return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult[0] : null;  
+  }
 }
 
 class GuideDBModal {
@@ -94,16 +95,16 @@ class FoodDBModal {
     return Array.isArray(res) && res.length > 0 ? res : []
   }
   static async insert(content: Partial<Food>): Promise<void>{
-      const submit = {
-        name: content.name,
-        calories: content.calories,
-        protein: content.protein,
-        carbs: content.carbs,
-        fat: content.fat,
-        serving_size: content.serving_size,
-        serving_unit_id: content.serving_unit_id
-      }
-      await axios.post(`${API_URL}/api/foods`, submit).then(res => console.log('Inserted successfully: ', res.data))
+    const submit = {
+      name: content.name,
+      calories: content.calories,
+      protein: content.protein,
+      carbs: content.carbs,
+      fat: content.fat,
+      serving_size: content.serving_size,
+      serving_unit_id: content.serving_unit_id
+    }
+    await axios.post(`${API_URL}/api/foods`, submit).then(res => console.log('Inserted successfully: ', res.data))
                                                        .catch(err => console.log('Error inserting', err));
   }
   
@@ -119,49 +120,66 @@ class MealLogDBModal {
     return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult : []
   }
 }
-  class WorkoutPlanDBModal {
-  static async get(filter?: Filter<WorkoutPlan>): Promise<WorkoutPlan[]> {
 
-let params = filter && Object.keys(filter).length > 0
-                  ? '?filters=' + encodeURIComponent(JSON.stringify(filter))
-                  : '';
-    // Iterate over the filter object and append to params string
-    
-    
+class WorkoutPlanDBModal {
 
-    const rawResult = await axios.get(`${API_URL}/api/workout-plans${params}`).then(res => res.data.data);
+  static async getAll(): Promise<WorkoutPlan[]> {
+    const rawResult = await axios.get(`${API_URL}/api/workout-plans`).then(res => res.data);
     console.log("Raw results for WorkoutPlan array: ", rawResult )
-    return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult : []
+    return Array.isArray(rawResult)? rawResult : []
   }
   static async insert(content: Partial<WorkoutPlan>): Promise<void>{
-     
+    
       await axios.post(`${API_URL}/api/workout-plans`,content).then(res => console.log('Inserted successfully: ', res.data))
-                                                       .catch(err => console.log('Error inserting', err));
+                                                      .catch(err => console.log('Error inserting', err));
+  }
+
+  static async getById(id: number): Promise<WorkoutPlan | null> {
+    try {
+      // Change this line - use path parameter instead of query parameter
+      const response = await axios.get(`${API_URL}/api/workout-plans/${id}`);
+      
+      // Check if we received data
+      if (response.data) {
+        console.log("Retrieved workout plan with ID:", id);
+        return response.data;
+      } else {
+        console.log("No workout plan found with ID:", id);
+        return null;
+      }
+    } catch (error) {
+      console.error(`Error fetching workout plan with ID ${id}:`, error);
+      return null;
+    }
   }
 }
 
-class GoalDBModal {
-    static async get(filter?: Filter<Goal> ): Promise<Goal[]> {
 
-let params = filter && Object.keys(filter).length > 0
-                  ? '?filters=' + encodeURIComponent(JSON.stringify(filter))
-                  : '';
-          const  rawResult = await axios.get(`${API_URL}/api/users/${USER_ID}/goals${params}`).then(res => res.data.data);
-    return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult : []
-
-    }
-    static async updateGoal(id: number, updates: Partial<Goal>): Promise<void>{
-        // Only the completed column may be updated
-        // since it's single maybe just making the updates as a boolean is better but just in case
-        const submit = {
-            completed: updates.completed
-        }
-        await axios.put(`${API_URL}/api/users/${USER_ID}/goals/${id}`, submit).then(res => console.log('Updated successfully: ', res.data))
-
-    }
-    static async insert(content: Partial<Goal>): Promise<void>{
-        await axios.post(`${API_URL}/api/users/${USER_ID}/goals`,content).then(res => console.log('Inserted successfully: ', res.data))
-                                                             .catch(err => console.log('Error inserting', err));
-    }
+export interface WorkoutPlanExerciseDTO {
+  plan_id: number;
+  exercise_id: number;
+  sets?: number;
+  reps_targets?: number;
+  duration?: number; // in seconds
 }
-export { AchievementDBModal, ExerciseDBModal, GuideDBModal, FoodDBModal, dropall, WorkoutPlanDBModal, GoalDBModal };
+
+
+export async function getWorkoutPlanWithExercises(planId: number) {
+  try {
+
+    const response = await fetch(`${API_URL}/api/workout-plans/${planId}`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch workout plan: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching workout plan with exercises:", error);
+    throw error;
+  }
+}
+
+
+export { AchievementDBModal, ExerciseDBModal, GuideDBModal, FoodDBModal, dropall, WorkoutPlanDBModal };

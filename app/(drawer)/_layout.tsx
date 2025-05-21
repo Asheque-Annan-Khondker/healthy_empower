@@ -85,6 +85,12 @@ const CustomDrawerContent = (props) => {
           active={activeItem === '/'}
         />
         <DrawerItem
+          icon={<FontAwesome5 name="trophy" size={20} color={getIconColor('/(drawer)/leaderboard')} />}
+          label="Leaderboard"
+          onPress={() => handleNavigation('/(drawer)/leaderboard')}
+          active={activeItem === '/(drawer)/leaderboard'}
+        />
+        <DrawerItem
           icon={<Ionicons name="settings-outline" size={22} color={getIconColor('/(drawer)/settings')} />}
           label="Settings"
           onPress={() => handleNavigation('/(drawer)/settings')}
@@ -215,6 +221,12 @@ export default function DrawerLayout() {
         headerShown: route.name !== "(tabs)",
       })}
     >
+      <Drawer.Screen 
+  name="leaderboard" 
+  options={{ 
+    title: "Leaderboard",
+  }} 
+/>
       <Drawer.Screen 
         name="settings" 
         options={{ 
