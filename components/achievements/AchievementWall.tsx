@@ -113,7 +113,7 @@ export default function AchievementWall() {
   // return an array of achievements, number of achievements and completed
 
     // use type guarding incase void is returned
-    const results = await AchievementDBModal.getAll()
+    const results = await AchievementDBModal.get()
     console.log("Achievements retrieved: ", results)
     // get count of Achievements
     const count = results.length
