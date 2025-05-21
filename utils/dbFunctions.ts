@@ -119,49 +119,51 @@ class MealLogDBModal {
     return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult : []
   }
 }
-  class WorkoutPlanDBModal {
+class WorkoutPlanDBModal {
   static async get(filter?: Filter<WorkoutPlan>): Promise<WorkoutPlan[]> {
 
-let params = filter && Object.keys(filter).length > 0
+    let params = filter && Object.keys(filter).length > 0
                   ? '?filters=' + encodeURIComponent(JSON.stringify(filter))
                   : '';
     // Iterate over the filter object and append to params string
-    
-    
+  
 
     const rawResult = await axios.get(`${API_URL}/api/workout-plans${params}`).then(res => res.data.data);
     console.log("Raw results for WorkoutPlan array: ", rawResult )
+
     return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult : []
   }
+
   static async insert(content: Partial<WorkoutPlan>): Promise<void>{
      
-      await axios.post(`${API_URL}/api/workout-plans`,content).then(res => console.log('Inserted successfully: ', res.data))
+    await axios.post(`${API_URL}/api/workout-plans`,content).then(res => console.log('Inserted successfully: ', res.data))
                                                        .catch(err => console.log('Error inserting', err));
   }
 }
 
 class GoalDBModal {
-    static async get(filter?: Filter<Goal> ): Promise<Goal[]> {
+  static async get(filter?: Filter<Goal> ): Promise<Goal[]> {
 
-let params = filter && Object.keys(filter).length > 0
+    let params = filter && Object.keys(filter).length > 0
                   ? '?filters=' + encodeURIComponent(JSON.stringify(filter))
                   : '';
-          const  rawResult = await axios.get(`${API_URL}/api/users/${USER_ID}/goals${params}`).then(res => res.data.data);
+    const  rawResult = await axios.get(`${API_URL}/api/users/${USER_ID}/goals${params}`).then(res => res.data.data);
     return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult : []
 
+  }
+  
+  static async updateGoal(id: number, updates: Partial<Goal>): Promise<void>{
+    // Only the completed column may be updated
+    // since it's single maybe just making the updates as a boolean is better but just in case
+    const submit = {
+        completed: updates.completed
     }
-    static async updateGoal(id: number, updates: Partial<Goal>): Promise<void>{
-        // Only the completed column may be updated
-        // since it's single maybe just making the updates as a boolean is better but just in case
-        const submit = {
-            completed: updates.completed
-        }
-        await axios.put(`${API_URL}/api/users/${USER_ID}/goals/${id}`, submit).then(res => console.log('Updated successfully: ', res.data))
+    await axios.put(`${API_URL}/api/users/${USER_ID}/goals/${id}`, submit).then(res => console.log('Updated successfully: ', res.data))
+  }
 
-    }
-    static async insert(content: Partial<Goal>): Promise<void>{
-        await axios.post(`${API_URL}/api/users/${USER_ID}/goals`,content).then(res => console.log('Inserted successfully: ', res.data))
-                                                             .catch(err => console.log('Error inserting', err));
-    }
+  static async insert(content: Partial<Goal>): Promise<void>{
+    await axios.post(`${API_URL}/api/users/${USER_ID}/goals`,content).then(res => console.log('Inserted successfully: ', res.data))
+                                                            .catch(err => console.log('Error inserting', err));
+  }
 }
 export { AchievementDBModal, ExerciseDBModal, GuideDBModal, FoodDBModal, dropall, WorkoutPlanDBModal, GoalDBModal, MealLogDBModal };
