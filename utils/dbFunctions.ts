@@ -164,4 +164,4 @@ let params = filter && Object.keys(filter).length > 0
                                                              .catch(err => console.log('Error inserting', err));
     }
 }
-export { AchievementDBModal, ExerciseDBModal, GuideDBModal, FoodDBModal, dropall, WorkoutPlanDBModal, GoalDBModal };
+export { AchievementDBModal, ExerciseDBModal, GuideDBModal, FoodDBModal, dropall, WorkoutPlanDBModal, GoalDBModal, MealLogDBModal };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { Card, Divider } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
+import { FoodDBModal, MealLogDBModal } from '@/utils/dbFunctions';
 
 // Helper functions to manage food entries (in a real app, these would interact with a backend)
 const mockFoodEntries = [
@@ -40,11 +41,64 @@ const mockFoodEntries = [
   }
 ];
 
+// later replace with data fetching
+async function foodEntriesFormatter(date: Date){
+  const { mealLog, foodlist } = await fetchFoodEntries(date);
+ const foodEntries = mealLog.map((meal, index) =>{
+     const foodInstance = foodlist[index] // same corresponding index as each instance of meal log is 1:1 food instance
+     const time = meal.logged_at.split('T')[1].split('.')[0]
+     return {
+        id: meal.meal_id,
+        name: foodInstance.name,
+        calories: foodInstance.calories,
+        protein: foodInstance.protein,
+        carbs: foodInstance.carbs,
+        fat: foodInstance.fat,
+        mealType: meal.meal_type,
+        time: time,
+        date: meal.logged_at
+     }
+      
+   })
+   return foodEntries
+}
+async function fetchFoodEntries(date: Date){
+  
+  //fetch data then format it
+  try {
+    date.setHours(0,0,0,0)
+    // get the meal log by which we can see which food is logged
+    const endRange = new Date(date)
+    endRange.setDate(endRange.getDate() + 1);
+    const mealLog = await MealLogDBModal.get({logged_at: {
+      gte: date,
+      lt: endRange
+    }});
+    // // get a promise all on all the food_id in the meal log
+    const foodlist = await( await Promise.all(mealLog.map(info => FoodDBModal.get({food_id: {eq: info.food_id}})))).flat()
+    // make an array of objects with:
+    /*
+     *meal_id from meal log
+     * name from foodlist
+     * calories from foodlist
+     * protein from foodlist
+     * carbs from foodlist
+     * fat from foodlist
+     * mealType from meal log
+     * datetime from meal log. (Do the formatting here but it need be, offload it to the component)
+    * */
+   return {mealLog, foodlist}
+  
+  } catch(err){
+    console.error(err);
+    return {};
+  }
+}
 // Helper function to format date in DD/MM/YYYY format
 function formatDate(date) {
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
+  const year = date.getFullYear()
   return `${day}/${month}/${year}`;
 }
 
@@ -54,7 +108,18 @@ interface DailyFoodLogProps {
 }
 
 const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, onAddPress }) => {
-  const [foodEntries, setFoodEntries] = useState([]);
+  type FoodEntry = {
+    id: string;
+    name: string;
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+    mealType: string;
+    time: string;
+    date: string;
+  }
+  const [foodEntries, setFoodEntries] = useState<FoodEntry[]>([]);
   const [totalCalories, setTotalCalories] = useState(0);
   const [totalProtein, setTotalProtein] = useState(0);
   const [totalCarbs, setTotalCarbs] = useState(0);
@@ -65,9 +130,11 @@ const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, onAddPress }) => {
   useEffect(() => {
     // In a real app, this would be an API call or database query
     setIsLoading(true);
-    
+    // Simulate fetching data 
+
     const formattedDate = formatDate(date);
-    const entries = mockFoodEntries.filter(entry => entry.date === formattedDate);
+    async function fetchData() {
+    const entries = await foodEntriesFormatter(date);
     
     setFoodEntries(entries);
     
@@ -83,6 +150,9 @@ const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, onAddPress }) => {
     setTotalFat(fat);
     
     setIsLoading(false);
+
+    }
+    fetchData();
   }, [date]);
 
   const getMealTypeIcon = (mealType) => {
