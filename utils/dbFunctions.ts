@@ -125,8 +125,14 @@ class WorkoutPlanDBModal {
 
   static async getAll(): Promise<WorkoutPlan[]> {
     const rawResult = await axios.get(`${API_URL}/api/workout-plans`).then(res => res.data);
-    console.log("Raw results for WorkoutPlan array: ", rawResult )
-    return Array.isArray(rawResult)? rawResult : []
+    let resultBool = Array.isArray(rawResult);
+    let varResult = rawResult;
+    if (API_URL === "http://192.168.1.134:3001") {
+      varResult = rawResult.data
+      resultBool = Array.isArray(varResult)
+    }
+    console.log("Raw results for WorkoutPlan array: ", varResult )
+    return resultBool? varResult : []
   }
   static async insert(content: Partial<WorkoutPlan>): Promise<void>{
     
