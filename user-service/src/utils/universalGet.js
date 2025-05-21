@@ -3,12 +3,12 @@ const {Op} = require('sequelize');
 // output: Array of objects
 
 function get(model, include = []){
-      console.log("Fetching data from model:", model.name); 
   return async (req, res) => {
     try {
       const {search, page = 1, limit = 10, ...rest} =req.query;
       const offset = (page -1) * limit;
       
+      console.log("Fetching data from model:", model.name); 
       
       let filters = {}
       if (req.query.filters){
@@ -24,7 +24,7 @@ function get(model, include = []){
       // Parse through json since it will be sent through axios
       Object.keys(filters).forEach(key =>{
         const value = filters[key]
-        if (typeof value === 'string' && value.startsWith('{') && value.startsWith('[')){
+        if (typeof value === 'string' && (value.startsWith('{') || value.startsWith('['))){
           try {
             filters[key] = JSON.parse(value)
             
@@ -40,9 +40,17 @@ function get(model, include = []){
       }
       // edit operator names from {col: {op: value}} to {col: {[Op.op]: value}}
       const whereClause = {} // Use this to make an object where the keys are the modified keys of filter
+      //Seems like entries is not iterating through the
       Object.entries(filters).forEach(([col, condition])=>{
         // beware it may not be able to take multiple conditions, just test this first
-        whereClause[col] = {[Op[Object.keys(condition)[0]]]: Object.values(condition)[0]}
+        // fix this up: Done
+        // modify this to support nested extraction. so far it's only single layered.
+        console.log(`Col ${JSON.stringify(col)}:${JSON.stringify(condition)}`);
+        // return the op-modified for the key then value
+        whereClause[col] = Object.entries(condition).reduce((acc, [op, value]) =>{
+          acc[Op[op]] = value
+          return acc
+        }, {})
       })
       // Loop through filters and build where clause
       

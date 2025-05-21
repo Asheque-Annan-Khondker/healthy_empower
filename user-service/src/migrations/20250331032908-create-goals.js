@@ -47,7 +47,12 @@ module.exports = {
       updated_at: {
         type: Sequelize.DATE,
         allowNull: true
-      }
+      },
+      completed: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },
     });
   },
 

@@ -34,8 +34,8 @@ export default function DebugDatabaseScreen() {
     async function loadData() {
       try {
         setFoodEntries(await FoodDBModal.get());;
-        setExerciseEntries(await ExerciseDBModal.getAll());
-        setAchievementEntries(await AchievementDBModal.getAll());
+        setExerciseEntries(await ExerciseDBModal.get());
+        setAchievementEntries(await AchievementDBModal.get());
       } catch (err) {
         setError(`Error loading data: ${err.message}`);
       }
@@ -58,11 +58,11 @@ export default function DebugDatabaseScreen() {
           <MealEntryForm/>
       <Text style={styles.heading}>Food Entries:</Text>
       {foodEntries.map(food => (
-        <View key={food.id} style={styles.item}>
+        <View key={food.food_id} style={styles.item}>
           <Text>{`
           Type: ${food.name},
           Calorie: ${food.calories},
-          Date: ${food.date}
+          Date: ${food.created_at}
           `}</Text>
         </View>
       ))}

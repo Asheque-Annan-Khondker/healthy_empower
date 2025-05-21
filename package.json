@@ -27,6 +27,7 @@
     "@react-navigation/drawer": "^7.1.1",
     "@react-navigation/native": "^7.0.14",
     "@react-navigation/stack": "^7.2.10",
+    "@shopify/react-native-skia": "^2.0.0",
     "@testing-library/react-native": "^13.2.0",
     "axios": "^1.8.4",
     "cors": "^2.8.5",
@@ -34,7 +35,7 @@
     "date-fns": "^4.1.0",
     "depcheck": "^1.4.7",
     "dotenv": "^16.4.7",
-    "expo": "^53.0.7",
+    "expo": "^53.0.9",
     "expo-camera": "~16.1.6",
     "expo-constants": "~17.1.5",
     "expo-doctor": "^1.12.7",
@@ -65,10 +66,10 @@
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.10.0",
     "react-native-step-indicator": "^1.0.3",
-    "react-native-svg": "15.11.2",
+    "react-native-svg": "^15.11.2",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "^0.20.0",
-    "victory-native": "^41.16.1"
+    "victory-native": "^41.17.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
