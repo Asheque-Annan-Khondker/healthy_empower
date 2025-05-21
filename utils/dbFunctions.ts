@@ -34,10 +34,20 @@ async function dropall(): Promise<void>{
   await axios.delete(`${API_URL}/api/foods`)
   } catch(err){console.error('Can\'t drop | wont drop', err)}
 }
+
 class AchievementDBModal {
   static async getAll(): Promise<Achievement[]> {
-  const rawResult = await axios.get(`${API_URL}/api/${USER_ID}/achievements`).then(res=>res.data);
+    const rawResult = await axios.get(`${API_URL}/api/${USER_ID}/achievements`).then(res=>res.data);
     return Array.isArray(rawResult)? rawResult : []
+  }
+
+  static async get(filter?: Filter<Achievement>): Promise<Achievement[]> {
+    let params = filter && Object.keys(filter).length > 0
+                  ? '?filters=' + encodeURIComponent(JSON.stringify(filter))
+                  : '';
+ 
+    const rawResult = await axios.get(`${API_URL}/api/users/${USER_ID}/achievements${params}`).then(res=>res.data.data);
+    return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult : []
   }
 
   static async getById(id: number): Promise<Achievement | null> {
@@ -54,8 +64,13 @@ class AchievementDBModal {
 }
 
 class ExerciseDBModal {
-  static async get(filter?: Filter<Exercise>): Promise<Exercise[]> {
 
+  static async getAll(): Promise<Exercise[]> {
+    const rawResult = await axios.get(`${API_URL}/api/exercises`).then(res=>res.data);
+    return Array.isArray(rawResult)? rawResult : []
+  }
+
+  static async get(filter?: Filter<Exercise>): Promise<Exercise[]> {
     let params = filter && Object.keys(filter).length > 0
                   ? '?filters=' + encodeURIComponent(JSON.stringify(filter))
                   : '';
@@ -71,6 +86,11 @@ class ExerciseDBModal {
 }
 
 class GuideDBModal {
+  static async getAll(): Promise<Guide[]> {
+    const rawResult = await axios.get(`${API_URL}/api/workout-plans`).then(res => res.data);
+    return Array.isArray(rawResult)? rawResult : []
+  }
+
   static async get(filter?: Filter<Guide>): Promise<Guide[]> {
     let params = filter && Object.keys(filter).length > 0
                   ? '?filters=' + encodeURIComponent(JSON.stringify(filter))
@@ -82,6 +102,13 @@ class GuideDBModal {
 }
 
 class FoodDBModal {
+
+  static async getAll(): Promise<Food[]> {
+    const rawResult = await axios.get(`${API_URL}/api/foods`).then(res => res.data.foods);
+    console.log("Raw results for food array: ", rawResult )
+    return Array.isArray(rawResult)? rawResult : []
+  }
+
   static async get(filter?: Filter<Food>): Promise<Food[]> {
     
     let params = filter && Object.keys(filter).length > 0
@@ -110,6 +137,7 @@ class FoodDBModal {
   
 
 }
+
 class MealLogDBModal {
   static async get(filter?: Filter<MealLog>): Promise<MealLog[]> {
     let params = filter && Object.keys(filter).length > 0
@@ -124,15 +152,12 @@ class MealLogDBModal {
 class WorkoutPlanDBModal {
 
   static async getAll(): Promise<WorkoutPlan[]> {
-    const rawResult = await axios.get(`${API_URL}/api/workout-plans`).then(res => res.data);
-    let resultBool = Array.isArray(rawResult);
-    let varResult = rawResult;
-    if (API_URL === "http://192.168.1.134:3001") {
-      varResult = rawResult.data
-      resultBool = Array.isArray(varResult)
-    }
-    console.log("Raw results for WorkoutPlan array: ", varResult )
-    return resultBool? varResult : []
+    // (JONO) Note: On Luke's original "style" branch 'res.data' worked however I can only access
+    // the data via res.data.data
+    const rawResult = await axios.get(`${API_URL}/api/workout-plans`).then(res => res.data.data);
+
+    console.log("Raw results for WorkoutPlan array: ", rawResult )
+    return Array.isArray(rawResult)? rawResult : []
   }
   static async insert(content: Partial<WorkoutPlan>): Promise<void>{
     
