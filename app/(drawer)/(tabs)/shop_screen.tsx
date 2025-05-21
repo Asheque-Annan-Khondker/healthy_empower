@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Button, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerActions } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import TestSquare from '@/components/anime_square';
 
 // Shop screen with header similar to Achievements screen
 export default function ShopScreen() {
   const [balance, setBalance] = useState(3810);
   const [streakFreezeCount, setStreakFreezeCount] = useState(5);
+  const [timerBoostQuantity, setTimerBoostQuantity] = useState(0);
+  const [doubleXPQuantity, setDoubleXPQuantity] = useState(0);
   const navigation = useNavigation();
 
   // Shop items grouped by category
@@ -38,14 +41,16 @@ export default function ShopScreen() {
           name: 'Timer Boost',
           price: 450,
           description: 'Add extra time and beat the clock on timed challenges!',
-          iconName: 'timer-outline'
+          iconName: 'timer-outline',
+          quantity: timerBoostQuantity
         },
         {
           id: 3,
           name: 'Double XP',
           price: 600,
           description: 'Earn twice as much XP for completed workouts.',
-          iconName: 'flash-outline'
+          iconName: 'flash-outline',
+          quantity: doubleXPQuantity
         }
       ]
     },
@@ -63,6 +68,21 @@ export default function ShopScreen() {
       ]
     }
   ];
+
+  const buyPowerUp = (item, balance) => {
+    // set balance
+    if (balance-item.price < 0) {
+      Alert.alert("You have insufficient acorns!");
+      return;
+    }
+    setBalance(balance-item.price)
+    // show quantity owned
+    if (item.name === "Timer Boost") {
+      setTimerBoostQuantity(item.quantity+1)
+    } else if (item.name === "Double XP") {
+      setDoubleXPQuantity(item.quantity+1)
+    }
+  }
 
   // Render header in the style of Achievements screen
   const renderHeader = () => (
@@ -133,20 +153,30 @@ export default function ShopScreen() {
     // For regular items with price
     return (
       <View key={item.id} style={styles.itemCard}>
+
         <View style={styles.itemContent}>
+
           <View style={styles.itemIconContainer}>
             <View style={[styles.itemIcon, { backgroundColor: 'rgba(214, 141, 84, 0.15)' }]}>
               <Ionicons name={item.iconName} size={30} color="#D68D54" />
             </View>
           </View>
+
           <View style={styles.itemTextContainer}>
             <Text style={styles.itemTitle}>{item.name}</Text>
             <Text style={styles.itemDescription}>{item.description}</Text>
           </View>
+
         </View>
+
+        <View style={styles.itemBuyContainer}>
+          <Text>{item.quantity}</Text>
+        </View>
+
         <View style={styles.itemPriceContainer}>
-          <Text style={styles.itemPrice}>{item.price} 🌰</Text>
+          <Button onPress={() => buyPowerUp(item, balance)} color='#D68D54' title={String(item.price)+ " 🌰"} />
         </View>
+
       </View>
     );
   };
@@ -327,10 +357,25 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 16,
   },
+  itemBuyContainer: {
+    flexDirection: 'row',
+    position: 'absolute',
+    alignItems: 'center',
+    left: 12,
+    bottom: 12,
+    justifyContent: 'flex-start',
+    marginTop: 12,
+    backgroundColor: 'rgba(214, 141, 84, 0.1)', 
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 0,
+    borderRadius: 50,
+  },
   itemPrice: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#D68D54', // Orange brand color
+    
   },
   redeemButton: {
     backgroundColor: '#D68D54',
