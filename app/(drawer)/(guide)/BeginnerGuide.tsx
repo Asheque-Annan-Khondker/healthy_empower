@@ -1,5 +1,5 @@
 import ScreenTransition from '@/components/screenTransition';
-import bannerImg from '@/assets/images/icon.png';
+import bannerImg from '@/assets/images/yoga.png';
 import React from 'react';
 import {Text, View, ScrollView, Image, SafeAreaView } from 'react-native';
 //import { Card, MD3LightTheme as DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
@@ -36,14 +36,6 @@ export default function BeginnerGuide(){
           {/* temporary image, will change later */}
           <Image source={bannerImg} style={styles.img} />
           
-          {/* all of these content ideas is subject to change
-            content here will be based on 
-            - GOAL: Build consistency, learn form, and improve general health
-            - Nutrition goal/tips: 
-            - description/ content/ writing
-            - Maybe some workout guides, whether theyre general or specific
-          */}
-
           <Text style={styles.subHeader}>
             GOAL: Build consistency, learn form, and improve general health
           </Text>

@@ -1,5 +1,5 @@
 import ScreenTransition from '@/components/screenTransition';
-import bannerImg from '@/assets/images/icon.png';
+import bannerImg from '@/assets/images/gym_02.png';
 import React from 'react';
 import {Text, View, ScrollView, Image, SafeAreaView } from 'react-native';
 import { Card, Provider as PaperProvider } from 'react-native-paper'

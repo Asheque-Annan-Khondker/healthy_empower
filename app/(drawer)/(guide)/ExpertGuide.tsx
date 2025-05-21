@@ -1,5 +1,5 @@
 import ScreenTransition from '@/components/screenTransition';
-import bannerImg from '@/assets/images/icon.png';
+import bannerImg from '@/assets/images/gym.png';
 import React from 'react';
 import {Text, View, ScrollView, Image, SafeAreaView } from 'react-native';
 import { Card, Provider as PaperProvider } from 'react-native-paper'
@@ -33,7 +33,6 @@ export default function ExpertGuide(){
           
           {/* all of these content ideas is subject to change
             content here will be based on 
-            - GOAL: Optimize performance, aesthetics, or competition prep
             - Nutrition goal/tips: 
             - description/ content/ writing
             - Maybe some workout guides, whether theyre general or specific
