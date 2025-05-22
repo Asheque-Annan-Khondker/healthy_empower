@@ -8,6 +8,7 @@ import { WorkoutProvider } from '../Context/WorkoutContext';
 
 export default function AppLayout() {
   return (
+    <PaperProvider>
     <WorkoutProvider>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
@@ -17,6 +18,7 @@ export default function AppLayout() {
         <Stack.Screen name="guideContent" options={{ headerShown: false }} />
       </Stack>
     </WorkoutProvider>
+    </PaperProvider>
   );
 }
 
