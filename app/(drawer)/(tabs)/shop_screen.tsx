@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Button, Alert } from 'react-native';
+import { PaperProvider as Provider, Dialog, Portal} from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerActions } from '@react-navigation/native';
@@ -70,8 +71,10 @@ export default function ShopScreen() {
   ];
 
   const buyPowerUp = (item, balance) => {
+    
     // set balance
     if (balance-item.price < 0) {
+      // NEED TO EXPAND THIS
       Alert.alert("You have insufficient acorns!");
       return;
     }
@@ -169,11 +172,14 @@ export default function ShopScreen() {
 
         </View>
 
-        <View style={styles.itemBuyContainer}>
-          <Text>{item.quantity}</Text>
+        <View style={styles.itemQuantityContainer}>
+          <Text style={styles.itemQuantityText} >{item.quantity} x</Text>
         </View>
 
         <View style={styles.itemPriceContainer}>
+          {/**
+          <Button onPress={() => buyPowerUp(item, balance)} color='#D68D54' title={String(item.price)+ " 🌰"} />
+           */}
           <Button onPress={() => buyPowerUp(item, balance)} color='#D68D54' title={String(item.price)+ " 🌰"} />
         </View>
 
@@ -357,25 +363,24 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 16,
   },
-  itemBuyContainer: {
+  itemQuantityContainer: {
     flexDirection: 'row',
     position: 'absolute',
     alignItems: 'center',
-    left: 12,
-    bottom: 12,
+    left: 16,
+    bottom: 16,
     justifyContent: 'flex-start',
     marginTop: 12,
     backgroundColor: 'rgba(214, 141, 84, 0.1)', 
     alignSelf: 'flex-start',
     paddingHorizontal: 12,
-    paddingVertical: 0,
-    borderRadius: 50,
+    paddingVertical: 10,
+    borderRadius: 16
   },
-  itemPrice: {
-    fontSize: 16,
+  itemQuantityText: {
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#D68D54', // Orange brand color
-    
+    color: '#D68D54' // Orange brand color
   },
   redeemButton: {
     backgroundColor: '#D68D54',
