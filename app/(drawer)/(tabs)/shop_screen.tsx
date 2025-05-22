@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { DrawerActions } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TestSquare from '@/components/anime_square';
+import Modal from 'react-native-modal';
 
 // Shop screen with header similar to Achievements screen
 export default function ShopScreen() {
@@ -77,14 +78,16 @@ export default function ShopScreen() {
       // NEED TO EXPAND THIS
       Alert.alert("You have insufficient acorns!");
       return;
+    } else {
+      setBalance(balance-item.price)
+      // show quantity owned
+      if (item.name === "Timer Boost") {
+        setTimerBoostQuantity(item.quantity+1)
+      } else if (item.name === "Double XP") {
+        setDoubleXPQuantity(item.quantity+1)
+      }
     }
-    setBalance(balance-item.price)
-    // show quantity owned
-    if (item.name === "Timer Boost") {
-      setTimerBoostQuantity(item.quantity+1)
-    } else if (item.name === "Double XP") {
-      setDoubleXPQuantity(item.quantity+1)
-    }
+    
   }
 
   // Render header in the style of Achievements screen
