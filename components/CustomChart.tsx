@@ -1,6 +1,5 @@
 import { FoodMacros } from '@/utils/table.types';
 import React from 'react';
-import {Line, CartesianChart} from 'victory-native'
 
 
 interface DPoint {

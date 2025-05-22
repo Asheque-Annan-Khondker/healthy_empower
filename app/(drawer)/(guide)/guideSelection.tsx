@@ -48,7 +48,7 @@ export default function GuideSelection() {
   async function fetchData(){
     setIsLoading(true);
     try {
-      const response = await WorkoutPlanDBModal.getAll();
+      const response = await WorkoutPlanDBModal.get();
       if (Array.isArray(response) && response.length > 0) {
         setGuideList(response);
       } else {
