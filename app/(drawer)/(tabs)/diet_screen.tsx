@@ -1,12 +1,14 @@
-import {ScrollView, View, SafeAreaView, StyleSheet, Platform, StatusBar} from "react-native";
+import {ScrollView, View, SafeAreaView, StyleSheet, Platform, StatusBar, TouchableOpacity} from "react-native";
 import {FAB, List, Portal, Text, DataTable, Provider} from "react-native-paper";
 import {FAIcon} from "@/utils/getIcon";
-import {useCallback, useEffect, useState} from "react";
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { DrawerActions } from '@react-navigation/native';
+import {React, useCallback, useEffect, useState} from "react";
 import MealEntryForm from "@/components/diet/MealEntryForm";
 import {FoodDBModal, GoalDBModal, MealLogDBModal} from "@/utils/dbFunctions";
 import {Food, FoodMacros, Goal, MealLog} from "@/utils/table.types";
 import {useFocusEffect} from "expo-router";
-import React from "react";
 import GuideScreen from "@/components/guides/GuideDetail";
 import CustomPaperList from "@/components/CustomPaperList";
 import {ProgressBar} from "@/components/ProgressBar";
@@ -24,6 +26,7 @@ export default function DietScreen() {
     fat: [],
     calories: [],
   })
+  const navigation = useNavigation();
   
   // get the current progress from the backend
   const [progressFill, setProgressFill] = useState<number>(0)
@@ -90,40 +93,33 @@ export default function DietScreen() {
       return ()=>console.log("refreshing foodList")
     },[])
   )
-
-  // copied header code from other main screens
-  /*
-  const renderHeader = () => (
-    <View style={styles.header}>
-      <View style={styles.headerContentContainer}>
-        <TouchableOpacity 
-          style={styles.menuButton}
-          onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
-        >
-          <Ionicons name="menu" size={28} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Dashboard</Text>
-        <View style={styles.balanceContainer}>
-          <Text style={styles.balanceText}>{balance} 🌰</Text>
-        </View>
-      </View>
-    </View>
-  );
-  */
   
   const {open} = state
   // action should have an onpress that shows the modal
   return(
     <Provider>
-      <SafeAreaView style={[styles.mainContainer, styles.AndroidSafeArea]} >
+      <SafeAreaView style={[styles.container, styles.AndroidSafeArea]} >
 
-        <View style={styles.subContainer}>
-
-          <View style={styles.topBarContainer}>
-            <Text style={styles.title}>Dashboard</Text>
-            <ProgressBar progress={10} height={20} backgroundColor={"#e0e0e0"} progressColor={"#5acdff"}/>
+        {/***********    HEADER    *********
+         * copied and adapted header code from other main screens */} 
+        <View style={styles.header}>
+          <View style={styles.headerContentContainer}>
+            <TouchableOpacity 
+              style={styles.menuButton}
+              onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+            >
+              <Ionicons name="menu" size={28} color="#FFFFFF" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Diet4lackofbettername</Text>
           </View>
-          
+        </View>
+
+        <View style={styles.dashboardContainer}>
+          <Text style={styles.dashboardTitle}>Dashboard</Text>
+          <ProgressBar progress={10} height={20} backgroundColor={"#e0e0e0"} progressColor={"#5acdff"}/>
+        </View>  
+
+        <View style={styles.contentContainer}>
 
           {/** Horizontal Scroll View */}
           <View style={styles.horizScrollViewContainer}>
@@ -268,32 +264,78 @@ async function macroProgressAgregator( goal: FoodMacros, time: number){
 
 
 const styles = StyleSheet.create({
-  mainContainer: {
+  container: {
     flex: 1
   },
-  subContainer: {
-    flex: 1,
-    padding: 15
-  },
-  // bascially SafeAreaView for android
+  // to be used with container, bascially SafeAreaView for android
   AndroidSafeArea: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#F8F8F8",
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   },
   horizScrollViewContainer: {
     backgroundColor: "yellow",
     flex: 1,
-    padding: 15
+    padding: 5
   },
-  topBarContainer: {
-    backgroundColor: "green",
-    paddingBottom: 15
+  dashboardContainer: {
+    padding: 15,
+    flexDirection: 'column',
+    //justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    margin: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  title: {
-    fontSize: 30,
+  dashboardTitle: {
+    fontSize: 25,
     fontWeight: 600,
     paddingBottom: 10
+  },
+  header: {
+    backgroundColor: '#D68D54',
+    paddingTop: 30,
+    paddingBottom: 15,
+    paddingHorizontal: 16,
+  },
+  headerContentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  menuButton: {
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 28, // Larger font size
+    fontWeight: 'bold',
+    color: '#FFFFFF', // White text
+    flex: 1,
+    marginLeft: 8,
+  },
+  contentContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    //justifyContent: 'space-between',
+    padding: 10,
+    margin: 10,
+    backgroundColor: 'grey'
+
+    /*
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    backgroundColor: '#FFFFFF',
+    */
   }
 
 })

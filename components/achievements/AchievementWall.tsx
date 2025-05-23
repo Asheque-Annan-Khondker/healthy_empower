@@ -1,18 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  TouchableOpacity, 
-  Dimensions,
-  Image,
-  Animated
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Image,
+        Animated, Platform, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
+import { useNavigation } from '@react-navigation/native';
+import { DrawerActions } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 const CARD_MARGIN = 12; // Increased for better spacing
@@ -189,6 +183,7 @@ const AchievementWall = () => {
 const completedCount = achievements.filter(a => a.completed).length;
 const completionPercentage = (completedCount / achievements.length) * 100;
 const totalAcorns = achievements.filter(a => a.completed).reduce((sum, item) => sum + item.xp, 0);
+const navigation = useNavigation();
 
 // For achievement details modal
 const [selectedAchievement, setSelectedAchievement] = useState(null);
@@ -204,13 +199,13 @@ const closeDetails = () => {
 };
 
 return (
-  <SafeAreaView style={styles.container}>
+  <SafeAreaView style={[styles.container, styles.AndroidSafeArea]}>
     {/* Updated header to match shop header style */}
     <View style={styles.header}>
       <View style={styles.headerContentContainer}>
         <TouchableOpacity 
           style={styles.menuButton}
-          onPress={() => {/* Handle menu toggle */}}
+          onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
         >
           <Ionicons name="menu" size={28} color="#FFFFFF" />
         </TouchableOpacity>
@@ -386,6 +381,12 @@ container: {
   flex: 1,
   backgroundColor: '#F8F8F8', // Slightly warmer background
 },
+// bascially SafeAreaView for android
+  AndroidSafeArea: {
+    flex: 1,
+    backgroundColor: "#F8F8F8",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+  },
 // New header styles to match shop header
 header: {
   backgroundColor: '#D68D54',

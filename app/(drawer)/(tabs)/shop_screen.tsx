@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Button, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, 
+        Button, Alert, Platform, StatusBar } from 'react-native';
 import { PaperProvider as Provider, Dialog, Portal} from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -89,25 +90,7 @@ export default function ShopScreen() {
     }
     
   }
-
-  // Render header in the style of Achievements screen
-  const renderHeader = () => (
-    <View style={styles.header}>
-      <View style={styles.headerContentContainer}>
-        <TouchableOpacity 
-          style={styles.menuButton}
-          onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
-        >
-          <Ionicons name="menu" size={28} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Shop</Text>
-        <View style={styles.balanceContainer}>
-          <Text style={styles.balanceText}>{balance} 🌰</Text>
-        </View>
-      </View>
-    </View>
-  );
-
+  
   // Removed streak banner as requested
 
   // Render shop item
@@ -199,7 +182,8 @@ export default function ShopScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, styles.AndroidSafeArea]}>
+      {/** Header in the style of Achievements screen */}
       <View style={styles.header}>
         <View style={styles.headerContentContainer}>
           <TouchableOpacity 
@@ -214,6 +198,7 @@ export default function ShopScreen() {
           </View>
         </View>
       </View>
+      {/** Main scroll view  */}
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {shopSections.map(renderShopSection)}
       </ScrollView>
@@ -225,6 +210,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F8F8',
+  },
+  // bascially SafeAreaView for android
+  AndroidSafeArea: {
+    flex: 1,
+    backgroundColor: "#F8F8F8",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   },
   header: {
     backgroundColor: '#D68D54',
