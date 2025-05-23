@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Modal, Image } fr
 import { Searchbar } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { DrawerActions } from '@react-navigation/native';
 
 import DropdownMenu from '@/components/DropdownMenu';
@@ -68,12 +69,28 @@ const handleCloseFood = () => {
 return (
   <SafeAreaView style={styles.safeArea}>
     <View style={styles.mainContainer}>
+
+      {/***********    HEADER    *********
+       * copied header code from other main screens */} 
+      <View style={styles.header}>
+        <View style={styles.headerContentContainer}>
+          <TouchableOpacity 
+            style={styles.menuButton}
+            onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+          >
+            <Ionicons name="menu" size={28} color="#FFFFFF" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Home</Text>
+        </View>
+      </View>
+
       {/* Scrollable content area */}
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Search bar */}
+        {/* Search bar ***** I don't think we need this anymore
+          * Gonna replace with same header as main screens
         <Searchbar
           placeholder="Search"
           onChangeText={setSearchQuery}
@@ -83,6 +100,7 @@ return (
           style={styles.searchBar}
           inputStyle={styles.searchInput}
         />
+        */}
   
         {/* Welcome message with logo */}
         <View style={styles.welcomeContainer}>
@@ -516,4 +534,29 @@ saveButtonText: {
   fontSize: 16,
   fontWeight: 'bold',
 },
+header: {
+    //flexDirection: "row",
+    backgroundColor: '#D68D54',
+    paddingTop: 30,
+    paddingBottom: 15,
+    paddingHorizontal: 16,
+  },
+  headerContentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  menuButton: {
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 28, // Larger font size
+    fontWeight: 'bold',
+    color: '#FFFFFF', // White text
+    flex: 1,
+    marginLeft: 8,
+  }
 });
