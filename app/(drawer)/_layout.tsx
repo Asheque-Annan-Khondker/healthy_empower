@@ -222,11 +222,18 @@ export default function DrawerLayout() {
       })}
     >
       <Drawer.Screen 
-  name="leaderboard" 
-  options={{ 
-    title: "Leaderboard",
-  }} 
-/>
+        name="(tabs)" 
+        options={{ 
+          title: 'Home',
+          headerShown: false, // Explicitly hide header for home screen
+        }}
+      />
+      <Drawer.Screen 
+        name="leaderboard" 
+        options={{ 
+          title: "Leaderboard",
+        }} 
+      />
       <Drawer.Screen 
         name="settings" 
         options={{ 
@@ -262,13 +269,6 @@ export default function DrawerLayout() {
         options={{ 
           title: 'Expert Guide',
         }} 
-      />
-      <Drawer.Screen 
-        name="(tabs)" 
-        options={{ 
-          title: 'Home',
-          headerShown: false, // Explicitly hide header for home screen
-        }}
       />
     </Drawer>
   );
