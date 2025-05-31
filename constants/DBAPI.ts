@@ -5,7 +5,8 @@
 
 // jono's IP laptop
 //export const API_URL = 'http://192.168.1.134:3001';
-export const API_URL = 'http://192.168.0.118:3001';
+// jono laptop nids house
+//export const API_URL = 'http://192.168.0.118:3001';
 
 // jono's IP PC
-//export const API_URL = 'http://192.168.1.104:3001';
+export const API_URL = 'http://192.168.1.104:3001';
