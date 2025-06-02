@@ -7,14 +7,12 @@ import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import {API_URL} from "@/constants/DBAPI";
 
-// Simple date input component instead of native DatePicker
 const SimpleDateInput = ({ value, onChange }) => {
   const [year, setYear] = useState(value.split('-')[0] || '1990');
   const [month, setMonth] = useState(value.split('-')[1] || '01');
   const [day, setDay] = useState(value.split('-')[2] || '01');
 
   const updateDate = (y, m, d) => {
-    // Ensure proper formatting (pad with leading zeros)
     const formattedMonth = m.padStart(2, '0');
     const formattedDay = d.padStart(2, '0');
     onChange(`${y}-${formattedMonth}-${formattedDay}`);

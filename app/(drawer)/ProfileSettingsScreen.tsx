@@ -127,18 +127,6 @@ const ProfileSettingsScreen = () => {
                                 <Text style={styles.label}>Email:</Text>
                                 <Text style={styles.value}>{userData.email}</Text>
                             </View>
-                            <View style={styles.dataRow}>
-                                <Text style={styles.label}>Date of Birth:</Text>
-                                <Text style={styles.value}>{userData.date_of_birth}</Text>
-                            </View>
-                            <View style={styles.dataRow}>
-                                <Text style={styles.label}>Gender:</Text>
-                                <Text style={styles.value}>{userData.gender}</Text>
-                            </View>
-                            <View style={styles.dataRow}>
-                                <Text style={styles.label}>Timezone:</Text>
-                                <Text style={styles.value}>{userData.timezone}</Text>
-                            </View>
                         </>
                     )}
                     
