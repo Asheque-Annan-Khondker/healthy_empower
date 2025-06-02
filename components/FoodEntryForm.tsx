@@ -138,7 +138,7 @@ const FoodEntryForm: React.FC<FoodEntryFormProps> = ({ onSave, onCancel }) => {
             onPress={() => setSelectedMealType(meal.id)}
           >
             <MaterialIcons
-              name={meal.icon}
+              name={meal.icon as any}
               size={24}
               color={selectedMealType === meal.id ? '#FFFFFF' : '#D68D54'}
             />

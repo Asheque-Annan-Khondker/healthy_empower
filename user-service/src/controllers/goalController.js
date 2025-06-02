@@ -1,6 +1,6 @@
 const { validateGoalData } = require('../utils/validation.js'); 
 const db = require('../models');
-const get = require('../utils/universalGet.js');
+const {get} = require('../utils/universalDML')
 
 class GoalController {  
   constructor() { 

@@ -5,7 +5,8 @@ import { router, useNavigation } from "expo-router";
 import { View, Image, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { logout, getCurrentUser } from "@/components/utils/authUtils";
+import { logout } from "@/components/utils/authUtils";
+import { getCurrentUser } from "@/utils/authState";
 import React, { useState, useEffect } from 'react';
 
 // Custom drawer item component

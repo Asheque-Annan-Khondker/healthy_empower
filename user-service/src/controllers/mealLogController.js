@@ -1,6 +1,6 @@
 const { Op } = require('sequelize');
 const db = require('../models');
-const get = require('../utils/universalGet');
+const { post, get } = require('../utils/universalDML');
 
 class MealLogController {
   // Create meal log
@@ -41,6 +41,8 @@ class MealLogController {
         logged_at: logged_at ? new Date(logged_at) : new Date()
       });
       
+      console.log('✅ MealLog Controller: Successfully created meal log with ID:', mealLog.meal_id);
+      
       // Return with food details
       const result = await db.MealLog.findByPk(mealLog.meal_id, {
         include: [{ 
@@ -51,15 +53,18 @@ class MealLogController {
       
       res.status(201).json(result);
     } catch (error) {
+      console.error('❌ MealLog Controller: Error creating meal log:', error);
       res.status(500).json({ error: error.message });
     }
   }
+  
   get = get(db.MealLog)
+  
   // Get meal logs with filtering
   getMealLogs = async (req, res) => {
     try {
       const userId = req.params.userId;
-      const { date, start_date, end_date, meal_type, page = 1, limit = 20 } = req.query;
+      const { date, start_date, end_date, meal_type, page = 1, limit = 20, fetch_type = 'daily' } = req.query;
       const offset = (page - 1) * limit;
       
       // Check if user exists
@@ -71,8 +76,37 @@ class MealLogController {
       // Build where clause
       const whereClause = { user_id: userId };
       
-      if (date) {
-        // Single date filtering
+      // Optimize for monthly fetching
+      if (fetch_type === 'monthly' && date) {
+        // Monthly optimization: fetch entire month
+        const targetDate = new Date(date);
+        const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
+        const endOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 1);
+        
+        whereClause.logged_at = {
+          [Op.gte]: startOfMonth,
+          [Op.lt]: endOfMonth
+        };
+        
+        // For monthly queries, remove pagination to get all data
+        const mealLogs = await db.MealLog.findAndCountAll({
+          where: whereClause,
+          include: [{
+            model: db.Food,
+            include: [{ model: db.UnitOfMeasurement }]
+          }],
+          order: [['logged_at', 'ASC']] // Order by date for better client-side processing
+        });
+        
+        return res.status(200).json({
+          logs: mealLogs.rows,
+          totalCount: mealLogs.count,
+          fetchType: 'monthly',
+          month: `${targetDate.getFullYear()}-${targetDate.getMonth()}`
+        });
+        
+      } else if (date) {
+        // Single date filtering (legacy support)
         const targetDate = new Date(date);
         const nextDay = new Date(targetDate);
         nextDay.setDate(nextDay.getDate() + 1);
@@ -92,7 +126,7 @@ class MealLogController {
         whereClause.meal_type = meal_type;
       }
       
-      // Get meal logs
+      // Get meal logs with pagination for non-monthly queries
       const mealLogs = await db.MealLog.findAndCountAll({
         where: whereClause,
         limit: parseInt(limit),
@@ -108,7 +142,8 @@ class MealLogController {
         logs: mealLogs.rows,
         totalCount: mealLogs.count,
         totalPages: Math.ceil(mealLogs.count / limit),
-        currentPage: parseInt(page)
+        currentPage: parseInt(page),
+        fetchType: 'paginated'
       });
     } catch (error) {
       res.status(500).json({ error: error.message });

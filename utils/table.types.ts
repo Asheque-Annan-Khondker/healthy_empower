@@ -1,6 +1,6 @@
 
 
-export {Goal, Exercise, Food, FoodMacros, Guide, Achievement, ACHIEVEMENT_CATEGORIES,MealLog, AchievementCategories}
+export {Goal, Exercise, Food, FoodMacros, Guide, Achievement, ACHIEVEMENT_CATEGORIES,MealLog, WorkoutPlan, AchievementCategories, WorkoutPlanExercise}
 
 // The server database has different properties
 interface Exercise {
@@ -34,7 +34,13 @@ interface Achievement{
     completion_date: string | null
     xp: number
 }
-
+interface WorkoutPlan{
+  plan_id: number
+  name: string
+  description: string
+  difficulty_level: String
+  created_at: string
+}
 interface Food {
     food_id: number
     name: string
@@ -54,7 +60,13 @@ interface FoodMacros {
   carbs: number;
   fat: number;
 }
-
+interface WorkoutPlanExercise {
+  plan_id: number;
+  exercise_id: number;
+  sets: number;
+  reps_targets: number;
+  duration: number;
+}
 interface MealLog{
   meal_id: number
   user_id: number
@@ -71,7 +83,6 @@ interface Goal{
     target_value: number,
     start_date: string,
     description: string,
-    completed: boolean,
 
 }
 
@@ -82,3 +93,4 @@ const ACHIEVEMENT_CATEGORIES = {
     CONSISTENCY: 'consistency',
     MILESTONE: 'milestone' 
 }
+

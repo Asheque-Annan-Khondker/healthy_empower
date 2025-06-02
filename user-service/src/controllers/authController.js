@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const CryptoJS = require('crypto-js'); 
 const { isValidEmail } = require('../utils/password-utils.js');
 const db = require('../models');
+const {get, post} = require('../utils/universalDML.js');
 
 class AuthController {
   constructor(users) {
@@ -34,23 +35,16 @@ class AuthController {
 
       await user.update({ last_login: new Date() });
 
-      const token = this.generateAccessToken(user.id); 
-      const refreshToken = this.generateRefreshToken(user.id);
+      const token = this.generateAccessToken(user.user_id); 
+      const refreshToken = this.generateRefreshToken(user.user_id);
 
-      this.refreshTokens.set(refreshToken, { userId: user.id, isValid: true }); 
+      this.refreshTokens.set(refreshToken, { userId: user.user_id, isValid: true }); 
 
       const userResponse = {
-        id: user.id, 
+        id: user.user_id, 
         username: user.username, 
         email: user.email
       };
-      
-    console.log('Decryption process:', {
-      password: user.password,
-      secretKey: process.env.SECRET,
-      secretExists: !!process.env.SECRET
-    });
-      
 
       res.status(200).json({
         token, 

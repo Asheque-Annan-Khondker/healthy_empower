@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
 const db = require('../models');
 const { validateExerciseData } = require('../utils/validation');
-const get = require('../utils/universalGet');
+const { post, get } = require('../utils/universalDML');
 
 class ExerciseContoller { 
     createExercise = async (req, res) => {

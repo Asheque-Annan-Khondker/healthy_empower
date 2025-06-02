@@ -14,12 +14,8 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import {API_URL} from "@/constants/DBAPI";
+import { setUserId, initializeUserId } from '@/utils/authState';
 const { width, height } = Dimensions.get('window');
-
-// Configure API base URL - Special IP for Android emulator to access host machine
-export const USER = {
-    id: -1
-}
 export default function SignInScreen() {
     const params = useLocalSearchParams();
     const [email, setEmail] = useState(params.email?.toString() || '');
@@ -75,6 +71,8 @@ export default function SignInScreen() {
             const refreshToken = await AsyncStorage.getItem('refreshToken');
             
             if (token && refreshToken) {
+                // Initialize user ID from stored data
+                await initializeUserId();
                 // Validate token or navigate directly
                 router.replace('/(drawer)/(tabs)');
             }
@@ -84,7 +82,7 @@ export default function SignInScreen() {
     };
 
     // Store authentication tokens
-    const storeAuthTokens = async (token, refreshToken, userData) => {
+    const storeAuthTokens = async (token: string, refreshToken: string, userData: any) => {
         try {
             await AsyncStorage.setItem('authToken', token);
             await AsyncStorage.setItem('refreshToken', refreshToken);
@@ -142,15 +140,15 @@ export default function SignInScreen() {
             });
             // Store authentication data
             const { token, refreshToken, user } = response.data;
+            
             await storeAuthTokens(token, refreshToken, user);
-
-            const userbyemailresponse = await axios.get(
-                `${API_URL}/api/users/by-email?email=${encodeURIComponent(email)}`
-            );
-            USER.id = userbyemailresponse.data.id;
+            
+            // Set user ID in centralized auth state
+            await setUserId(user.id);
+            
             // Navigate to main app
             router.replace('/(drawer)/(tabs)');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Login error:', error);
             
             // Handle different error scenarios

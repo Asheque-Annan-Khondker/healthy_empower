@@ -3,7 +3,7 @@ const router = express.Router({ mergeParams: true });
 
 module.exports = (achievementController) => {
   // Get all achievements
-  router.get('/', achievementController.getAllAchievements);
+  router.get('/', achievementController.get);
   
   // Get user's achievements
   router.get('/users/:userId', achievementController.getUserAchievements);
