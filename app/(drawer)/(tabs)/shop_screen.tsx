@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, 
-        Button, Alert, Platform, StatusBar } from 'react-native';
+        Button, Alert, Platform, StatusBar, Dimensions } from 'react-native';
 import { PaperProvider as Provider, Dialog, Portal} from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -8,6 +8,8 @@ import { DrawerActions } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TestSquare from '@/components/anime_square';
 import Modal from 'react-native-modal';
+
+const { height, width } = Dimensions.get('window');
 
 // Shop screen with header similar to Achievements screen
 export default function ShopScreen() {
@@ -219,9 +221,10 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#D68D54',
-    paddingTop: 30,
+    paddingTop: 70,
     paddingBottom: 15,
     paddingHorizontal: 16,
+    top: height-930 // hardcoded this cos i couldnt figue univeral method
   },
   headerContentContainer: {
     flexDirection: 'row',

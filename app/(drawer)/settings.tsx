@@ -84,7 +84,7 @@ export default function Settings() {
             icon={<Ionicons name="person-circle-outline" size={24} color="#D68D54" />}
             label="Profile"
             description="Edit your personal information"
-            onPress={() => Alert.alert('Navigate to Profile')}
+            onPress={() => router.push('/profileSettings')}
           />
           
           <View style={styles.divider} />

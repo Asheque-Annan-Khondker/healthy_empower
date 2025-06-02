@@ -187,4 +187,22 @@ class GoalDBModal {
                                                             .catch(err => console.log('Error inserting', err));
   }
 }
+
+{/* Copy and pasted WorkoutDBModal
+  * need to edit to make profileDBModal with custom get
+class ProfileDBModal {
+  static async get(filter?: Filter<WorkoutPlan>): Promise<WorkoutPlan[]> {
+
+    let params = filter && Object.keys(filter).length > 0
+                  ? '?filters=' + encodeURIComponent(JSON.stringify(filter))
+                  : '';
+    // Iterate over the filter object and append to params string
+  
+    const rawResult = await axios.get(`${API_URL}/api/workout-plans${params}`).then(res => res.data.data);
+    console.log("Raw results for WorkoutPlan array: ", rawResult )
+
+    return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult : []
+  }
+}
+  */}
 export { AchievementDBModal, ExerciseDBModal, GuideDBModal, FoodDBModal, dropall, WorkoutPlanDBModal, GoalDBModal, MealLogDBModal };

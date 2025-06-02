@@ -140,6 +140,15 @@ const CustomDrawerContent = (props) => {
           onPress={() => handleNavigation('/(drawer)/(guide)/guideSelection')}
           active={activeItem === '/(drawer)/(guide)/guideSelection'}
         />
+
+        {/* 
+        <DrawerItem
+          icon={<Ionicons name="list-outline" size={22} color={getIconColor('/(drawer)/ProfileSettings')} />}
+          label="Profile Settings Screen"
+          onPress={() => handleNavigation('/(drawer)/ProfileSettings')}
+          active={activeItem === '/(drawer)/ProfileSettings'}
+        />
+        */}
       
       </DrawerContentScrollView>
 
@@ -218,14 +227,14 @@ export default function DrawerLayout() {
           return <CustomHeader title={title} navigation={navigation} route={route} />;
         },
         // Hide the header completely for Home screen ((tabs) route)
-        headerShown: route.name !== "(tabs)",
+        //headerShown: route.name !== "(tabs)",
       })}
     >
       <Drawer.Screen 
         name="(tabs)" 
         options={{ 
           title: 'Home',
-          headerShown: false, // Explicitly hide header for home screen
+          //headerShown: false, // Explicitly hide header for home screen
         }}
       />
       <Drawer.Screen 
@@ -270,6 +279,15 @@ export default function DrawerLayout() {
           title: 'Expert Guide',
         }} 
       />
+      <Drawer.Screen 
+        name="ProfileSettings" 
+        options={{ 
+          title: 'Profile Settings',
+          headerShown: false,
+          drawerItemStyle: {display: 'none'}
+        }} 
+      />
+    
     </Drawer>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Modal, Image } from 'react-native';
+import { StyleSheet, Dimensions, Text, View, ScrollView, TouchableOpacity, Modal, Image } from 'react-native';
 import { Searchbar } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from 'expo-router';
@@ -27,6 +27,8 @@ import bannerImg from '@/assets/images/yoga.png';
 import yogaStudio from '@/assets/images/yogastudio.png';
 import walkingTrack from '@/assets/images/walkingtrack.png';
 import gymSession from '@/assets/images/gym.png';
+
+const { height, width } = Dimensions.get('window');
 
 export default function Index() {
 const [searchQuery, setSearchQuery] = useState('');
@@ -71,7 +73,7 @@ return (
     <View style={styles.mainContainer}>
 
       {/***********    HEADER    *********
-       * copied header code from other main screens */} 
+       * copied header code from other main screens */}
       <View style={styles.header}>
         <View style={styles.headerContentContainer}>
           <TouchableOpacity 
@@ -535,28 +537,28 @@ saveButtonText: {
   fontWeight: 'bold',
 },
 header: {
-    //flexDirection: "row",
-    backgroundColor: '#D68D54',
-    paddingTop: 30,
-    paddingBottom: 15,
-    paddingHorizontal: 16,
-  },
-  headerContentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  menuButton: {
-    width: 44,
-    height: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 28, // Larger font size
-    fontWeight: 'bold',
-    color: '#FFFFFF', // White text
-    flex: 1,
-    marginLeft: 8,
-  }
+  backgroundColor: '#D68D54',
+  paddingTop: 70,
+  paddingBottom: 15,
+  paddingHorizontal: 16,
+  top: height-930 // hardcoded this cos i couldnt figue univeral method
+},
+headerContentContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+},
+menuButton: {
+  width: 44,
+  height: 44,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+headerTitle: {
+  fontSize: 28, // Larger font size
+  fontWeight: 'bold',
+  color: '#FFFFFF', // White text
+  flex: 1,
+  marginLeft: 8,
+}
 });
