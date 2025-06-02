@@ -40,15 +40,14 @@ const ProfileSettingsScreen = () => {
             </View>
 
             {/** get user data and health profile
-             * iterate thru user data api
-             * iterate thru health profile api
+             * iterate thru user data api: get username,email,pword,dob,gender,timezone,
+             * iterate thru health profile api: height, weight? any other info?
+             * display for now, and if possible allow users to change the data
+             * 
              */}
             <View style={styles.subContainer}>
                 <View style={styles.detailsContainer}>
-                    <Text>First Name </Text>
-                    <Text>Last Name </Text>
-                    <Text>Email </Text>
-                    <Text>Password </Text>
+                    
                 </View>
             </View>
             
@@ -60,13 +59,13 @@ const ProfileSettingsScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'yellow',
+        //backgroundColor: '#FAF7F4',
         //padding: 10
     },
     subContainer: {
         flex: 1,
         padding: 15,
-        backgroundColor: 'grey'
+        backgroundColor: '#FAF7F4'
     },
     detailsContainer: {
         padding: 20,
@@ -79,7 +78,7 @@ const styles = StyleSheet.create({
     },
     titleContainer: {
         padding: 20,
-        backgroundColor: "pink",
+        backgroundColor: '#FAF7F4',
         alignItems: 'center'
     },
     header: {
