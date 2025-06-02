@@ -20,6 +20,6 @@ export default function ProfileSettings() {
 const styles = StyleSheet.create({
     container: {
         //flex: 1,
-        backgroundColor: 'blue',
+        backgroundColor: '#FAF7F4',
     }
 });
