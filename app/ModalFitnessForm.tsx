@@ -5,16 +5,6 @@ import FitnessForm from '@/app/FitnessForm';
 import { IonIcon } from '@/utils/getIcon';
 import { Ionicons } from '@expo/vector-icons';
 
-/** 
- * NEED TO IMPLEMENT:
- * - android 'back' function
- * - more intuitive touchscreen functionalities
- * e.g touch sides to exit modal or something like that
- * - check if iphone back swipe functionality works. (I'm using android so idk)
- * - GET/POST request with forms
- * - styling
- * - modal animations
- **/
 
 const ModalFitnessForm = () => {
   // First modal is dialog box, confirming if user wants to proceed with FitnessForm
