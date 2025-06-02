@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { router } from "expo-router";
+import { router } from 'expo-router';
 
 const q1 = ['Never', '1-2 Days', '3-5 Days', 'More than 5 days'];
 const q2 = ['0-30 mins', '30-60 mins', '60-90 mins', 'More than 90mins'];
@@ -22,7 +22,6 @@ export default function FitnessForm() {
     const handleSubmit = () => {
         const answers = [q1Selected, q2Selected, q3Selected, q4Selected, q5Selected];
 
-        console.log(q1Selected)
         // write conditional logic to direct to a start-up guide based on answers
         // question answers are in order from easy to hardest
         
@@ -32,12 +31,15 @@ export default function FitnessForm() {
 
         const sum = first+second+third;
         if (sum <= 3) {
-            //router.push('/(drawer)/(guide)/BeginnerGuide');
-            // direct to beginner
+            //redirect to start-up guides if possible
+            Alert.alert("We recommend you start on our Beginner Start-Up Guide")
+            router.back();
         } else if (sum > 3 && sum <= 6) {
-            Alert.alert("Intermediate")
+            Alert.alert("We recommend you start on our Intermediate Start-Up Guide")
+            router.back();
         } else {
-            Alert.alert("Advanced")
+            Alert.alert("We recommend you start on our Expert Start-Up Guide")
+            router.back();
         }
     
     };
