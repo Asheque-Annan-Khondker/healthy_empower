@@ -1,5 +1,5 @@
-import {ScrollView, View, SafeAreaView, StyleSheet, Platform, StatusBar, TouchableOpacity} from "react-native";
-import {FAB, List, Portal, Text, DataTable, Provider} from "react-native-paper";
+import {ScrollView, Dimensions, View, SafeAreaView, StyleSheet, Platform, StatusBar, TouchableOpacity} from "react-native";
+import {FAB, List, Portal, Text, DataTable, Provider } from "react-native-paper";
 import {FAIcon} from "@/utils/getIcon";
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -14,6 +14,8 @@ import CustomPaperList from "@/components/CustomPaperList";
 import {ProgressBar} from "@/components/ProgressBar";
 import PlaceCard from "@/components/PlaceCard";
 import CustomChart from "@/components/CustomChart";
+
+const { height, width } = Dimensions.get('window');
 
 export default function DietScreen() {
   const [state, setState] = useState( {open: false})
@@ -110,7 +112,7 @@ export default function DietScreen() {
             >
               <Ionicons name="menu" size={28} color="#FFFFFF" />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Diet4lackofbettername</Text>
+            <Text style={styles.headerTitle}>Diet</Text>
           </View>
         </View>
 
@@ -298,9 +300,10 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#D68D54',
-    paddingTop: 30,
+    paddingTop: 70,
     paddingBottom: 15,
     paddingHorizontal: 16,
+    top: height-930 // hardcoded this cos i couldnt figue univeral method
   },
   headerContentContainer: {
     flexDirection: 'row',

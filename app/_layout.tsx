@@ -15,6 +15,7 @@ export default function AppLayout() {
         <Stack.Screen name="signin" options={{ headerShown: false }} />
         <Stack.Screen name="signup" options={{ headerShown: false }} />
         <Stack.Screen name="guideContent" options={{ headerShown: false }} />
+        <Stack.Screen name="profileSettings" />
       </Stack>
     </WorkoutProvider>
   );

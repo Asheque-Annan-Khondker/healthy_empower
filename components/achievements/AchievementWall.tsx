@@ -8,7 +8,7 @@ import { BlurView } from 'expo-blur';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerActions } from '@react-navigation/native';
 
-const { width } = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 const CARD_MARGIN = 12; // Increased for better spacing
 const CARD_WIDTH = (width - (CARD_MARGIN * 6)) / 2; // Changed to 2 columns instead of 3
 
@@ -390,11 +390,10 @@ container: {
 // New header styles to match shop header
 header: {
   backgroundColor: '#D68D54',
-  height: 90,
-  paddingTop: 20,
+  paddingTop: 70,
   paddingBottom: 15,
   paddingHorizontal: 16,
-  justifyContent: 'flex-end',
+  top: height-930 // hardcoded this cos i couldnt figue univeral method
 },
 headerContentContainer: {
   flexDirection: 'row',
