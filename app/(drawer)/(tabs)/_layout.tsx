@@ -25,6 +25,15 @@ export default function TabLayout() {
       />
       
       <Tabs.Screen
+        name="diet_screen"
+        options={{
+          title: 'Diet',
+          tabBarLabel: 'Diet',
+          tabBarIcon: ({ color }) => <Ionicons name="nutrition" size={24} color={color} />
+        }}
+      />
+      
+      <Tabs.Screen
         name="achievement_screen"
         options={{
           title: 'Achievements',

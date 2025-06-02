@@ -11,64 +11,42 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 // Updated WorkoutPlan interface to match backend model
-interface Exercise {
-  exercise_id: number;
-  name: string;
-  description?: string;
-  type: string;
-  measurement_type: string;
-  difficulty_level?: string;
-  target_muscle_group?: string;
-  WorkoutPlanExercise?: {
-    sets?: number;
-    reps_targets?: number;
-    duration?: number;
-  };
-}
 
-interface WorkoutPlan {
-  plan_id: number;
-  name: string;
-  description: string;
-  difficulty_level: string;
-  created_at: string;
-  Exercises?: Exercise[];
-}
-
-import { WorkoutPlanDBModal } from '@/utils/dbFunctions';
+import { WorkoutPlan, Exercise,  } from '@/utils/table.types';
+import { ExerciseDBModal, WorkoutPlanDBModal } from '@/utils/dbFunctions';
 
 export default function GuideSelection() {
   const [guideList, setGuideList] = useState<WorkoutPlan[]>([]);
-  const [selectedGuide, setSelectedGuide] = useState<WorkoutPlan | null>(null);
+  const [selectedGuide, setSelectedGuide] = useState<WorkoutPlan>();
   const [selectedPlanExercises, setSelectedPlanExercises] = useState<Exercise[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingExercises, setIsLoadingExercises] = useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   async function fetchData(){
-    setIsLoading(true);
     try {
+    setIsLoading(true);
       const response = await WorkoutPlanDBModal.get();
-      if (Array.isArray(response) && response.length > 0) {
-        setGuideList(response);
-      } else {
-        console.warn("No workout plans returned from API");
+      setGuideList(response);
+    }
+      catch (error) {
+        console.error("Error fetching workout plans:", error);
         setGuideList([]);
       }
-    } catch (error) {
-      console.error("Error fetching guides:", error);
-    } finally {
-      setIsLoading(false);
-    }
+      finally{
+        setIsLoading(false)
+      }
+
   }
 
   // Function to fetch exercises for a specific plan
   async function fetchPlanDetails(planId: number) {
     setIsLoadingExercises(true);
     try {
-      const planDetails = await WorkoutPlanDBModal.getById(planId);
-      if (planDetails && planDetails.Exercises) {
-        setSelectedPlanExercises(planDetails.Exercises);
+      const planDetails = await WorkoutPlanDBModal.get({plan_id: planId});
+      const exercises = await(await Promise.all(planDetails.map(info => ExerciseDBModal.get({exercise_id: {eq: info.exercise_id}})))).flat()
+      if (planDetails && exercises) {
+        setSelectedPlanExercises(exercises);
       } else {
         setSelectedPlanExercises([]);
       }

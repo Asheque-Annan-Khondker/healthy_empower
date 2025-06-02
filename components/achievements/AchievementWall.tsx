@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Image,
         Animated, Platform, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,128 +7,131 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerActions } from '@react-navigation/native';
+import {AchievementDBModal} from "@/utils/dbFunctions";
+import {Achievement} from "@/utils/table.types";
 
 const { height, width } = Dimensions.get('window');
 const CARD_MARGIN = 12; // Increased for better spacing
 const CARD_WIDTH = (width - (CARD_MARGIN * 6)) / 2; // Changed to 2 columns instead of 3
 
 // Sample achievements for fitness app with descriptions and acorn values
-const achievements = [
-{ 
-  id: 1, 
-  title: "First Workout", 
-  description: "Complete your first workout",
-  icon: "barbell", 
-  category: "fitness", 
-  completed: true,
-  xp: 50,
-  date: "May 10, 2025"
-},
-{ 
-  id: 2, 
-  title: "Healthy Meal", 
-  description: "Log a balanced meal",
-  icon: "nutrition", 
-  category: "nutrition", 
-  completed: true,
-  xp: 25,
-  date: "May 11, 2025"
-},
-{ 
-  id: 3, 
-  title: "Weight Goal", 
-  description: "Reach your first goal",
-  icon: "body", 
-  category: "milestone", 
-  completed: true,
-  xp: 100,
-  date: "May 12, 2025"
-},
-{ 
-  id: 4, 
-  title: "7-Day Streak", 
-  description: "Exercise for a week",
-  icon: "calendar", 
-  category: "consistency", 
-  completed: true,
-  xp: 75,
-  date: "May 14, 2025"
-},
-{ 
-  id: 5, 
-  title: "Cardio Master", 
-  description: "30 mins continuous",
-  icon: "heart", 
-  category: "fitness", 
-  completed: false,
-  xp: 80
-},
-{ 
-  id: 6, 
-  title: "Nutrition Plan", 
-  description: "Follow plan for 3 days",
-  icon: "restaurant", 
-  category: "nutrition", 
-  completed: false,
-  xp: 60
-},
-{ 
-  id: 7, 
-  title: "Gym Regular", 
-  description: "Visit gym 10 times",
-  icon: "fitness", 
-  category: "consistency", 
-  completed: false,
-  xp: 90
-},
-{ 
-  id: 8, 
-  title: "Perfect Macros", 
-  description: "Hit all macro targets",
-  icon: "pie-chart", 
-  category: "nutrition", 
-  completed: true,
-  xp: 70,
-  date: "May 15, 2025"
-},
-{ 
-  id: 9, 
-  title: "Group Class", 
-  description: "Join a fitness class",
-  icon: "people", 
-  category: "fitness", 
-  completed: false,
-  xp: 65
-},
-{ 
-  id: 10, 
-  title: "Fitness Test", 
-  description: "Complete assessment",
-  icon: "analytics", 
-  category: "milestone", 
-  completed: false,
-  xp: 120
-},
-{ 
-  id: 11, 
-  title: "Profile Setup", 
-  description: "Complete your profile",
-  icon: "person", 
-  category: "account", 
-  completed: true,
-  xp: 30,
-  date: "May 8, 2025"
-},
-{ 
-  id: 12, 
-  title: "Weekend Workout", 
-  description: "Exercise on weekend",
-  icon: "sunny", 
-  category: "consistency", 
-  completed: false,
-  xp: 45
-},
-];
+// const achievements = [
+// {
+//   id: 1,
+//   title: "First Workout",
+//   description: "Complete your first workout",
+//   icon: "barbell",
+//   category: "fitness",
+//   completed: true,
+//   xp: 50,
+//   date: "May 10, 2025"
+// },
+// {
+//   id: 2,
+//   title: "Healthy Meal",
+//   description: "Log a balanced meal",
+//   icon: "nutrition",
+//   category: "nutrition",
+//   completed: true,
+//   xp: 25,
+//   date: "May 11, 2025"
+// },
+// {
+//   id: 3,
+//   title: "Weight Goal",
+//   description: "Reach your first goal",
+//   icon: "body",
+//   category: "milestone",
+//   completed: true,
+//   xp: 100,
+//   date: "May 12, 2025"
+// },
+// {
+//   id: 4,
+//   title: "7-Day Streak",
+//   description: "Exercise for a week",
+//   icon: "calendar",
+//   category: "consistency",
+//   completed: true,
+//   xp: 75,
+//   date: "May 14, 2025"
+// },
+// {
+//   id: 5,
+//   title: "Cardio Master",
+//   description: "30 mins continuous",
+//   icon: "heart",
+//   category: "fitness",
+//   completed: false,
+//   xp: 80
+// },
+// {
+//   id: 6,
+//   title: "Nutrition Plan",
+//   description: "Follow plan for 3 days",
+//   icon: "restaurant",
+//   category: "nutrition",
+//   completed: false,
+//   xp: 60
+// },
+// {
+//   id: 7,
+//   title: "Gym Regular",
+//   description: "Visit gym 10 times",
+//   icon: "fitness",
+//   category: "consistency",
+//   completed: false,
+//   xp: 90
+// },
+// {
+//   id: 8,
+//   title: "Perfect Macros",
+//   description: "Hit all macro targets",
+//   icon: "pie-chart",
+//   category: "nutrition",
+//   completed: true,
+//   xp: 70,
+//   date: "May 15, 2025"
+// },
+// {
+//   id: 9,
+//   title: "Group Class",
+//   description: "Join a fitness class",
+//   icon: "people",
+//   category: "fitness",
+//   completed: false,
+//   xp: 65
+// },
+// {
+//   id: 10,
+//   title: "Fitness Test",
+//   description: "Complete assessment",
+//   icon: "analytics",
+//   category: "milestone",
+//   completed: false,
+//   xp: 120
+// },
+// {
+//   id: 11,
+//   title: "Profile Setup",
+//   description: "Complete your profile",
+//   icon: "person",
+//   category: "account",
+//   completed: true,
+//   xp: 30,
+//   date: "May 8, 2025"
+// },
+// {
+//   id: 12,
+//   title: "Weekend Workout",
+//   description: "Exercise on weekend",
+//   icon: "sunny",
+//   category: "consistency",
+//   completed: false,
+//   xp: 45
+// },
+// ];
+
 
 // Get icon name based on category
 const getIconName = (achievement) => {
@@ -179,6 +182,20 @@ return 0.08; // Reduced opacity for better visual
 };
 
 const AchievementWall = () => {
+  const [achievements, setAchievements] = useState<Achievement[]>([])
+    // Fetch achievements from the database
+  useEffect(()=>{
+    const loadAchievements = async () =>{
+      try {
+        const fetchedAchievements = await AchievementDBModal.get()
+        console.log("Fetching Achievements")
+        setAchievements(fetchedAchievements);
+      } catch (err){
+        console.error("Error fetching achievements: ", err);
+      }
+    }
+    loadAchievements();
+  },[])
 // Calculate completion percentage
 const completedCount = achievements.filter(a => a.completed).length;
 const completionPercentage = (completedCount / achievements.length) * 100;

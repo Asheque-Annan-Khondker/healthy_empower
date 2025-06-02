@@ -13,6 +13,7 @@ const MealLogController = require('./controllers/mealLogController');
 const UnitOfMeasurementController = require('./controllers/unitOfMeasurementController');
 const ExerciseController = require('./controllers/exerciseController');
 const WorkoutPlanController = require('./controllers/workoutPlanController');
+const WorkoutPlanExerciseController = require('./controllers/workoutPlanExerciseController');
 const WorkoutLogController = require('./controllers/workoutLogController'); 
 
 const userRoutesFactory = require('./routes/userRoutes');
@@ -24,6 +25,7 @@ const mealLogRoutesFactory = require('./routes/mealLogRoutes');
 const unitRoutesFactory = require('./routes/unitRoutes');
 const exerciseRoutesFactory = require('./routes/exerciseRoutes');
 const workoutPlanRoutesFactory = require('./routes/workoutPlansRoutes');
+const workoutPlanExerciseRoutesFactory = require('./routes/workoutPlanExerciseRoutes');
 const workoutLogRoutesFactory = require('./routes/workoutLogRoutes');
 
 const app = express(); 
@@ -42,6 +44,7 @@ const mealLogController = new MealLogController();
 const unitOfMeasurementController = new UnitOfMeasurementController();
 const exerciseController = new ExerciseController();
 const workoutPlanController = new WorkoutPlanController(); 
+const workoutPlanExerciseController = new WorkoutPlanExerciseController();
 const workoutLogController = new WorkoutLogController();
 
 app.use('/api/users', userRoutesFactory(userController));
@@ -53,6 +56,7 @@ app.use('/api/foods', foodRoutesFactory(foodController));
 app.use('/api/users/:userId/meal-logs', mealLogRoutesFactory(mealLogController));
 app.use('/api/units', unitRoutesFactory(unitOfMeasurementController)); 
 app.use('/api/workout-plans', workoutPlanRoutesFactory(workoutPlanController));
+app.use('/api/workout-plan-exercises', workoutPlanExerciseRoutesFactory(workoutPlanExerciseController));
 app.use('/api/users/:userId/workout-logs', workoutLogRoutesFactory(workoutLogController));
 
 

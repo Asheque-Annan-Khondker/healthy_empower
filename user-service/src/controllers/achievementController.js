@@ -1,6 +1,6 @@
 const { Op } = require('sequelize');
 const db = require('../models');
-
+const {get} = require('../utils/universalDML')
 class AchievementController {
   constructor() {}
   
@@ -15,7 +15,7 @@ class AchievementController {
       res.status(500).json({ error: error.message });
     }
   };
-
+  get = get(db.Achievement);
   getUserAchievements = async (req, res) => {
     try {
       const userId = req.params.userId;

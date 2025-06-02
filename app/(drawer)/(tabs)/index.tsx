@@ -12,6 +12,7 @@ import SlidingToggleButton from '@/components/SlidingToggleButton';
 import CheckButton from '@/components/CheckButton';
 import {ProgressBar} from '@/components/ProgressBar';
 import CalendarPicker from '@/components/CalendarPicker';
+import { FoodDBModal, MealLogDBModal } from '@/utils/dbFunctions';
 
 // Components
 
@@ -21,12 +22,13 @@ import DailyFoodLog from '@/components/DailyFoodLog';
 import FoodEntryForm from '@/components/FoodEntryForm';
 import CurrencyStreakIndicator from '@/components/CurrencyStreakIndicator';
 import { FAIcon } from '@/utils/getIcon';
+import UnifiedFAB from '@/components/UnifiedFAB';
 
 // Assets
-import bannerImg from '@/assets/images/yoga.png';
-import yogaStudio from '@/assets/images/yogastudio.png';
-import walkingTrack from '@/assets/images/walkingtrack.png';
-import gymSession from '@/assets/images/gym.png';
+const bannerImg = require('../../../assets/images/yoga.png');
+const yogaStudio = require('../../../assets/images/yogastudio.png');
+const walkingTrack = require('../../../assets/images/walkingtrack.png');
+const gymSession = require('../../../assets/images/gym.png');
 
 const { height, width } = Dimensions.get('window');
 
@@ -34,10 +36,11 @@ export default function Index() {
 const [searchQuery, setSearchQuery] = useState('');
 const [currentDate, setCurrentDate] = useState(new Date());
 const [isFoodModalVisible, setIsFoodModalVisible] = useState(false);
+const [refreshTrigger, setRefreshTrigger] = useState(0); // Add refresh trigger state
 const navigation = useNavigation();
 
 // Format the date as DD/MM/YYYY
-const formatDate = (date) => {
+const formatDate = (date: Date) => {
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const year = date.getFullYear();
@@ -66,6 +69,11 @@ const handleAddFood = () => {
 // Handle close food modal
 const handleCloseFood = () => {
   setIsFoodModalVisible(false);
+};
+
+// Function to trigger refresh of food log
+const triggerFoodLogRefresh = () => {
+  setRefreshTrigger(prev => prev + 1);
 };
 
 return (
@@ -111,7 +119,7 @@ return (
             <Text style={styles.welcomeSubtitle}>Let's continue your fitness journey</Text>
           </View>
           <Image 
-            source={require('@/assets/images/squirrel_flex.png')} 
+            source={require('../../../assets/images/squirrel_flex.png')} 
             style={styles.logoImage}
             resizeMode="contain"
           />
@@ -144,6 +152,7 @@ return (
         <DailyFoodLog 
           date={currentDate}
           onAddPress={handleAddFood}
+          refreshTrigger={refreshTrigger}
         />
 
         {/* Cards section */}
@@ -209,17 +218,61 @@ return (
             </View>
             
             <FoodEntryForm 
-              onSave={(foodEntry) => {
+              onSave={async (foodEntry) => {
                 console.log('Food entry saved:', foodEntry);
-                // Here you would typically save the food entry to your database
-                // For now, we'll just close the modal
+                
+                try {
+                  // First, create the food entry in the database
+                  await FoodDBModal.insert({
+                    name: foodEntry.name,
+                    calories: foodEntry.calories,
+                    protein: foodEntry.protein,
+                    carbs: foodEntry.carbs,
+                    fat: foodEntry.fat,
+                    serving_size: '1 serving',
+                    serving_unit_id: 1 // Default unit
+                  });
+                  
+                  // Get the created food to get its ID
+                  const createdFoods = await FoodDBModal.get({name: {eq: foodEntry.name}});
+                  if (createdFoods.length > 0) {
+                    const foodId = createdFoods[0].food_id;
+                    
+                    // Create a meal log entry
+                    await MealLogDBModal.create({
+                      food_id: foodId,
+                      meal_type: foodEntry.mealType,
+                      servings: 1,
+                      logged_at: new Date().toISOString()
+                    });
+                    
+                    console.log('✅ Food and meal log created successfully');
+                  }
+                } catch (error) {
+                  console.error('❌ Error saving food entry:', error);
+                }
+                
                 handleCloseFood();
+                triggerFoodLogRefresh(); // Trigger refresh after saving
               }}
               onCancel={handleCloseFood}
             />
           </View>
         </View>
       </Modal>
+      
+      {/* Unified FAB System */}
+      <UnifiedFAB 
+        screenType="home"
+        onFoodAdded={() => {
+          console.log('Food added from home screen');
+          triggerFoodLogRefresh(); // Trigger refresh when food is added via FAB
+        }}
+        onMealAdded={() => {
+          console.log('Meal added from home screen');
+          triggerFoodLogRefresh(); // Trigger refresh when meal is added via FAB
+        }}
+      />
     </View>
   </SafeAreaView>
 );

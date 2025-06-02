@@ -4,35 +4,11 @@ import { Button } from 'react-native-paper';
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from '@expo/vector-icons';
-import { WorkoutPlanDBModal } from '@/utils/dbFunctions';
+import { WorkoutPlanDBModal, WorkoutPlanExerciseDBModal, ExerciseDBModal } from '@/utils/dbFunctions';
+import { WorkoutPlan, Exercise } from '@/utils/table.types';
 
 const { height, width } = Dimensions.get('window');
 
-// Define interfaces here for standalone use
-interface Exercise {
-  exercise_id: number;
-  name: string;
-  description?: string;
-  type: string;
-  measurement_type: string;
-  difficulty_level?: string;
-  target_muscle_group?: string;
-  WorkoutPlanExercise?: {
-    sets?: number;
-    reps_targets?: number;
-    duration?: number;
-    rest?: number;
-  };
-}
-
-interface WorkoutPlan {
-  plan_id: number;
-  name: string;
-  description: string;
-  difficulty_level: string;
-  created_at: string;
-  Exercises?: Exercise[];
-}
 
 export default function GuideContent() {
     // Get the workout ID from params
@@ -54,25 +30,66 @@ export default function GuideContent() {
                 setIsLoading(true);
                 try {
                     console.log(`Fetching workout plan with ID: ${workoutId}`);
-                    const plan = await WorkoutPlanDBModal.getById(workoutId);
-                    console.log("Fetched workout plan:", plan);
                     
-                    if (plan) {
-                        setWorkoutPlan(plan);
-                        if (plan.Exercises && Array.isArray(plan.Exercises)) {
-                            // Sort exercises if needed or apply any other transformations
-                            setExercises(plan.Exercises);
-                            console.log("Exercises loaded:", plan.Exercises.length);
-                            console.log("Sample exercise:", plan.Exercises[0]);
+                    // First, get the workout plan exercises (junction table)
+                    const workoutPlanExercises = await WorkoutPlanExerciseDBModal.get({
+                        plan_id: { eq: workoutId }
+                    });
+                    
+                    console.log("Fetched workout plan exercises:", workoutPlanExercises);
+                    
+                    if (workoutPlanExercises && workoutPlanExercises.length > 0) {
+                        // Extract exercise IDs and get exercise details in parallel
+                        const exerciseIds = workoutPlanExercises.map(wpe => wpe.exercise_id);
+                        console.log("Exercise IDs to fetch:", exerciseIds);
+                        
+                        // Fetch all exercise details using Promise.all with error handling
+                        const exerciseDetailsPromises = exerciseIds.map(async (exerciseId, index) => {
+                            try {
+                                const result = await ExerciseDBModal.get({ exercise_id: { eq: exerciseId } });
+                                return result.length > 0 ? result[0] : null;
+                            } catch (error) {
+                                console.error(`Failed to fetch exercise ${exerciseId}:`, error);
+                                return null;
+                            }
+                        });
+                        
+                        const exerciseDetails = await Promise.all(exerciseDetailsPromises);
+                        
+                        // Combine exercise details with workout plan exercise metadata
+                        const exercisesWithMetadata = exerciseDetails
+                            .map((exercise, index) => {
+                                if (!exercise) return null;
+                                
+                                const workoutPlanExercise = workoutPlanExercises[index];
+                                
+                                return {
+                                    ...exercise,
+                                    WorkoutPlanExercise: workoutPlanExercise // Attach metadata like sets, reps, duration
+                                };
+                            })
+                            .filter((exercise): exercise is Exercise & { WorkoutPlanExercise: any } => 
+                                exercise !== null && exercise.exercise_id !== undefined
+                            ); // Filter out null results with type guard
+                        
+                        setExercises(exercisesWithMetadata);
+                        console.log("Exercises loaded with metadata:", exercisesWithMetadata.length);
+                        
+                        if (exercisesWithMetadata.length > 0) {
+                            console.log("Sample exercise with metadata:", exercisesWithMetadata[0]);
+                            // Set workout plan (you might want to fetch this separately if needed)
+                            setWorkoutPlan({ plan_id: workoutId } as WorkoutPlan);
                         } else {
-                            console.warn("No exercises found in the workout plan");
-                            setExercises([]);
+                            console.warn("No valid exercises found after fetching details");
                         }
+                        
                     } else {
-                        console.warn("No workout plan found with ID:", workoutId);
+                        console.warn("No exercises found in workout plan with ID:", workoutId);
+                        setExercises([]);
                     }
                 } catch (error) {
                     console.error("Error loading workout plan:", error);
+                    setExercises([]);
                 } finally {
                     setIsLoading(false);
                 }
@@ -240,7 +257,6 @@ export default function GuideContent() {
                     );
                 }}
                 pagingEnabled
-                vertical
                 showsVerticalScrollIndicator={false}
                 onScroll={Animated.event(
                     [{ nativeEvent: { contentOffset: { y: scrollY } } }],

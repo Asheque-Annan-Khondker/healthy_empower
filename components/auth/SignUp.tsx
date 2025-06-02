@@ -11,6 +11,7 @@ import Animated, {
 import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
 import {API_URL} from "@/constants/DBAPI";
+import { setUserId } from '@/utils/authState';
 
 // Import the step components
 import EmailStep from './steps/EmailStep';
@@ -35,8 +36,6 @@ import {
   validateHeight,
   validateWeight
 } from '../utils/validationUtils';
-
-export var USER_ID: number;
 
 // Main component
 export default function StepByStepSignUp() {
@@ -202,82 +201,51 @@ export default function StepByStepSignUp() {
         setErrorMessage('');
         
         try {
-            // Step 1: Create user account
-          const userResponse = await axios.post(`${API_URL}/api/users`, {
-            username,
-            email,
-            password,
-            date_of_birth: getFormattedDOB(),
-            gender,
-            timezone
-          });
-            
-          Alert.alert(
-            "User Created", 
-            `User ${username} created successfully`,
-            [{ text: "Continue" }]
-          );
-
-          await new Promise(r => setTimeout(r, 2000));
-            
-            // Step 3: Get user by email to get the ID
-            const userByEmailResponse = await axios.get(
-              `${API_URL}/api/users/by-email?email=${encodeURIComponent(email)}`
-            );
-            
-            // Display the response data properly
-            console.log("Response data:", userByEmailResponse.data);
-            
-            // For visual debugging, show an alert with the formatted data
-            Alert.alert(
-              "User Data", 
-              JSON.stringify(userByEmailResponse.data.id, null, 2)
-            );
-
-            const userId = userByEmailResponse.data.id; 
-            USER_ID = userId
-
-            console.log(userId);
-            
-            const healthProfileResponse = await axios.post(
-              `${API_URL}/api/users/${userId}/health-profile`,
-              {
-                height: getHeightInCm(),
-                weight: getWeightInKg()
-              }
-            );
-
-            console.log(JSON.stringify(healthProfileResponse));
-            
-            // Success flow
-          Alert.alert(
-            "Account Created",
-            "Your account has been created successfully. Please sign in with your credentials.",
-            [
-              { 
-                text: "OK", 
-                onPress: () => {
-                  router.replace({
-                    pathname: '/',
-                    params: { email }
-                  });
-                } 
-              }
-            ]
-          );
-         
-        } catch (error) {
-          console.error('Signup error:', error);
-          
-          // Detailed error logging
-          if (error.response) {
-            // The server responded with an error status
-            console.error('Server error details:', {
-              status: error.response.status,
-              data: error.response.data,
-              headers: error.response.headers
+            // Create user account
+            const userResponse = await axios.post(`${API_URL}/api/users`, {
+                username,
+                email,
+                password,
+                date_of_birth: getFormattedDOB(),
+                gender,
+                timezone
             });
             
+            // Get user ID from response
+            const userId = userResponse.data.id;
+            
+            // Set user ID in centralized auth state
+            await setUserId(userId);
+            
+            // Create health profile
+            await axios.post(`${API_URL}/api/users/${userId}/health-profile`, {
+                height: getHeightInCm(),
+                weight: getWeightInKg()
+            });
+            
+            // Success - navigate to login
+            Alert.alert(
+                "Account Created",
+                "Your account has been created successfully. Please sign in with your credentials.",
+                [
+                    { 
+                        text: "OK", 
+                        onPress: () => {
+                            router.replace({
+                                pathname: '/',
+                                params: { email }
+                            });
+                        } 
+                    }
+                ]
+            );
+         
+        } catch (error: any) {
+          console.error('Signup error:', error);
+          
+          // Handle different error scenarios
+          if (error.response) {
+            // The server responded with an error status
             const status = error.response.status;
             
             if (status === 409) {
@@ -291,11 +259,9 @@ export default function StepByStepSignUp() {
             }
           } else if (error.request) {
             // The request was made but no response was received
-            console.error('No response received:', error.request);
             setErrorMessage('Network error. Please check your connection.');
           } else {
             // Something else happened
-            console.error('Error details:', error.message);
             setErrorMessage(`An unexpected error occurred: ${error.message}`);
           }
         } finally {

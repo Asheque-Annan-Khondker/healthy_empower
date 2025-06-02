@@ -1,7 +1,7 @@
 const { encrypt_user_password, isValidEmail } = require('../utils/password-utils.js')
 const { hasRequiredFields, isEmailAlreadyRegistered } = require('../utils/validation.js')
 const db = require('../models');
-const get = require('../utils/universalGet.js');
+const {get} = require('../utils/universalDML.js');
 
 class UserController {
   constructor() {
@@ -84,7 +84,7 @@ class UserController {
     
       // omit password_hash from response
       const userResponse = {
-        id: newUser.id, 
+        id: newUser.user_id, 
         username: newUser.username,
         email: newUser.email,
         date_of_birth: newUser.date_of_birth,

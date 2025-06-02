@@ -8,16 +8,19 @@ import { WorkoutProvider } from '../Context/WorkoutContext';
 
 export default function AppLayout() {
   return (
-    <WorkoutProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="signin" options={{ headerShown: false }} />
-        <Stack.Screen name="signup" options={{ headerShown: false }} />
-        <Stack.Screen name="guideContent" options={{ headerShown: false }} />
-        <Stack.Screen name="profileSettings" />
-      </Stack>
-    </WorkoutProvider>
+    <GestureHandlerRootView >
+      <PaperProvider>
+        <WorkoutProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="signin" options={{ headerShown: false }} />
+            <Stack.Screen name="signup" options={{ headerShown: false }} />
+            <Stack.Screen name="guideContent" options={{ headerShown: false }} />
+          </Stack>
+        </WorkoutProvider>
+      </PaperProvider>
+    </GestureHandlerRootView>
   );
 }
 

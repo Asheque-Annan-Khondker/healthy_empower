@@ -42,13 +42,37 @@ const mockFoodEntries = [
 ];
 
 // later replace with data fetching
-async function foodEntriesFormatter(date: Date){
-  const { mealLog, foodlist } = await fetchFoodEntries(date);
+async function foodEntriesFormatter(date: Date, monthlyMealLogs?: any[], monthlyFoodList?: any[]){
+  let mealLog, foodlist;
+  
+  if (monthlyMealLogs && monthlyFoodList) {
+    // Filter monthly data for the specific date
+    const targetDateStr = date.toISOString().split('T')[0]; // Get YYYY-MM-DD format
+    mealLog = monthlyMealLogs.filter(meal => {
+      const mealDateStr = new Date(meal.logged_at).toISOString().split('T')[0];
+      return mealDateStr === targetDateStr;
+    });
+    
+    // Get corresponding food items
+    const foodIds = mealLog.map(meal => meal.food_id);
+    foodlist = monthlyFoodList.filter(food => foodIds.includes(food.food_id));
+  } else {
+    // Fallback to single day fetch
+    const result = await fetchFoodEntries(date);
+    mealLog = result.mealLog;
+    foodlist = result.foodlist;
+  }
+  
+  // Handle case where data might be undefined
+  if (!mealLog || !foodlist) {
+    return [];
+  }
+  
  const foodEntries = mealLog.map((meal, index) =>{
-     const foodInstance = foodlist[index] // same corresponding index as each instance of meal log is 1:1 food instance
+     const foodInstance = foodlist.find(food => food.food_id === meal.food_id) || foodlist[index]; // Find matching food or fallback to index
      const time = meal.logged_at.split('T')[1].split('.')[0]
      return {
-        id: meal.meal_id,
+        id: meal.meal_id.toString(), // Convert to string to match FoodEntry type
         name: foodInstance.name,
         calories: foodInstance.calories,
         protein: foodInstance.protein,
@@ -63,8 +87,7 @@ async function foodEntriesFormatter(date: Date){
    return foodEntries
 }
 async function fetchFoodEntries(date: Date){
-  
-  //fetch data then format it
+  //fetch single day data (fallback)
   try {
     date.setHours(0,0,0,0)
     // get the meal log by which we can see which food is logged
@@ -74,19 +97,8 @@ async function fetchFoodEntries(date: Date){
       gte: date,
       lt: endRange
     }});
-    // // get a promise all on all the food_id in the meal log
+    // get a promise all on all the food_id in the meal log
     const foodlist = await( await Promise.all(mealLog.map(info => FoodDBModal.get({food_id: {eq: info.food_id}})))).flat()
-    // make an array of objects with:
-    /*
-     *meal_id from meal log
-     * name from foodlist
-     * calories from foodlist
-     * protein from foodlist
-     * carbs from foodlist
-     * fat from foodlist
-     * mealType from meal log
-     * datetime from meal log. (Do the formatting here but it need be, offload it to the component)
-    * */
    return {mealLog, foodlist}
   
   } catch(err){
@@ -94,8 +106,40 @@ async function fetchFoodEntries(date: Date){
     return {};
   }
 }
+
+async function fetchMonthlyFoodEntries(date: Date){
+  //fetch monthly data then filter on client
+  try {
+    // Get start and end of month
+    const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+    startOfMonth.setHours(0,0,0,0);
+    
+    const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+    endOfMonth.setHours(0,0,0,0);
+    
+    // Get all meal logs for the month
+    const mealLog = await MealLogDBModal.get({logged_at: {
+      gte: startOfMonth,
+      lt: endOfMonth
+    }});
+    
+    // Get all unique food IDs from monthly meal logs
+    const uniqueFoodIds = [...new Set(mealLog.map(info => info.food_id))];
+    
+    // Get all food items for the month in one query
+    const foodlist = await Promise.all(
+      uniqueFoodIds.map(foodId => FoodDBModal.get({food_id: {eq: foodId}}))
+    ).then(results => results.flat());
+    
+    return {mealLog, foodlist};
+  
+  } catch(err){
+    console.error(err);
+    return {};
+  }
+}
 // Helper function to format date in DD/MM/YYYY format
-function formatDate(date) {
+function formatDate(date: Date) {
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const year = date.getFullYear()
@@ -105,9 +149,10 @@ function formatDate(date) {
 interface DailyFoodLogProps {
   date: Date;
   onAddPress: () => void;
+  refreshTrigger?: number; // Add optional refresh trigger
 }
 
-const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, onAddPress }) => {
+const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, onAddPress, refreshTrigger }) => {
   type FoodEntry = {
     id: string;
     name: string;
@@ -125,37 +170,76 @@ const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, onAddPress }) => {
   const [totalCarbs, setTotalCarbs] = useState(0);
   const [totalFat, setTotalFat] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Monthly cache state
+  const [monthlyCache, setMonthlyCache] = useState<{
+    month: string;
+    mealLog: any[];
+    foodlist: any[];
+  } | null>(null);
 
   // Load food entries for the selected date
   useEffect(() => {
-    // In a real app, this would be an API call or database query
     setIsLoading(true);
-    // Simulate fetching data 
-
-    const formattedDate = formatDate(date);
+    
     async function fetchData() {
-    const entries = await foodEntriesFormatter(date);
-    
-    setFoodEntries(entries);
-    
-    // Calculate nutrition totals
-    const calories = entries.reduce((sum, entry) => sum + entry.calories, 0);
-    const protein = entries.reduce((sum, entry) => sum + entry.protein, 0);
-    const carbs = entries.reduce((sum, entry) => sum + entry.carbs, 0);
-    const fat = entries.reduce((sum, entry) => sum + entry.fat, 0);
-    
-    setTotalCalories(calories);
-    setTotalProtein(protein);
-    setTotalCarbs(carbs);
-    setTotalFat(fat);
-    
-    setIsLoading(false);
-
+      try {
+        const currentMonth = `${date.getFullYear()}-${date.getMonth()}`;
+        let entries: FoodEntry[] = [];
+        
+        // Check if we have cached data for this month
+        if (monthlyCache && monthlyCache.month === currentMonth) {
+          // Use cached monthly data
+          entries = await foodEntriesFormatter(date, monthlyCache.mealLog, monthlyCache.foodlist);
+        } else {
+          // Fetch new monthly data
+          const { mealLog, foodlist } = await fetchMonthlyFoodEntries(date);
+          
+          if (mealLog && foodlist) {
+            // Cache the monthly data
+            setMonthlyCache({
+              month: currentMonth,
+              mealLog,
+              foodlist
+            });
+            
+            // Format entries for current date
+            entries = await foodEntriesFormatter(date, mealLog, foodlist);
+          }
+        }
+        
+        setFoodEntries(entries);
+        
+        // Calculate nutrition totals with 1 decimal precision
+        const calories = Math.round(entries.reduce((sum: number, entry: FoodEntry) => sum + entry.calories, 0) * 10) / 10;
+        const protein = Math.round(entries.reduce((sum: number, entry: FoodEntry) => sum + entry.protein, 0) * 10) / 10;
+        const carbs = Math.round(entries.reduce((sum: number, entry: FoodEntry) => sum + entry.carbs, 0) * 10) / 10;
+        const fat = Math.round(entries.reduce((sum: number, entry: FoodEntry) => sum + entry.fat, 0) * 10) / 10;
+        
+        setTotalCalories(calories);
+        setTotalProtein(protein);
+        setTotalCarbs(carbs);
+        setTotalFat(fat);
+        
+      } catch (error) {
+        console.error('Error fetching food entries:', error);
+        setFoodEntries([]);
+      } finally {
+        setIsLoading(false);
+      }
     }
+    
     fetchData();
-  }, [date]);
+  }, [date, refreshTrigger, monthlyCache]); // Add refreshTrigger to dependency array
+  
+  // Clear cache when refreshTrigger changes (new entry added)
+  useEffect(() => {
+    if (refreshTrigger) {
+      setMonthlyCache(null);
+    }
+  }, [refreshTrigger]);
 
-  const getMealTypeIcon = (mealType) => {
+  const getMealTypeIcon = (mealType: string) => {
     switch(mealType.toLowerCase()) {
       case 'breakfast':
         return 'free-breakfast';
@@ -170,7 +254,7 @@ const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, onAddPress }) => {
     }
   };
 
-  const renderFoodItem = ({ item }) => (
+  const renderFoodItem = ({ item }: { item: FoodEntry }) => (
     <Card style={styles.foodCard}>
       <Card.Content style={styles.cardContent}>
         <View style={styles.mealIconContainer}>
@@ -208,7 +292,7 @@ const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, onAddPress }) => {
       <View style={styles.header}>
         <View>
           <Text style={styles.sectionTitle}>Daily Food Log</Text>
-          <Text style={styles.caloriesText}>{totalCalories} calories</Text>
+          <Text style={styles.caloriesText}>{totalCalories.toFixed(1)} calories</Text>
         </View>
         <TouchableOpacity style={styles.addButton} onPress={onAddPress}>
           <MaterialIcons name="add" size={20} color="white" />
@@ -219,15 +303,15 @@ const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, onAddPress }) => {
       {/* Nutrition summary section */}
       <View style={styles.nutritionSummary}>
         <View style={styles.macroItem}>
-          <Text style={styles.macroValue}>{totalProtein}g</Text>
+          <Text style={styles.macroValue}>{totalProtein.toFixed(1)}g</Text>
           <Text style={styles.macroLabel}>Protein</Text>
         </View>
         <View style={styles.macroItem}>
-          <Text style={styles.macroValue}>{totalCarbs}g</Text>
+          <Text style={styles.macroValue}>{totalCarbs.toFixed(1)}g</Text>
           <Text style={styles.macroLabel}>Carbs</Text>
         </View>
         <View style={styles.macroItem}>
-          <Text style={styles.macroValue}>{totalFat}g</Text>
+          <Text style={styles.macroValue}>{totalFat.toFixed(1)}g</Text>
           <Text style={styles.macroLabel}>Fat</Text>
         </View>
       </View>

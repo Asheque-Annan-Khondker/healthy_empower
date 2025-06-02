@@ -8,6 +8,7 @@ import { DrawerActions } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TestSquare from '@/components/anime_square';
 import Modal from 'react-native-modal';
+import UnifiedFAB from '@/components/UnifiedFAB';
 
 const { height, width } = Dimensions.get('window');
 
@@ -204,6 +205,13 @@ export default function ShopScreen() {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {shopSections.map(renderShopSection)}
       </ScrollView>
+      
+      {/* Unified FAB System */}
+      <UnifiedFAB 
+        screenType="shop"
+        onFoodAdded={() => console.log('Food added from shop screen')}
+        onMealAdded={() => console.log('Meal added from shop screen')}
+      />
     </SafeAreaView>
   );
 }
