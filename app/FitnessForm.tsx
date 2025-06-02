@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { View, ScrollView, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { router } from "expo-router";
 
 const q1 = ['Never', '1-2 Days', '3-5 Days', 'More than 5 days'];
 const q2 = ['0-30 mins', '30-60 mins', '60-90 mins', 'More than 90mins'];
-const q3 = ['Cardio', 'Bodybuilding', 'Powerlifting', 'Interval Training'];
-const q4 = ['Build Muscles', 'Lose weight', 'Stay fit', 'Gain weight', 'Maintain weight'];
-const q5 = ['Yes, I count calories and consume fitness food supplements', 
-          'Yes, I count calories but I don\'t consume any supplements', 
-          'No, I don\'t but I eat healthy',
-          'No, I eat whatever I feel like without much thought'
-         ];
+const q3 = ['No, I eat whatever I feel like without much thought',
+            'No, I don\'t but I eat healthy',
+            'Yes, I count calories but I don\'t consume any supplements',
+            'Yes, I count calories and consume fitness food supplements' ];
+const q4 = ['Cardio', 'Interval Training', 'Bodybuilding', 'Powerlifting'];
+const q5 = ['Stay fit', 'Maintain weight', 'Build Muscles', 'Lose weight', , 'Gain weight', ];
 
 export default function FitnessForm() {
     const [q1Selected, setQ1Selected] = useState(null);
@@ -18,15 +18,28 @@ export default function FitnessForm() {
     const [q4Selected, setQ4Selected] = useState(null);
     const [q5Selected, setQ5Selected] = useState(null);
 
-    // Need to implement GET/POST requests
+    // form answers
     const handleSubmit = () => {
-        console.log('Selected options:\nHow often do you exercise? ', 
-            q1Selected, '\nHow much time do you spend on a regular exercise? ', 
-            q2Selected, '\nWhat type of exercises do you prefer to do?',
-            q3Selected, '\nWhat are your main goals for exercising?',
-            q4Selected, '\nDo you have a nutrition plan?',
-            q5Selected
-        );
+        const answers = [q1Selected, q2Selected, q3Selected, q4Selected, q5Selected];
+
+        console.log(q1Selected)
+        // write conditional logic to direct to a start-up guide based on answers
+        // question answers are in order from easy to hardest
+        
+        let first = q1.findIndex(item => item === q1Selected)
+        let second = q2.findIndex(item => item === q2Selected)
+        let third = q3.findIndex(item => item === q3Selected)
+
+        const sum = first+second+third;
+        if (sum <= 3) {
+            //router.push('/(drawer)/(guide)/BeginnerGuide');
+            // direct to beginner
+        } else if (sum > 3 && sum <= 6) {
+            Alert.alert("Intermediate")
+        } else {
+            Alert.alert("Advanced")
+        }
+    
     };
 
     return (
