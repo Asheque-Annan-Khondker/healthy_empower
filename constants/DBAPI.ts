@@ -10,3 +10,6 @@
 
 // jono's IP PC
 export const API_URL = 'http://192.168.1.104:3001';
+
+// lukes ipv4 addy 
+//export const API_URL = 'http://192.168.0.25:3001';

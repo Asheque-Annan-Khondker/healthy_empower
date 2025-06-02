@@ -5,6 +5,8 @@ const get = require('../utils/universalGet.js');
 
 class HealthProfileController {
   constructor(users, healthProfiles, goals) {
+    // Set up the universal get method for general queries
+    this.get = require('../utils/universalGet.js')(require('../models').HealthProfile);
   }
  
   createHealthProfile = async (req, res) => {
@@ -39,10 +41,8 @@ class HealthProfileController {
     res.status(500).json({ error: error.message }); 
   }
 }
-get = get(db.HealthProfile)
 
-
- getHealthProfile = async (req, res) => {
+  getHealthProfile = async (req, res) => {
   try {
     const userId = req.params.id; 
 
@@ -72,7 +72,7 @@ get = get(db.HealthProfile)
 }
 
 
- createGoal = (req, res) => {
+  createGoal = (req, res) => {
   try {
     const userId = req.params.id;
     const goalData = req.body;
@@ -112,7 +112,7 @@ get = get(db.HealthProfile)
 }
 
 
-updateHealthProfile = async (req, res) => {
+  updateHealthProfile = async (req, res) => {
   try {
     const userId = req.params.id; 
     const healthData = req.body; 
