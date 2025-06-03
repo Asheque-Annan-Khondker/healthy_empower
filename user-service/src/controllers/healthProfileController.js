@@ -5,8 +5,6 @@ const {get} = require('../utils/universalDML')
 
 class HealthProfileController {
   constructor(users, healthProfiles, goals) {
-    // Set up the universal get method for general queries
-    this.get = require('../utils/universalGet.js')(require('../models').HealthProfile);
   }
  
   createHealthProfile = async (req, res) => {
