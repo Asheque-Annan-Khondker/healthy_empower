@@ -5,7 +5,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import DailyFoodLog from '@/components/DailyFoodLog';
 import CalorieDashboard from '@/components/diet/CalorieDashboard';
 import GoalProgressHeader from '@/components/diet/GoalProgressHeader';
-import UnifiedFAB from '@/components/UnifiedFAB';
 import { NutritionDataService } from '@/utils/nutritionDataService';
 
 export default function DietScreen() {
@@ -93,12 +92,6 @@ export default function DietScreen() {
         />
       </ScrollView>
 
-      {/* Unified FAB System */}
-      <UnifiedFAB 
-        screenType="diet"
-        onFoodAdded={triggerFoodLogRefresh}
-        onMealAdded={triggerFoodLogRefresh}
-      />
     </SafeAreaView>
   );
 }

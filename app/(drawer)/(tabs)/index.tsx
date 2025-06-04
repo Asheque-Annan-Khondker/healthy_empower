@@ -13,20 +13,9 @@ import CalendarPicker from '@/components/CalendarPicker';
 import { FoodDBModal, MealLogDBModal } from '@/utils/dbFunctions';
 
 // Components
-
-import PlaceCard from '@/components/PlaceCard';
-import ModalFitnessForm from '@/app/ModalFitnessForm';
 import DailyFoodLog from '@/components/DailyFoodLog';
-import FoodEntryForm from '@/components/FoodEntryForm';
 import CurrencyStreakIndicator from '@/components/CurrencyStreakIndicator';
 import { FAIcon } from '@/utils/getIcon';
-import UnifiedFAB from '@/components/UnifiedFAB';
-
-// Assets
-const bannerImg = require('../../../assets/images/yoga.png');
-const yogaStudio = require('../../../assets/images/yogastudio.png');
-const walkingTrack = require('../../../assets/images/walkingtrack.png');
-const gymSession = require('../../../assets/images/gym.png');
 
 const { height, width } = Dimensions.get('window');
 
@@ -132,66 +121,11 @@ return (
           date={currentDate}
           refreshTrigger={refreshTrigger}
           onFoodAdded={triggerFoodLogRefresh}
+          scrollable={false}
         />
 
-        {/* Cards section */}
-        <Text style={styles.cardSectionTitle}>Recommended Workouts</Text>
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false} 
-          style={styles.cardScroll} 
-          contentContainerStyle={styles.cardsContainer}
-        >          
-          <PlaceCard
-            title="Easy Stretch Routine"
-            subtext="Home"
-            leftBottomText="5 mins"
-            tag="Beginner"
-            image={bannerImg}
-            onPress={() => console.log("Easy Stretch Routine pressed")}
-          />
-          <PlaceCard
-            title="Yoga Studio"
-            subtext="21 Uni Rd, Wollongong"
-            leftBottomText="30 mins"
-            tag="Intermediate"
-            image={yogaStudio}
-            onPress={() => console.log("Yoga Studio pressed")}
-          />
-          <PlaceCard
-            title="Community Walk Track"
-            subtext="Riverside Park"
-            leftBottomText="7 km"
-            tag="Expert"
-            image={walkingTrack}
-            onPress={() => console.log("Community Walk Track pressed")}
-          />
-          <PlaceCard
-            title="Intro Gym Session"
-            subtext="Start Fitness"
-            leftBottomText="20 mins"
-            tag="Beginner"
-            image={gymSession}
-            onPress={() => console.log("Intro Gym Session pressed")}
-          />
-        </ScrollView>
       </ScrollView>
-      
-      {/* Modal Fitness Form */}
-      <ModalFitnessForm />
 
-      {/* Unified FAB System */}
-      <UnifiedFAB 
-        screenType="home"
-        onFoodAdded={() => {
-          console.log('Food added from home screen');
-          triggerFoodLogRefresh(); // Trigger refresh when food is added via FAB
-        }}
-        onMealAdded={() => {
-          console.log('Meal added from home screen');
-          triggerFoodLogRefresh(); // Trigger refresh when meal is added via FAB
-        }}
-      />
     </SafeAreaView>
   );
 }

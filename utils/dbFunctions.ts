@@ -119,7 +119,7 @@ class FoodDBModal {
     const url = `${apiUrl}/api/foods`;
     await axios.post(url, payload)
   }
-  static async insert(content: Partial<Food>): Promise<void>{
+  static async insert(content: Partial<Food>): Promise<Food>{
       const submit = {
         name: content.name,
         calories: content.calories,
@@ -129,9 +129,15 @@ class FoodDBModal {
         serving_size: content.serving_size,
         serving_unit_id: content.serving_unit_id
       }
-      const apiUrl = await API_URL();
-      await axios.post(`${apiUrl}/api/foods`, submit).then(res => console.log('Inserted successfully: ', res.data))
-                                                       .catch(err => console.log('Error inserting', err));
+      try {
+        const apiUrl = await API_URL();
+        const response = await axios.post(`${apiUrl}/api/foods`, submit);
+        console.log('✅ FoodDBModal: Food inserted successfully:', response.data);
+        return response.data;
+      } catch (error: any) {
+        console.error('❌ FoodDBModal: Error inserting food:', error.response?.data || error.message);
+        throw new Error(error.response?.data?.error || 'Failed to create food entry');
+      }
   }
   
 
@@ -156,11 +162,31 @@ class MealLogDBModal {
     const userId = await getUserId();
     if (!userId) {
       console.error('❌ MealLogDBModal: No user ID available for create');
-      return;
+      throw new Error('User not authenticated');
+    }
+    try {
+      const apiUrl = await API_URL();
+      const response = await axios.post(`${apiUrl}/api/users/${userId}/meal-logs`, content);
+      console.log('✅ MealLogDBModal: Meal log created successfully:', response.data);
+    } catch (error: any) {
+      console.error('❌ MealLogDBModal: Error creating meal log:', error.response?.data || error.message);
+      throw new Error(error.response?.data?.error || 'Failed to log meal');
+    }
+  }
+  
+  static async delete(mealId: number): Promise<void> {
+    const userId = await getUserId();
+    if (!userId) {
+      console.error('❌ MealLogDBModal: No user ID available for delete');
+      throw new Error('User not authenticated');
     }
     const apiUrl = await API_URL();
-    await axios.post(`${apiUrl}/api/users/${userId}/meal-logs`, content).then(res => console.log('Inserted successfully: ', res.data))
-                                                       .catch(err => console.log('Error inserting', err));
+    await axios.delete(`${apiUrl}/api/users/${userId}/meal-logs/${mealId}`)
+      .then(res => console.log('✅ MealLogDBModal: Meal log deleted successfully:', res.data))
+      .catch(err => {
+        console.error('❌ MealLogDBModal: Error deleting meal log:', err.response?.data || err.message);
+        throw new Error(err.response?.data?.error || 'Failed to delete meal log');
+      });
   }
 }
 class WorkoutPlanExerciseDBModal {

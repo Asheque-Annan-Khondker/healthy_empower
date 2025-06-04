@@ -12,10 +12,14 @@ import {
   Dimensions,
   BackHandler,
   Modal,
+  FlatList,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Searchbar } from 'react-native-paper';
+import { FoodDBModal } from '@/utils/dbFunctions';
+import { Food } from '@/utils/table.types';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -47,6 +51,19 @@ const FoodInputModal: React.FC<FoodInputModalProps> = ({
   const [fat, setFat] = useState('');
   const [selectedMealType, setSelectedMealType] = useState('');
   const [time, setTime] = useState('');
+  
+  // Search functionality
+  const [searchQuery, setSearchQuery] = useState('');
+  const [availableFoods, setAvailableFoods] = useState<Food[]>([]);
+  const [filteredFoods, setFilteredFoods] = useState<Food[]>([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  
+  // Mode toggle
+  const [inputMode, setInputMode] = useState<'search' | 'manual'>('search');
+  
+  // Track if food was selected from search
+  const [selectedFromSearch, setSelectedFromSearch] = useState(false);
+  const [selectedFoodId, setSelectedFoodId] = useState<number | null>(null);
 
   // Animation refs
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -63,6 +80,50 @@ const FoodInputModal: React.FC<FoodInputModalProps> = ({
     const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
     setTime(`${formattedHours}:${formattedMinutes} ${ampm}`);
   }, []);
+
+  // Load available foods when modal opens
+  useEffect(() => {
+    if (visible) {
+      loadAvailableFoods();
+    }
+  }, [visible]);
+
+  // Show foods when switching to search mode
+  useEffect(() => {
+    if (inputMode === 'search' && availableFoods.length > 0) {
+      setFilteredFoods(availableFoods);
+      setShowSearchResults(true);
+    }
+  }, [inputMode, availableFoods]);
+
+  const loadAvailableFoods = async () => {
+    try {
+      const foods = await FoodDBModal.get();
+      setAvailableFoods(foods);
+      console.log('🍎 FoodInputModal: Loaded', foods.length, 'available foods');
+    } catch (error) {
+      console.error('❌ FoodInputModal: Error loading foods:', error);
+    }
+  };
+
+  // Filter foods based on search query - now works for both modes
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      const filtered = availableFoods.filter(food =>
+        food.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredFoods(filtered);
+      setShowSearchResults(true);
+    } else if (inputMode === 'search') {
+      // Show all foods when no search query in search mode
+      setFilteredFoods(availableFoods);
+      setShowSearchResults(true);
+    } else {
+      // Manual mode with no search query
+      setFilteredFoods([]);
+      setShowSearchResults(false);
+    }
+  }, [searchQuery, availableFoods, inputMode]);
 
   // Handle modal animations
   useEffect(() => {
@@ -136,6 +197,7 @@ const FoodInputModal: React.FC<FoodInputModalProps> = ({
       fat: parseInt(fat) || 0,
       mealType: selectedMealType,
       time: time,
+      foodId: selectedFoodId, // Include the selected food ID if available
     };
 
     onSave(foodEntry);
@@ -149,7 +211,41 @@ const FoodInputModal: React.FC<FoodInputModalProps> = ({
     setCarbs('');
     setFat('');
     setSelectedMealType('');
+    setSearchQuery('');
+    setShowSearchResults(false);
+    setInputMode('search');
+    setSelectedFromSearch(false);
+    setSelectedFoodId(null);
   };
+
+  // Handle selecting a food from search results
+  const handleSelectFood = (food: Food) => {
+    setFoodName(food.name);
+    setCalories(food.calories.toString());
+    setProtein(food.protein.toString());
+    setCarbs(food.carbs.toString());
+    setFat(food.fat.toString());
+    setSearchQuery('');
+    setShowSearchResults(false);
+    setSelectedFromSearch(true);
+    setSelectedFoodId(food.food_id);
+  };
+
+  // Handle clearing selected food
+  const handleClearSelection = () => {
+    setFoodName('');
+    setCalories('');
+    setProtein('');
+    setCarbs('');
+    setFat('');
+    setSelectedFromSearch(false);
+    setSelectedFoodId(null);
+    if (inputMode === 'search') {
+      setFilteredFoods(availableFoods);
+      setShowSearchResults(true);
+    }
+  };
+
 
   const handleClose = () => {
     resetForm();
@@ -209,9 +305,121 @@ const FoodInputModal: React.FC<FoodInputModalProps> = ({
 
           {/* Form Content */}
           <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false}>
-            {/* Food Name Input */}
+            {/* Mode Toggle Buttons */}
             <View style={styles.inputSection}>
-              <Text style={styles.sectionTitle}>Food Details</Text>
+              <View style={styles.modeToggleContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.modeToggleButton,
+                    inputMode === 'search' && styles.activeModeToggleButton,
+                  ]}
+                  onPress={() => setInputMode('search')}
+                >
+                  <MaterialIcons 
+                    name="search" 
+                    size={20} 
+                    color={inputMode === 'search' ? '#FFFFFF' : '#D68D54'} 
+                  />
+                  <Text
+                    style={[
+                      styles.modeToggleText,
+                      inputMode === 'search' && styles.activeModeToggleText,
+                    ]}
+                  >
+                    Search Foods
+                  </Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  style={[
+                    styles.modeToggleButton,
+                    inputMode === 'manual' && styles.activeModeToggleButton,
+                  ]}
+                  onPress={() => setInputMode('manual')}
+                >
+                  <MaterialIcons 
+                    name="edit" 
+                    size={20} 
+                    color={inputMode === 'manual' ? '#FFFFFF' : '#D68D54'} 
+                  />
+                  <Text
+                    style={[
+                      styles.modeToggleText,
+                      inputMode === 'manual' && styles.activeModeToggleText,
+                    ]}
+                  >
+                    Manual Input
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Search Bar - Always Visible */}
+            <View style={styles.inputSection}>
+              <Searchbar
+                placeholder="Search for existing foods..."
+                onChangeText={setSearchQuery}
+                value={searchQuery}
+                style={styles.searchBar}
+                iconColor="#D68D54"
+                inputStyle={styles.searchInput}
+              />
+              
+              {/* Search Results - Show in both modes */}
+              {showSearchResults && (
+                <View style={styles.searchResultsContainer}>
+                  <ScrollView 
+                    style={styles.searchResultsList}
+                    showsVerticalScrollIndicator={true}
+                    nestedScrollEnabled={true}
+                  >
+                    {filteredFoods.length > 0 ? (
+                      (inputMode === 'search' ? filteredFoods : filteredFoods.slice(0, 5)).map((item) => (
+                        <TouchableOpacity
+                          key={item.food_id.toString()}
+                          style={styles.searchResultItem}
+                          onPress={() => handleSelectFood(item)}
+                        >
+                          <View style={styles.searchResultContent}>
+                            <Text style={styles.searchResultName}>{item.name}</Text>
+                            <Text style={styles.searchResultMacros}>
+                              {item.calories} cal • P: {item.protein}g • C: {item.carbs}g • F: {item.fat}g
+                            </Text>
+                          </View>
+                          <MaterialIcons 
+                            name={inputMode === 'search' ? "arrow-forward-ios" : "content-copy"} 
+                            size={16} 
+                            color={inputMode === 'search' ? "#D68D54" : "#9CA3AF"} 
+                          />
+                        </TouchableOpacity>
+                      ))
+                    ) : (
+                      <Text style={styles.noResultsText}>
+                        {searchQuery ? `No foods found matching "${searchQuery}"` : 'No foods available'}
+                      </Text>
+                    )}
+                  </ScrollView>
+                </View>
+              )}
+            </View>
+
+            {/* Food Details Section - Always Visible */}
+            <View style={styles.inputSection}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>
+                  {inputMode === 'search' ? 'Selected Food Details' : 'Food Details'}
+                </Text>
+                {selectedFromSearch && (
+                  <TouchableOpacity 
+                    style={styles.clearButton}
+                    onPress={handleClearSelection}
+                  >
+                    <MaterialIcons name="clear" size={16} color="#EF4444" />
+                    <Text style={styles.clearButtonText}>Clear</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              
               <View style={styles.inputCard}>
                 <Text style={styles.inputLabel}>Food Name *</Text>
                 <TextInput
@@ -221,6 +429,7 @@ const FoodInputModal: React.FC<FoodInputModalProps> = ({
                   placeholder="e.g., Grilled Chicken Salad"
                   placeholderTextColor="#9B8579"
                   returnKeyType="next"
+                  editable={inputMode === 'manual' || !selectedFromSearch}
                 />
               </View>
             </View>
@@ -592,6 +801,142 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 32,
+  },
+  searchBar: {
+    backgroundColor: '#F8F9FA',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+  searchInput: {
+    fontSize: 16,
+    color: '#1F2937',
+  },
+  searchResultsContainer: {
+    marginTop: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    maxHeight: 300,
+    overflow: 'hidden',
+  },
+  searchResultsList: {
+    flexGrow: 1,
+    maxHeight: 280,
+  },
+  searchResultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  searchResultContent: {
+    flex: 1,
+  },
+  searchResultName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 4,
+  },
+  searchResultMacros: {
+    fontSize: 14,
+    color: '#6B7280',
+  },
+  noResultsText: {
+    textAlign: 'center',
+    color: '#9CA3AF',
+    fontSize: 14,
+    fontStyle: 'italic',
+    paddingVertical: 20,
+  },
+  modeToggleContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
+    padding: 4,
+    marginBottom: 8,
+  },
+  modeToggleButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: 'transparent',
+  },
+  activeModeToggleButton: {
+    backgroundColor: '#D68D54',
+    shadowColor: '#D68D54',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  modeToggleText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#D68D54',
+    marginLeft: 8,
+  },
+  activeModeToggleText: {
+    color: '#FFFFFF',
+  },
+  referenceContainer: {
+    marginTop: 12,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    padding: 12,
+    maxHeight: 150,
+    overflow: 'hidden',
+  },
+  referenceTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6B7280',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  referenceItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  clearButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+  },
+  clearButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#EF4444',
+    marginLeft: 4,
   },
 });
 
