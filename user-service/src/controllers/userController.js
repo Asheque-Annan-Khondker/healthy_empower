@@ -235,6 +235,73 @@ class UserController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  getLeaderboard = async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit) || 10;
+      
+      const users = await db.User.findAll({
+        attributes: ['user_id', 'username', 'currency', 'current_streak'],
+        order: [['currency', 'DESC']],
+        limit: limit
+      });
+
+      const leaderboard = (users || []).map((user, index) => ({
+        rank: index + 1,
+        id: user.user_id,
+        username: user.username,
+        currency: user.currency,
+        current_streak: user.current_streak
+      }));
+
+      // Create a simple hash of the data to detect changes
+      const dataHash = (users || []).reduce((hash, user) => {
+        return hash + user.user_id + user.currency + user.current_streak;
+      }, '');
+
+      res.status(200).json({
+        data: leaderboard,
+        timestamp: new Date().toISOString(),
+        hash: require('crypto').createHash('md5').update(dataHash).digest('hex')
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  getStreakLeaderboard = async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit) || 10;
+      
+      const users = await db.User.findAll({
+        attributes: ['user_id', 'username', 'currency', 'current_streak', 'longest_streak'],
+        order: [['current_streak', 'DESC']],
+        limit: limit
+      });
+
+      const leaderboard = (users || []).map((user, index) => ({
+        rank: index + 1,
+        id: user.user_id,
+        username: user.username,
+        currency: user.currency,
+        current_streak: user.current_streak,
+        longest_streak: user.longest_streak
+      }));
+
+      // Create a simple hash of the data to detect changes
+      const dataHash = (users || []).reduce((hash, user) => {
+        return hash + user.user_id + user.current_streak + user.currency;
+      }, '');
+
+      res.status(200).json({
+        data: leaderboard,
+        timestamp: new Date().toISOString(),
+        hash: require('crypto').createHash('md5').update(dataHash).digest('hex')
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 
