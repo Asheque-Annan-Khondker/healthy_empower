@@ -40,6 +40,7 @@ interface WorkoutPlan{
   description: string
   difficulty_level: String
   created_at: string
+  reward: number
 }
 interface Food {
     food_id: number

@@ -1,11 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList, Dimensions, Animated, TouchableOpacity, ActivityIndicator, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Dimensions, Animated, TouchableOpacity, ActivityIndicator, StatusBar, Alert } from 'react-native';
 import { Button } from 'react-native-paper';
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from '@expo/vector-icons';
 import { WorkoutPlanDBModal, WorkoutPlanExerciseDBModal, ExerciseDBModal } from '@/utils/dbFunctions';
 import { WorkoutPlan, Exercise } from '@/utils/table.types';
+import { WorkoutCompletionModal } from '@/components/WorkoutCompletionModal';
+import { completeWorkoutPlan } from '@/utils/workoutService';
 
 const { height, width } = Dimensions.get('window');
 
@@ -20,6 +22,17 @@ export default function GuideContent() {
     const [exercises, setExercises] = useState<Exercise[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [completionModal, setCompletionModal] = useState<{
+        visible: boolean;
+        workoutName: string;
+        rewardEarned: number;
+        newBalance: number;
+    }>({
+        visible: false,
+        workoutName: '',
+        rewardEarned: 0,
+        newBalance: 0
+    });
     const flatListRef = useRef<FlatList>(null);
     const scrollY = useRef(new Animated.Value(0)).current;
 
@@ -103,6 +116,44 @@ export default function GuideContent() {
     const handleDotPress = (index: number) => {
         flatListRef.current?.scrollToIndex({ index, animated: true });
         setCurrentPage(index);
+    };
+
+    // Handle workout completion
+    const handleWorkoutCompletion = async () => {
+        if (!workoutId) {
+            Alert.alert('Error', 'No workout ID found');
+            return;
+        }
+
+        try {
+            const result = await completeWorkoutPlan(workoutId);
+            
+            // Show completion modal
+            setCompletionModal({
+                visible: true,
+                workoutName: result.workout_plan,
+                rewardEarned: result.reward_earned,
+                newBalance: result.new_balance
+            });
+        } catch (error) {
+            console.error('Error completing workout:', error);
+            Alert.alert(
+                'Error',
+                'Failed to complete workout. Please try again.',
+                [{ text: 'OK' }]
+            );
+        }
+    };
+
+    // Close completion modal and navigate back
+    const closeCompletionModal = () => {
+        setCompletionModal({
+            visible: false,
+            workoutName: '',
+            rewardEarned: 0,
+            newBalance: 0
+        });
+        router.push('/(drawer)/(guide)/guideSelection');
     };
 
     // Render indicator dots
@@ -282,8 +333,7 @@ export default function GuideContent() {
             <TouchableOpacity
                 onPress={() => {
                     if (currentPage === exercises.length - 1) {
-                        console.log('Finished');
-                        router.push('/(drawer)/(guide)/guideSelection');
+                        handleWorkoutCompletion();
                     } else {
                         handleDotPress(currentPage + 1);
                     }
@@ -295,6 +345,14 @@ export default function GuideContent() {
                     {currentPage === 0 ? 'Begin' : currentPage === exercises.length - 1 ? 'Finish' : 'Next'}
                 </Text>
             </TouchableOpacity>
+            
+            <WorkoutCompletionModal
+                visible={completionModal.visible}
+                onClose={closeCompletionModal}
+                workoutName={completionModal.workoutName}
+                rewardEarned={completionModal.rewardEarned}
+                newBalance={completionModal.newBalance}
+            />
         </SafeAreaView>
     );
 }

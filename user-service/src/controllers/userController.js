@@ -160,6 +160,54 @@ class UserController {
     res.status(500).json({ error: error.message });
    }
   }
+
+  updateUserCurrency = async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const { amount } = req.body;
+
+      if (amount === undefined || amount === null) {
+        return res.status(400).json({ error: 'Amount is required' });
+      }
+
+      const user = await db.User.findByPk(userId);
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      user.currency = user.currency + amount;
+      await user.save();
+
+      res.status(200).json({ 
+        message: 'Currency updated successfully',
+        currency: user.currency 
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  getUserCurrency = async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const user = await db.User.findByPk(userId, {
+        attributes: ['user_id', 'username', 'currency']
+      });
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      res.status(200).json({
+        id: user.user_id,
+        username: user.username,
+        currency: user.currency
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 

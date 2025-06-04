@@ -21,6 +21,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW
+    },
+    reward: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 10
     }
   }, {
     tableName: 'workout_plans',

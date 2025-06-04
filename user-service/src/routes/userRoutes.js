@@ -8,6 +8,8 @@ module.exports = (userController) => {
   router.get('/by-email', userController.getUserByEmail);
   router.get('/:id', userController.getUserById);
   router.delete('/:id', userController.deleteUser);
+  router.patch('/:id/currency', userController.updateUserCurrency);
+  router.get('/:id/currency', userController.getUserCurrency);
 
   return router;
 };

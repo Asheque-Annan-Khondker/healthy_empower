@@ -46,6 +46,11 @@ module.exports = (sequelizeInstance) => {
     last_login: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    currency: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
     }
   }, {
     tableName: 'users',

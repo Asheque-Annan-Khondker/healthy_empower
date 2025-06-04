@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Dimensions, Text, View, ScrollView, TouchableOpacity, Modal, Image } from 'react-native';
+import { StyleSheet, Dimensions, Text, View, ScrollView, TouchableOpacity, Modal, Image, AppState } from 'react-native';
 import { Searchbar } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from 'expo-router';
+import { useNavigation, useFocusEffect } from 'expo-router';
 
 import DropdownMenu from '@/components/DropdownMenu';
 import SearchBarComponent from '@/components/SearchBarComponent';
@@ -34,7 +34,15 @@ export default function Index() {
 const [searchQuery, setSearchQuery] = useState('');
 const [currentDate, setCurrentDate] = useState(new Date());
 const [refreshTrigger, setRefreshTrigger] = useState(0); // Add refresh trigger state
+const [currencyRefreshKey, setCurrencyRefreshKey] = useState(0); // Add currency refresh trigger
 const navigation = useNavigation();
+
+// Refresh currency when screen comes into focus
+useFocusEffect(
+  React.useCallback(() => {
+    setCurrencyRefreshKey(prev => prev + 1);
+  }, [])
+);
 
 // Format the date as DD/MM/YYYY
 const formatDate = (date: Date) => {
@@ -96,7 +104,7 @@ return (
           />
         </View>
 
-        <CurrencyStreakIndicator chestnuts={250} streakDays={5} />
+        <CurrencyStreakIndicator streakDays={5} refreshKey={currencyRefreshKey} />
   
         {/* Date header with navigation */}
         <View style={styles.dateHeaderContainer}>
