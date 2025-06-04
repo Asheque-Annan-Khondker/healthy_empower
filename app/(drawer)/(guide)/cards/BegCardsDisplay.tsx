@@ -1,97 +1,120 @@
 import * as React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Text, Card } from 'react-native-paper';
+import { useState, useEffect } from 'react';
+import { router } from 'expo-router';
+import { WorkoutPlanDBModal } from '@/utils/dbFunctions';
+import { WorkoutPlan } from '@/utils/table.types';
+import PlaceCard from '@/components/PlaceCard';
 
-const BegCardsDisplay = () => (
-  <ScrollView contentContainerStyle={styles.scrollContainer}>
-    <View style={styles.container}>
-      {/*Build Consistency*/}
-      <Card style={styles.card}>
-        <Card.Title title="Build Consistency" />
-        <Card.Content>
-          <Text variant="bodyMedium">
-            To build consistency in fitness, don’t go nuts—start small and stash manageable goals like acorns. Stick to a routine you can scurry back to daily. 
-            Choose workouts you’ll go nuts for, so it’s not a chore. Track your progress so you don't lose your trail. Even if you slip, don’t squirrel 
-            away guilt—just get back to it. With steady effort, you’ll be fit enough to leap branch to branch in no time!
-          </Text>
-        </Card.Content>
-      </Card>
+const BegCardsDisplay = () => {
+  const [workoutPlans, setWorkoutPlans] = useState<WorkoutPlan[]>([]);
+  const [loading, setLoading] = useState(true);
 
-      {/*Learn Form*/}
-      <Card style={styles.card}>
-        <Card.Title title="Learn Form" />
-        <Card.Content>
-          <Text variant="bodyMedium">
-            Learning proper form in fitness is key—don’t wing it like a wild squirrel leap! Start by watching trusted trainers or tutorials to get the right moves down. 
-            Practice slowly to ensure correct form. Use mirrors or record yourself to spot any nutty habits. Remember, even squirrels refine their jumps—so 
-            take time, be mindful, and soon you’ll master every rep with precision and tail-flipping confidence!
-          </Text>
-        </Card.Content>
-      </Card>
+  useEffect(() => {
+    const fetchBeginnerWorkouts = async () => {
+      try {
+        setLoading(true);
+        // Fetch workout plans with 'beginner' difficulty level
+        const plans = await WorkoutPlanDBModal.get({
+          difficulty_level: { eq: 'beginner' }
+        });
+        setWorkoutPlans(plans);
+      } catch (error) {
+        console.error('Error fetching beginner workouts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      {/*Improve General Health*/}
-      <Card style={styles.card}>
-        <Card.Title title="Improve General Health" />
-        <Card.Content>
-          <Text variant="bodyMedium">
-            Improving your general health is all about gathering good habits—like a squirrel stashing acorns. Stay active daily, even if it’s just a quick scamper 
-            around the block. Choose nutritious bites to fuel your energy, and get plenty of rest in your cozy nest. Don’t forget to stretch—limber limbs help
-            with every leap. Small steps add up, so stay persistent and playful. Soon, you’ll feel strong enough to conquer any tree in your path!
-          </Text>
-        </Card.Content>
-      </Card>
+    fetchBeginnerWorkouts();
+  }, []);
 
-      {/*Nutrition tips*/}
-      <Card style={styles.card}>
-        <Card.Title title="Nutrition Goals & Tips" />
-        <Card.Content>
-          <Text variant="bodyMedium">
-            Fuel your body like a smart squirrel: eat real, whole foods often! Focus on balanced meals with protein, carbs, and healthy fats. 
-            Stay hydrated—water is your best friend. Don’t skip meals; aim for steady energy throughout the day. 
-            Start simple: add veggies to every meal, swap sugary snacks for fruit or nuts, and prepare your own meals when you can. 
-            Consistency beats perfection. The better you fuel, the better you feel - and move!
-          </Text>
-        </Card.Content>
-      </Card>
+  return (
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        
+        {/* Tips Disclaimer */}
+        <Card style={styles.disclaimerCard}>
+          <Card.Content>
+            <Text style={styles.disclaimerText}>
+              💡 <Text style={styles.boldText}>New to fitness?</Text> Start slow, focus on form, and listen to your body. Consistency beats intensity!
+            </Text>
+          </Card.Content>
+        </Card>
 
-      {/*Beginner Workout Guide*/}
-      <Card style={styles.card}>
-        <Card.Title title="Beginner Workout Plan" />
-        <Card.Content>
-          <Text variant="bodyMedium">Here’s a simple weekly plan to get moving:</Text>
-          <Text style={styles.day}>🟢 Day 1 – Full Body Warm-Up and 15-min Walk</Text>
-          <Text style={styles.day}>🟡 Day 2 – Bodyweight Squats, Wall Push-Ups, Glute Bridges</Text>
-          <Text style={styles.day}>🔵 Day 3 – Rest or light yoga</Text>
-          <Text style={styles.day}>🟡 Day 4 – Repeat Day 2 + Add 30-sec Plank</Text>
-          <Text style={styles.day}>🟢 Day 5 – Go for a light jog or bike ride</Text>
-          <Text style={styles.day}>🔵 Day 6 – 30-min walk</Text>
-          <Text style={styles.day}>🟤 Day 7 – Full Rest + Reflect on the week</Text>
-          <Text style={[styles.day, { marginTop: 12 }]}>
-            Progress slowly and celebrate small wins. Your journey starts here!
-          </Text>
-        </Card.Content>
-      </Card>
+        {/* Workout Cards */}
+        {loading ? (
+          <Card style={styles.card}>
+            <Card.Content>
+              <Text variant="bodyMedium">Loading beginner workouts...</Text>
+            </Card.Content>
+          </Card>
+        ) : workoutPlans.length > 0 ? (
+          workoutPlans.map((plan, index) => (
+            <TouchableOpacity 
+              key={plan.plan_id}
+              onPress={() => router.push({
+                pathname: '/guideContent',
+                params: { work_id: plan.plan_id }
+              })}
+              activeOpacity={0.8}
+            >
+              <PlaceCard 
+                title={plan.name}
+                subtext={plan.description || "Start your fitness journey with this beginner-friendly workout"}
+                leftBottomText="20-30 min"
+                tag="Beginner" 
+                image={require('@/assets/images/yoga.png')}
+                reward={plan.reward}
+              />
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Card style={styles.card}>
+            <Card.Content>
+              <Text variant="bodyMedium">
+                No beginner workouts found in the database yet. Check back soon for new workout plans!
+              </Text>
+            </Card.Content>
+          </Card>
+        )}
 
-    </View>
-  </ScrollView>
-);
+
+      </View>
+    </ScrollView>
+  );
+};
 
 const styles = StyleSheet.create({
   scrollContainer: {
     paddingVertical: 16,
   },
-  day: {
-  marginTop: 8,
-  fontSize: 14,
-  color: '#444',
-},
   container: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
+    marginLeft: -10, // Move cards to the left by 10px
   },
   card: {
-    marginBottom: 20,
+    marginHorizontal: 16,
+    marginBottom: 16,
     elevation: 3,
     borderRadius: 10,
+  },
+  disclaimerCard: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+    elevation: 1,
+    borderRadius: 10,
+    backgroundColor: '#000000',
+  },
+  disclaimerText: {
+    fontSize: 14,
+    color: '#ffffff',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  boldText: {
+    fontWeight: 'bold',
   },
 });
 

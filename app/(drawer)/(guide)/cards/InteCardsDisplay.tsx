@@ -1,96 +1,120 @@
 import * as React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Text, Card } from 'react-native-paper';
+import { useState, useEffect } from 'react';
+import { router } from 'expo-router';
+import { WorkoutPlanDBModal } from '@/utils/dbFunctions';
+import { WorkoutPlan } from '@/utils/table.types';
+import PlaceCard from '@/components/PlaceCard';
 
-const InteCardsDisplay = () => (
-  <ScrollView contentContainerStyle={styles.scrollContainer}>
-    <View style={styles.container}>
-      {/*Build Muscle*/}
-      <Card style={styles.card}>
-        <Card.Title title="Building Muscle" />
-        <Card.Content>
-          <Text variant="bodyMedium">
-            Building muscle takes more than just nuts—it takes consistent effort and smart training. Focus on resistance workouts that challenge your body, like a squirrel 
-            tackling a tough tree climb. Fuel up with protein-packed snacks to power those gains. Rest is key too—muscles grow during downtime in your cozy nest. Don’t rush the 
-            process; like storing acorns, progress stacks up slowly. Stay steady, and soon you’ll be flexing with furry determination!
-          </Text>
-        </Card.Content>
-      </Card>
+const InteCardsDisplay = () => {
+  const [workoutPlans, setWorkoutPlans] = useState<WorkoutPlan[]>([]);
+  const [loading, setLoading] = useState(true);
 
-      {/*Build Endurance*/}
-      <Card style={styles.card}>
-        <Card.Title title="Building Endurance" />
-        <Card.Content>
-          <Text variant="bodyMedium">
-            Building endurance is a marathon, not a mad squirrel dash! Start with steady-paced activities and gradually add more time—just like collecting acorns bit by bit. 
-            Stay hydrated, fuel wisely, and don’t burn out your bushy tail too soon. Keep at it, and you’ll soon be bounding through long workouts like a squirrel on a power line!
-          </Text>
-        </Card.Content>
-      </Card>
+  useEffect(() => {
+    const fetchIntermediateWorkouts = async () => {
+      try {
+        setLoading(true);
+        // Fetch workout plans with 'intermediate' difficulty level
+        const plans = await WorkoutPlanDBModal.get({
+          difficulty_level: { eq: 'intermediate' }
+        });
+        setWorkoutPlans(plans);
+      } catch (error) {
+        console.error('Error fetching intermediate workouts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      {/*Refining Technique*/}
-      <Card style={styles.card}>
-        <Card.Title title="Refining Technique" />
-        <Card.Content>
-          <Text variant="bodyMedium">
-            Refining technique takes focus—no shortcuts! Slow down, master the basics, and repeat until it’s second nature. A well-practiced move, like a squirrel’s leap, 
-            is all about precision and control. Use mirrors, videos, or trainers to spot nutty mistakes and correct them early. Over time, your movements will feel smooth, efficient, and strong—no 
-            flailing, just finely tuned form with every rep!
-          </Text>
-        </Card.Content>
-      </Card>
+    fetchIntermediateWorkouts();
+  }, []);
 
-      {/*Nutrition -Intermediate Goals*/}
-      <Card style={styles.card}>
-        <Card.Title title="Nutrition Tips for Intermediates" />
-        <Card.Content>
-          <Text variant="bodyMedium">
-            If you're training to build muscle and endurance, your nutrition must match your hustle. Prioritize protein with every meal—lean meats, eggs, tofu, or Greek yogurt.
-            Eat complex carbs like oats, quinoa, and brown rice to sustain energy through intense workouts. Don't skip healthy fats—they help with hormone balance and recovery.
-            Stay hydrated, plan your meals ahead, and use food to fuel—not just fill—you. Remember, what you eat supports how you train!
-          </Text>
-        </Card.Content>
-      </Card>
+  return (
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        
+        {/* Tips Disclaimer */}
+        <Card style={styles.disclaimerCard}>
+          <Card.Content>
+            <Text style={styles.disclaimerText}>
+              🎯 <Text style={styles.boldText}>Ready to level up?</Text> Focus on progressive overload, track your workouts, and balance strength with cardio!
+            </Text>
+          </Card.Content>
+        </Card>
 
-      {/*Intermediate Workout plan*/}
-      <Card style={styles.card}>
-        <Card.Title title="Intermediate Weekly Workout Plan" />
-        <Card.Content>
-          <Text variant="bodyMedium">Step up your routine with this split:</Text>
-          <Text style={styles.day}>💪 Day 1 – Push Workout (Chest, Shoulders, Triceps)</Text>
-          <Text style={styles.day}>🦵 Day 2 – Lower Body Strength (Squats, Lunges, RDLs)</Text>
-          <Text style={styles.day}>🧘 Day 3 – Active Recovery (Yoga or Stretching)</Text>
-          <Text style={styles.day}>💪 Day 4 – Pull Workout (Back, Biceps)</Text>
-          <Text style={styles.day}>🔁 Day 5 – Circuit Training (Endurance Focused)</Text>
-          <Text style={styles.day}>🚶 Day 6 – Light Cardio + Core (Walk, Bike, Planks)</Text>
-          <Text style={styles.day}>😴 Day 7 – Full Rest</Text>
-          <Text style={[styles.day, { marginTop: 12 }]}>
-            Focus on form, track progress, and listen to your body. You've moved beyond the basics—now it's about consistency and refinement.
-          </Text>
-        </Card.Content>
-      </Card>
+        {/* Workout Cards */}
+        {loading ? (
+          <Card style={styles.card}>
+            <Card.Content>
+              <Text variant="bodyMedium">Loading intermediate workouts...</Text>
+            </Card.Content>
+          </Card>
+        ) : workoutPlans.length > 0 ? (
+          workoutPlans.map((plan, index) => (
+            <TouchableOpacity 
+              key={plan.plan_id}
+              onPress={() => router.push({
+                pathname: '/guideContent',
+                params: { work_id: plan.plan_id }
+              })}
+              activeOpacity={0.8}
+            >
+              <PlaceCard 
+                title={plan.name}
+                subtext={plan.description || "Step up your fitness game with this intermediate workout"}
+                leftBottomText="30-45 min"
+                tag="Intermediate" 
+                image={require('@/assets/images/gym_02.png')}
+                reward={plan.reward}
+              />
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Card style={styles.card}>
+            <Card.Content>
+              <Text variant="bodyMedium">
+                No intermediate workouts found in the database yet. Check back soon for new challenging workout plans!
+              </Text>
+            </Card.Content>
+          </Card>
+        )}
 
-    </View>
-  </ScrollView>
-);
+
+      </View>
+    </ScrollView>
+  );
+};
 
 const styles = StyleSheet.create({
   scrollContainer: {
     paddingVertical: 16,
   },
-  day: {
-  marginTop: 8,
-  fontSize: 14,
-  color: '#444',
-},
-
   container: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
+    marginLeft: -10, // Move cards to the left by 10px
   },
   card: {
-    marginBottom: 20,
+    marginHorizontal: 16,
+    marginBottom: 16,
     elevation: 3,
     borderRadius: 10,
+  },
+  disclaimerCard: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+    elevation: 1,
+    borderRadius: 10,
+    backgroundColor: '#000000',
+  },
+  disclaimerText: {
+    fontSize: 14,
+    color: '#ffffff',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  boldText: {
+    fontWeight: 'bold',
   },
 });
 

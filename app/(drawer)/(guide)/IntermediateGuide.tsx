@@ -23,11 +23,8 @@ export default function IntermediateGuide(){
       
       <ScrollView style={styles.container} > 
         <View style={styles.subContainer}>
-          <Text style={styles.header}>Start-Up Guide:{"\n"}For Intermediates</Text>
+          <Text style={styles.header}>For Intermediates</Text>
 
-          <Text style={styles.subHeader}>
-            GOAL: Build muscle, endurance, and refine technique
-          </Text>
           
           {/* temporary image, will change later */}
           <Image source={bannerImg} style={styles.img} />

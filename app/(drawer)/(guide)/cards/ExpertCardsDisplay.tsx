@@ -1,94 +1,120 @@
 import * as React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Text, Card } from 'react-native-paper';
+import { useState, useEffect } from 'react';
+import { router } from 'expo-router';
+import { WorkoutPlanDBModal } from '@/utils/dbFunctions';
+import { WorkoutPlan } from '@/utils/table.types';
+import PlaceCard from '@/components/PlaceCard';
 
-const ExpertCardsDisplay = () => (
-  <ScrollView contentContainerStyle={styles.scrollContainer}>
-    <View style={styles.container}>
-      {/*Optimising Performance*/}
-      <Card style={styles.card}>
-        <Card.Title title="Optimising Performance" />
-        <Card.Content>
-          <Text variant="bodyMedium">
-            To optimize your fitness performance, stay nimble and quick like a squirrel weaving through trees. Mix strength training with cardio to build power and stamina. 
-            Focus on rest and recovery to keep your tail bushy and energy high. Fuel your body with nutrient-rich snacks, just like a squirrel packs away acorns. Consistent 
-            practice sharpens your skills, so leap confidently and tackle challenges with squirrel-like agility and speed.
-          </Text>
-        </Card.Content>
-      </Card>
+const ExpertCardsDisplay = () => {
+  const [workoutPlans, setWorkoutPlans] = useState<WorkoutPlan[]>([]);
+  const [loading, setLoading] = useState(true);
 
-      {/*Optimising Aesthetics*/}
-      <Card style={styles.card}>
-        <Card.Title title="Optimising Aesthetics" />
-        <Card.Content>
-          <Text variant="bodyMedium">
-            For the best physique, treat your workouts like a squirrel carefully gathering acorns—consistent and strategic. Combine resistance training to build 
-            muscle with cardio to stay lean. Eat clean, focusing on protein and wholesome foods to fuel growth and recovery. Hydration and sleep are your cozy nest, 
-            helping your body shape and repair. Patience is key—like squirrels storing nuts for winter, aesthetic gains come with steady dedication and time.
-          </Text>
-        </Card.Content>
-      </Card>
+  useEffect(() => {
+    const fetchExpertWorkouts = async () => {
+      try {
+        setLoading(true);
+        // Fetch workout plans with 'advanced' difficulty level
+        const plans = await WorkoutPlanDBModal.get({
+          difficulty_level: { eq: 'advanced' }
+        });
+        setWorkoutPlans(plans);
+      } catch (error) {
+        console.error('Error fetching expert workouts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      {/*Optimising Competition Prep*/}
-      <Card style={styles.card}>
-        <Card.Title title="Optimising Competition Prep" />
-        <Card.Content>
-          <Text variant="bodyMedium">
-            Competition prep is the art of refinement. Like a squirrel gathering only the ripest acorns, focus your workouts for precision and outcome.  
-            Taper workouts as your event approaches, maintain discipline in diet, and dial in recovery. Mental prep is as important as physical — visualize success, plan routines, and rehearse transitions.  
-            It’s not just training — it’s performance execution. 
-          </Text>
-        </Card.Content>
-      </Card>
+    fetchExpertWorkouts();
+  }, []);
 
-      {/*Nutrition experts*/}
-      <Card style={styles.card}>
-        <Card.Title title="Nutrition Goals for Experts" />
-        <Card.Content>
-          <Text variant="bodyMedium">
-            Expert-level nutrition means tracking macros, cycling carbs, and aligning your meals with your training cycle. Focus on performance fuel—high-quality proteins, complex carbs, and healthy fats in precise amounts.  
-            Consider timing: pre- and post-workout meals should optimize strength and recovery. Supplement wisely (creatine, BCAAs, omega-3s) and hydrate meticulously. Like a squirrel choosing only the best nuts, precision fuels elite performance.
-          </Text>
-        </Card.Content>
-      </Card>
+  return (
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        
+        {/* Tips Disclaimer */}
+        <Card style={styles.disclaimerCard}>
+          <Card.Content>
+            <Text style={styles.disclaimerText}>
+              ⚡ <Text style={styles.boldText}>Elite level training!</Text> Master periodization, track macros precisely, and prioritize recovery for peak performance!
+            </Text>
+          </Card.Content>
+        </Card>
 
-      {/*Expert Guide*/}
-      <Card style={styles.card}>
-        <Card.Title title="Expert Training Strategy" />
-        <Card.Content>
-          <Text variant="bodyMedium">Structure your week for volume, recovery, and performance peaks:</Text>
-          <Text style={styles.day}>🔥 Day 1 – Upper Body Power (Press, Pull, Rows)</Text>
-          <Text style={styles.day}>⚡ Day 2 – Body Conditioning (sleds, jump rope)</Text>
-          <Text style={styles.day}>🦵 Day 3 – Lower Body Strength (Squats, Deadlifts)</Text>
-          <Text style={styles.day}>🧘 Day 4 – Recovery & Mobility (Yoga, deep stretch)</Text>
-          <Text style={styles.day}>💪 Day 5 – Push/Pull Hypertrophy</Text>
-          <Text style={styles.day}>🚴 Day 6 – Mixed Cardio</Text>
-          <Text style={styles.day}>😴 Day 7 – Full Rest</Text>
-          <Text style={[styles.day, { marginTop: 12 }]}>
-            Rotate intensity every 4–6 weeks. Track progress. Refine technique.
-          </Text>
-        </Card.Content>
-      </Card>
-    </View>
-  </ScrollView>
-);
+        {/* Workout Cards */}
+        {loading ? (
+          <Card style={styles.card}>
+            <Card.Content>
+              <Text variant="bodyMedium">Loading expert workouts...</Text>
+            </Card.Content>
+          </Card>
+        ) : workoutPlans.length > 0 ? (
+          workoutPlans.map((plan, index) => (
+            <TouchableOpacity 
+              key={plan.plan_id}
+              onPress={() => router.push({
+                pathname: '/guideContent',
+                params: { work_id: plan.plan_id }
+              })}
+              activeOpacity={0.8}
+            >
+              <PlaceCard 
+                title={plan.name}
+                subtext={plan.description || "Push your limits with this expert-level workout"}
+                leftBottomText="45-60 min"
+                tag="Advanced" 
+                image={require('@/assets/images/gym.png')}
+                reward={plan.reward}
+              />
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Card style={styles.card}>
+            <Card.Content>
+              <Text variant="bodyMedium">
+                No expert workouts found in the database yet. Check back soon for elite-level workout plans!
+              </Text>
+            </Card.Content>
+          </Card>
+        )}
+
+
+      </View>
+    </ScrollView>
+  );
+};
 
 const styles = StyleSheet.create({
   scrollContainer: {
     paddingVertical: 16,
   },
   container: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
+    marginLeft: -10, // Move cards to the left by 10px
   },
   card: {
-    marginBottom: 20,
+    marginHorizontal: 16,
+    marginBottom: 16,
     elevation: 3,
     borderRadius: 10,
   },
-  day: {
-    marginTop: 8,
+  disclaimerCard: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+    elevation: 1,
+    borderRadius: 10,
+    backgroundColor: '#000000',
+  },
+  disclaimerText: {
     fontSize: 14,
-    color: '#444',
+    color: '#ffffff',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  boldText: {
+    fontWeight: 'bold',
   },
 });
 
