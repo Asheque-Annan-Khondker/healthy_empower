@@ -68,6 +68,15 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Ionicons name="trophy" size={24} color={color} />
         }}
       />
+      
+      <Tabs.Screen
+        name="workout_log"
+        options={{
+          title: 'Workout Log',
+          tabBarLabel: 'Log',
+          tabBarIcon: ({ color }) => <Ionicons name="list" size={24} color={color} />
+        }}
+      />
     </Tabs>
   );
 }

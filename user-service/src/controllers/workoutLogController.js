@@ -34,7 +34,10 @@ class WorkoutLogController {
             });
 
             const createdLog = await db.WorkoutLog.findByPk(workoutLog.log_id, {
-                include: [{ model: db.Exercise }]
+                include: [
+                    { model: db.Exercise },
+                    { model: db.WorkoutPlan }
+                ]
             });
             
             res.status(201).json(createdLog);
@@ -77,7 +80,10 @@ class WorkoutLogController {
 
             const logs = await db.WorkoutLog.findAll({
                 where: whereClause,
-                include: [{ model: db.Exercise }],
+                include: [
+                    { model: db.Exercise },
+                    { model: db.WorkoutPlan }
+                ],
                 order: [['completed_at', 'DESC']]
             });
 
@@ -102,7 +108,10 @@ class WorkoutLogController {
                     log_id: logId,
                     user_id: userId
                 },
-                include: [{ model: db.Exercise }]
+                include: [
+                    { model: db.Exercise },
+                    { model: db.WorkoutPlan }
+                ]
             });
 
             if (!log) {
@@ -144,7 +153,10 @@ class WorkoutLogController {
             });
 
             const updatedLog = await db.WorkoutLog.findByPk(log.log_id, {
-                include: [{ model: db.Exercise }]
+                include: [
+                    { model: db.Exercise },
+                    { model: db.WorkoutPlan }
+                ]
             });
             
             res.status(200).json(updatedLog);
@@ -210,6 +222,7 @@ class WorkoutLogController {
                     await db.WorkoutLog.create({
                         user_id: userId,
                         exercise_id: exercise.exercise_id,
+                        workout_plan_id: plan_id,
                         completed_at: new Date(),
                         sets_completed: exercise.sets_completed || null,
                         reps_completed: exercise.reps_completed || null,

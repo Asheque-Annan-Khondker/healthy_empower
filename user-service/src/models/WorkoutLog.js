@@ -21,6 +21,14 @@ module.exports = (sequelize, DataTypes) => {
         key: 'exercise_id'
       }
     },
+    workout_plan_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'workout_plans',
+        key: 'plan_id'
+      }
+    },
     completed_at: {
       type: DataTypes.DATE,
       allowNull: false,
