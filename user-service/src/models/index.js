@@ -55,6 +55,8 @@ WorkoutPlan.belongsToMany(Exercise, {
 Exercise.hasMany(WorkoutLog, { foreignKey: 'exercise_id' });
 WorkoutLog.belongsTo(User, { foreignKey: 'user_id' });
 WorkoutLog.belongsTo(Exercise, { foreignKey: 'exercise_id' });
+WorkoutPlan.hasMany(WorkoutLog, { foreignKey: 'workout_plan_id' });
+WorkoutLog.belongsTo(WorkoutPlan, { foreignKey: 'workout_plan_id' });
 
 
 Food.belongsTo(UnitOfMeasurement, { foreignKey: 'serving_unit_id' });

@@ -108,9 +108,9 @@ const CustomDrawerContent = (props: any) => {
         />
         
 
-        {/************************** Start-Up Guides section ***********************************************************/}
+        {/**********************************  Fitness Guides section **********************************/}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Start-Up Guides</Text>
+          <Text style={styles.sectionTitle}>Fitness Guides</Text>
           <View style={styles.divider} />
         </View>
 
@@ -133,17 +133,18 @@ const CustomDrawerContent = (props: any) => {
           active={activeItem === '/(drawer)/(guide)/ExpertGuide'}
         />
 
-        {/**********************************  Fitness Guides section **********************************/}
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Fitness Guides</Text>
-          <View style={styles.divider} />
-        </View>
-
         <DrawerItem
           icon={<Ionicons name="list-outline" size={22} color={getIconColor('/(drawer)/(guide)/guideSelection')} />}
           label="Guide Selection"
           onPress={() => handleNavigation('/(drawer)/(guide)/guideSelection')}
           active={activeItem === '/(drawer)/(guide)/guideSelection'}
+        />
+
+        <DrawerItem
+          icon={<Ionicons name="add-circle-outline" size={22} color={getIconColor('/(drawer)/(guide)/createWorkout')} />}
+          label="Create Workout"
+          onPress={() => handleNavigation('/(drawer)/(guide)/createWorkout')}
+          active={activeItem === '/(drawer)/(guide)/createWorkout'}
         />
 
         {        /* 
@@ -283,6 +284,12 @@ export default function DrawerLayout() {
         name="(guide)/ExpertGuide" 
         options={{ 
           title: 'Expert Guide',
+        }} 
+      />
+      <Drawer.Screen 
+        name="(guide)/createWorkout" 
+        options={{ 
+          title: 'Create Workout',
         }} 
       />
       <Drawer.Screen 

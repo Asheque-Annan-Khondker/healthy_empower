@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // Custom header component for tab screens to match drawer style
 const TabHeader = ({ title, navigation }: { title: string, navigation: any }) => {
   const insets = useSafeAreaInsets();
+  const isHomeScreen = title === 'Home';
   
   return (
     <View style={[styles.headerContainer, { paddingTop: insets.top + 10 }]}>
@@ -20,6 +21,14 @@ const TabHeader = ({ title, navigation }: { title: string, navigation: any }) =>
           <Ionicons name="menu" size={28} color="#FFFFFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{title}</Text>
+        {isHomeScreen && (
+          <TouchableOpacity 
+            style={styles.shopButton}
+            onPress={() => navigation.navigate('shop_screen')}
+          >
+            <Ionicons name="cart" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -42,14 +51,6 @@ export default function TabLayout() {
         }}
       />
       
-      <Tabs.Screen
-        name="shop_screen"
-        options={{
-          title: 'Shop',
-          tabBarLabel: 'Shop',
-          tabBarIcon: ({ color }) => <Ionicons name="cart" size={24} color={color} />
-        }}
-      />
       
       <Tabs.Screen
         name="diet_screen"
@@ -68,6 +69,15 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Ionicons name="trophy" size={24} color={color} />
         }}
       />
+      
+      <Tabs.Screen
+        name="workout_log"
+        options={{
+          title: 'Workout Log',
+          tabBarLabel: 'Log',
+          tabBarIcon: ({ color }) => <Ionicons name="list" size={24} color={color} />
+        }}
+      />
     </Tabs>
   );
 }
@@ -82,7 +92,7 @@ const styles = StyleSheet.create({
   headerContentContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
   },
   menuButton: {
     width: 44,
@@ -96,5 +106,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
     flex: 1,
+  },
+  shopButton: {
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 22,
   },
 });

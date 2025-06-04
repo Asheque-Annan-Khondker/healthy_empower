@@ -22,11 +22,8 @@ export default function ExpertGuide(){
       
       <ScrollView style={styles.container} > 
         <View style={styles.subContainer}>
-          <Text style={styles.header}>Start-Up Guide:{"\n"}For Experts</Text>
+          <Text style={styles.header}>For Experts</Text>
 
-          <Text style={styles.subHeader}>
-            GOAL: Optimise performance, aesthetics, or competition prep
-          </Text>
           
           {/* temporary image, will change later */}
           <Image source={bannerImg} style={styles.img} />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, Alert } from 'react-native';
 import { Card, Divider } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FoodDBModal, MealLogDBModal } from '@/utils/dbFunctions';
@@ -151,9 +151,10 @@ interface DailyFoodLogProps {
   date: Date;
   refreshTrigger?: number; // Add optional refresh trigger
   onFoodAdded?: () => void; // Callback when food is added
+  scrollable?: boolean; // Whether this component should be scrollable (default true)
 }
 
-const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, refreshTrigger, onFoodAdded }) => {
+const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, refreshTrigger, onFoodAdded, scrollable = true }) => {
   const foodEntryBottomSheetRef = useRef<FoodEntryBottomSheetRef>(null);
   
   type FoodEntry = {
@@ -225,8 +226,17 @@ const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, refreshTrigger, onFoo
         setTotalFat(fat);
         
       } catch (error) {
-        console.error('Error fetching food entries:', error);
+        console.error('❌ DailyFoodLog: Error fetching food entries:', error);
         setFoodEntries([]);
+        
+        // Show error to user if it's a network issue
+        if (error instanceof Error && error.message.includes('Network')) {
+          Alert.alert(
+            'Connection Error',
+            'Unable to load food entries. Please check your internet connection and try again.',
+            [{ text: 'OK' }]
+          );
+        }
       } finally {
         setIsLoading(false);
       }
@@ -257,16 +267,97 @@ const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, refreshTrigger, onFoo
     }
   };
 
+  const getMealTypeColor = (mealType: string) => {
+    switch(mealType.toLowerCase()) {
+      case 'breakfast':
+        return '#FFB347';
+      case 'lunch':
+        return '#4CAF50';
+      case 'dinner':
+        return '#FF7043';
+      case 'snack':
+        return '#AB47BC';
+      default:
+        return '#D68D54';
+    }
+  };
+
+  // Group food entries by meal type
+  const groupedEntries = React.useMemo(() => {
+    const groups: { [key: string]: FoodEntry[] } = {
+      breakfast: [],
+      lunch: [],
+      dinner: [],
+      snack: []
+    };
+
+    foodEntries.forEach(entry => {
+      const mealType = entry.mealType.toLowerCase();
+      if (groups[mealType]) {
+        groups[mealType].push(entry);
+      } else {
+        groups.snack.push(entry); // Default to snack if unknown meal type
+      }
+    });
+
+    return groups;
+  }, [foodEntries]);
+
+  // Delete meal log entry
+  const handleDeleteMealLog = async (mealId: string, foodName: string) => {
+    try {
+      setIsLoading(true);
+      
+      // Show confirmation dialog
+      Alert.alert(
+        'Delete Food Entry',
+        `Are you sure you want to delete "${foodName}"?`,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => setIsLoading(false),
+          },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                await MealLogDBModal.delete(parseInt(mealId));
+                
+                // Clear cache to trigger reload
+                setMonthlyCache(null);
+                
+                // Trigger refresh by incrementing refresh trigger
+                onFoodAdded?.();
+                
+                console.log('✅ DailyFoodLog: Meal log deleted successfully');
+              } catch (error) {
+                console.error('❌ DailyFoodLog: Error deleting meal log:', error);
+                Alert.alert(
+                  'Error',
+                  error instanceof Error ? error.message : 'Failed to delete food entry. Please try again.',
+                  [{ text: 'OK' }]
+                );
+              } finally {
+                setIsLoading(false);
+              }
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error('❌ DailyFoodLog: Error in handleDeleteMealLog:', error);
+      setIsLoading(false);
+    }
+  };
+
   const renderFoodItem = ({ item }: { item: FoodEntry }) => (
     <Card style={styles.foodCard}>
       <Card.Content style={styles.cardContent}>
-        <View style={styles.mealIconContainer}>
-          <MaterialIcons name={getMealTypeIcon(item.mealType)} size={24} color="#D68D54" />
-        </View>
         <View style={styles.foodInfo}>
-          <View>
+          <View style={styles.foodDetails}>
             <Text style={styles.foodName}>{item.name}</Text>
-            <Text style={styles.mealTypeText}>{item.mealType} • {item.time}</Text>
           </View>
           <View style={styles.nutritionInfo}>
             <Text style={styles.calorieText}>{item.calories} cal</Text>
@@ -277,6 +368,19 @@ const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, refreshTrigger, onFoo
             </View>
           </View>
         </View>
+        
+        {/* Delete Button */}
+        <TouchableOpacity 
+          style={styles.deleteButton}
+          onPress={() => handleDeleteMealLog(item.id, item.name)}
+          disabled={isLoading}
+        >
+          <MaterialIcons 
+            name="delete-outline" 
+            size={20} 
+            color={isLoading ? "#CCC" : "#EF4444"} 
+          />
+        </TouchableOpacity>
       </Card.Content>
     </Card>
   );
@@ -288,6 +392,50 @@ const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, refreshTrigger, onFoo
       <Text style={styles.emptyStateSubtext}>Tap "Add Food" to log your meals</Text>
     </View>
   );
+
+  const renderMealSection = (mealType: string, entries: FoodEntry[]) => {
+    if (entries.length === 0) return null;
+
+    const mealTypeCapitalized = mealType.charAt(0).toUpperCase() + mealType.slice(1);
+    const mealIcon = getMealTypeIcon(mealType);
+    const mealColor = getMealTypeColor(mealType);
+
+    // Calculate meal totals
+    const mealCalories = entries.reduce((sum, entry) => sum + entry.calories, 0);
+    const mealProtein = entries.reduce((sum, entry) => sum + entry.protein, 0);
+    const mealCarbs = entries.reduce((sum, entry) => sum + entry.carbs, 0);
+    const mealFat = entries.reduce((sum, entry) => sum + entry.fat, 0);
+
+    return (
+      <View key={mealType} style={styles.mealSection}>
+        {/* Meal Header */}
+        <View style={styles.mealHeader}>
+          <View style={styles.mealHeaderLeft}>
+            <View style={[styles.mealIconContainer, { backgroundColor: mealColor + '20' }]}>
+              <MaterialIcons name={mealIcon} size={20} color={mealColor} />
+            </View>
+            <View>
+              <Text style={styles.mealTitle}>{mealTypeCapitalized}</Text>
+              <Text style={styles.mealSubtitle}>{entries.length} item{entries.length !== 1 ? 's' : ''}</Text>
+            </View>
+          </View>
+          <View style={styles.mealTotals}>
+            <Text style={styles.mealCaloriesText}>{mealCalories} cal</Text>
+            <Text style={styles.mealMacrosText}>P:{mealProtein}g C:{mealCarbs}g F:{mealFat}g</Text>
+          </View>
+        </View>
+
+        {/* Meal Items */}
+        <View style={styles.mealItems}>
+          {entries.map((item) => (
+            <View key={item.id}>
+              {renderFoodItem({ item })}
+            </View>
+          ))}
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -328,20 +476,28 @@ const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, refreshTrigger, onFoo
         </View>
       ) : foodEntries.length === 0 ? (
         renderEmptyState()
-      ) : (
+      ) : scrollable ? (
         <ScrollView 
           style={styles.scrollableList}
           nestedScrollEnabled={true}
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.listContainer}>
-            {foodEntries.map((item) => (
-              <View key={item.id}>
-                {renderFoodItem({ item })}
-              </View>
-            ))}
+            {/* Render meal sections in order */}
+            {renderMealSection('breakfast', groupedEntries.breakfast)}
+            {renderMealSection('lunch', groupedEntries.lunch)}
+            {renderMealSection('dinner', groupedEntries.dinner)}
+            {renderMealSection('snack', groupedEntries.snack)}
           </View>
         </ScrollView>
+      ) : (
+        <View style={styles.listContainer}>
+          {/* Render meal sections in order */}
+          {renderMealSection('breakfast', groupedEntries.breakfast)}
+          {renderMealSection('lunch', groupedEntries.lunch)}
+          {renderMealSection('dinner', groupedEntries.dinner)}
+          {renderMealSection('snack', groupedEntries.snack)}
+        </View>
       )}
 
       {/* Food Entry Bottom Sheet */}
@@ -466,16 +622,15 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   foodCard: {
-    marginVertical: 6,
+    marginVertical: 4,
+    marginHorizontal: 8,
     borderRadius: 8,
     overflow: 'hidden',
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1,
+    elevation: 0,
+    shadowOpacity: 0,
     borderWidth: 1,
-    borderColor: 'rgba(214, 141, 84, 0.1)',
+    borderColor: 'rgba(214, 141, 84, 0.08)',
+    backgroundColor: '#FEFEFE',
   },
   cardContent: {
     flexDirection: 'row',
@@ -496,11 +651,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  foodDetails: {
+    flex: 1,
+  },
   foodName: {
     fontSize: 16,
     fontWeight: '600',
     color: '#3A2A1F',
     marginBottom: 2,
+  },
+  foodTimeText: {
+    fontSize: 12,
+    color: '#9B8579',
   },
   mealTypeText: {
     fontSize: 12,
@@ -521,6 +683,69 @@ const styles = StyleSheet.create({
   macroText: {
     fontSize: 12,
     color: '#9B8579',
+    marginLeft: 8,
+  },
+  mealSection: {
+    marginBottom: 20,
+  },
+  mealHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(214, 141, 84, 0.1)',
+  },
+  mealHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  mealIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  mealTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#3A2A1F',
+    marginBottom: 2,
+  },
+  mealSubtitle: {
+    fontSize: 12,
+    color: '#9B8579',
+  },
+  mealTotals: {
+    alignItems: 'flex-end',
+  },
+  mealCaloriesText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#D68D54',
+    marginBottom: 2,
+  },
+  mealMacrosText: {
+    fontSize: 11,
+    color: '#9B8579',
+  },
+  mealItems: {
+    paddingHorizontal: 4,
+  },
+  deleteButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginLeft: 8,
   },
 });

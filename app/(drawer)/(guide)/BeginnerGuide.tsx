@@ -26,19 +26,12 @@ export default function BeginnerGuide(){
       
       <ScrollView style={styles.container} > 
         <View style={styles.subContainer}>
-          <Text style={styles.header}>Start-Up Guide:{"\n"}For Beginners</Text>
+          <Text style={styles.header}>For Beginners</Text>
 
-          <Text style={styles.subHeader}>
-            Welcome to your first start-up guide!{"\n\n"}These guides are here to help you get moving in the right direction. 
-            {"\n"}We are here to boost your confidence and productivity to reach your health and fitness goals!
-          </Text>
           
           {/* temporary image, will change later */}
           <Image source={bannerImg} style={styles.img} />
           
-          <Text style={styles.subHeader}>
-            GOAL: Build consistency, learn form, and improve general health
-          </Text>
 
           {/* Content description displayed in the form of cards */}
           <PaperProvider>

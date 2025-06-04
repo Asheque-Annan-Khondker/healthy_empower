@@ -135,7 +135,16 @@ export default function GuideContent() {
         }
 
         try {
-            const result = await completeWorkoutPlan(workoutId);
+            // Create exercise completion data from the exercises array
+            const exercisesCompleted = exercises.map(exercise => ({
+                exercise_id: exercise.exercise_id,
+                sets_completed: exercise.WorkoutPlanExercise?.sets || null,
+                reps_completed: exercise.WorkoutPlanExercise?.reps_targets || null,
+                duration: exercise.WorkoutPlanExercise?.duration || null,
+                notes: `Completed as part of workout`
+            }));
+
+            const result = await completeWorkoutPlan(workoutId, exercisesCompleted);
             
             // Show completion modal
             setCompletionModal({
