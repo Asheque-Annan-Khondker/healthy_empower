@@ -23,6 +23,7 @@ export interface WorkoutPlan {
   description: string;
   difficulty_level: string;
   created_at: string;
+  reward: number;
   Exercises?: Exercise[];
 }
 

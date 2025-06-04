@@ -9,6 +9,7 @@ import BottomSheet, {BottomSheetView} from "@gorhom/bottom-sheet";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { RewardBadge } from '@/components/RewardBadge';
 
 // Updated WorkoutPlan interface to match backend model
 
@@ -93,13 +94,19 @@ export default function GuideSelection() {
     }
   }
 
+
   const handleSheetChanges = useCallback((index: number)=>{
     console.log(`SheetChanges: ${index}`);
   }, [])
 
   const renderModal = () => (
     <View style={styles.modalContainer}>
-      <Text style={styles.modalTitle}>{selectedGuide?.name}</Text>
+      <View style={styles.modalHeader}>
+        <Text style={styles.modalTitle}>{selectedGuide?.name}</Text>
+        {selectedGuide?.reward && (
+          <RewardBadge reward={selectedGuide.reward} size="medium" />
+        )}
+      </View>
       <View style={styles.difficultyBadge}>
         <Text style={styles.difficultyText}>Difficulty: {selectedGuide?.difficulty_level}</Text>
       </View>
@@ -179,6 +186,7 @@ export default function GuideSelection() {
                   leftBottomText="20-30 min"
                   tag={guide.difficulty_level || "Beginner"} 
                   image={require('@/assets/images/yoga.png')}
+                  reward={guide.reward}
                 />
               </TouchableOpacity>
             ))}
@@ -251,11 +259,18 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 10,
+  },
   modalTitle: {
     fontSize: 22,
     fontWeight: 'bold',
     color: '#3A2A1F',
-    marginBottom: 10,
+    flex: 1,
+    marginRight: 12,
   },
   difficultyBadge: {
     alignSelf: 'flex-start',

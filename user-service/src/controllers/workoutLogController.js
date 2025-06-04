@@ -1,5 +1,6 @@
 const db = require('../models');
 const { post, get } = require('../utils/universalDML');
+const { updateWorkoutStreak } = require('../utils/streakService');
 
 class WorkoutLogController {
     logWorkout = async (req, res) => {
@@ -176,6 +177,68 @@ class WorkoutLogController {
             await log.destroy(); 
 
             res.status(200).json({ message: 'Workout log successfully deleted' })
+
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    completeWorkoutPlan = async (req, res) => {
+        try {
+            const userId = req.params.userId;
+            const { plan_id, exercises_completed } = req.body;
+
+            if (!plan_id) {
+                return res.status(400).json({ error: 'Plan ID is required' });
+            }
+
+            // Verify user exists
+            const user = await db.User.findByPk(userId);
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+
+            // Verify workout plan exists
+            const workoutPlan = await db.WorkoutPlan.findByPk(plan_id);
+            if (!workoutPlan) {
+                return res.status(404).json({ error: 'Workout plan not found' });
+            }
+
+            // Log each exercise if provided
+            if (exercises_completed && Array.isArray(exercises_completed)) {
+                for (const exercise of exercises_completed) {
+                    await db.WorkoutLog.create({
+                        user_id: userId,
+                        exercise_id: exercise.exercise_id,
+                        completed_at: new Date(),
+                        sets_completed: exercise.sets_completed || null,
+                        reps_completed: exercise.reps_completed || null,
+                        duration: exercise.duration || null,
+                        notes: exercise.notes || `Completed as part of ${workoutPlan.name}`
+                    });
+                }
+            }
+
+            // Update streak and calculate bonuses
+            const streakInfo = await updateWorkoutStreak(user);
+            
+            // Award currency to the user (base reward + streak bonus)
+            const baseReward = workoutPlan.reward || 10;
+            const totalReward = baseReward + streakInfo.streakBonus;
+            user.currency = user.currency + totalReward;
+            await user.save();
+
+            res.status(200).json({
+                message: 'Workout plan completed successfully',
+                reward_earned: baseReward,
+                streak_bonus: streakInfo.streakBonus,
+                total_reward: totalReward,
+                current_streak: streakInfo.currentStreak,
+                longest_streak: streakInfo.longestStreak,
+                is_new_record: streakInfo.isNewRecord,
+                new_balance: user.currency,
+                workout_plan: workoutPlan.name
+            });
 
         } catch (error) {
             res.status(500).json({ error: error.message });
