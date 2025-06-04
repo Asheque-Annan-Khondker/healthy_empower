@@ -134,7 +134,8 @@ export default function SignInScreen() {
         
         try {
             // Make API call to backend login endpoint
-            const response = await axios.post(`${API_URL}/api/login`, {
+            const apiUrl = await API_URL();
+            const response = await axios.post(`${apiUrl}/api/login`, {
                 email,
                 password
             });

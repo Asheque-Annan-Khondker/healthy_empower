@@ -31,7 +31,8 @@ type Filter<T> = {
 //* not implemented yet
 async function dropall(): Promise<void>{
   try {
-  await axios.delete(`${API_URL}/api/foods`)
+  const apiUrl = await API_URL();
+  await axios.delete(`${apiUrl}/api/foods`)
   } catch(err){console.error('Can\'t drop | wont drop', err)}
 }
 class AchievementDBModal {
@@ -39,13 +40,13 @@ class AchievementDBModal {
     let params = filter && Object.keys(filter).length > 0
                   ? '?filters=' + encodeURIComponent(JSON.stringify(filter))
                   : '';
-const URL = `${API_URL}/api/`;
+const apiUrl = await API_URL();
 const userId = await getUserId();
 if (!userId) {
   console.error('❌ AchievementDBModal: No user ID available');
   return [];
 }
-const rawResult = await axios.get(`${API_URL}/api/users/${userId}/achievements${params}`).then(res=>res.data.data);
+const rawResult = await axios.get(`${apiUrl}/api/users/${userId}/achievements${params}`).then(res=>res.data.data);
     return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult : []
 
 
@@ -61,7 +62,8 @@ const rawResult = await axios.get(`${API_URL}/api/users/${userId}/achievements${
       console.error('❌ AchievementDBModal: No user ID available for update');
       return;
     }
-    const url = `${API_URL}/api/users/${userId}/achievements/${payload.id}`;
+    const apiUrl = await API_URL();
+    const url = `${apiUrl}/api/users/${userId}/achievements/${payload.id}`;
    await axios.put(url, submit)
 
 
@@ -75,13 +77,15 @@ class ExerciseDBModal {
     let params = filter && Object.keys(filter).length > 0
                   ? '?filters=' + encodeURIComponent(JSON.stringify(filter))
                   : '';
-    const rawResult = await axios.get(`${API_URL}/api/exercises${params}`).then(res=>res.data.data);
+    const apiUrl = await API_URL();
+    const rawResult = await axios.get(`${apiUrl}/api/exercises${params}`).then(res=>res.data.data);
     return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult : []
   }
 
   static async getById(id: number): Promise<Exercise | null> {
     //TODO: Learn how to request from  property
-const rawResult = await axios.get(`${API_URL}/api/exercises?exercise_id=${id}`);
+const apiUrl = await API_URL();
+const rawResult = await axios.get(`${apiUrl}/api/exercises?exercise_id=${id}`);
     return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult[0] : null;  }
 }
 
@@ -90,7 +94,8 @@ class GuideDBModal {
     let params = filter && Object.keys(filter).length > 0
                   ? '?filters=' + encodeURIComponent(JSON.stringify(filter))
                   : '';
-    const rawResult = await axios.get(`${API_URL}/api/workout-plans${params}`).then(res => res.data.data);
+    const apiUrl = await API_URL();
+    const rawResult = await axios.get(`${apiUrl}/api/workout-plans${params}`).then(res => res.data.data);
     return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult : []
   }
 
@@ -104,13 +109,14 @@ class FoodDBModal {
                   : '';
     // Iterate over the filter object and append to params string
     
-    
-    const url = `${API_URL}/api/foods${params}`
+    const apiUrl = await API_URL();
+    const url = `${apiUrl}/api/foods${params}`
     const res = await axios.get(url).then(res => res.data.data);
     return Array.isArray(res) && res.length > 0 ? res : []
   }
   static async createEntry(payload: Partial<Food>): Promise<void> {
-    const url = `${API_URL}/api/foods`;
+    const apiUrl = await API_URL();
+    const url = `${apiUrl}/api/foods`;
     await axios.post(url, payload)
   }
   static async insert(content: Partial<Food>): Promise<void>{
@@ -123,7 +129,8 @@ class FoodDBModal {
         serving_size: content.serving_size,
         serving_unit_id: content.serving_unit_id
       }
-      await axios.post(`${API_URL}/api/foods`, submit).then(res => console.log('Inserted successfully: ', res.data))
+      const apiUrl = await API_URL();
+      await axios.post(`${apiUrl}/api/foods`, submit).then(res => console.log('Inserted successfully: ', res.data))
                                                        .catch(err => console.log('Error inserting', err));
   }
   
@@ -141,7 +148,8 @@ class MealLogDBModal {
       console.error('❌ MealLogDBModal: No user ID available');
       return [];
     }
-    const rawResult = await axios.get(`${API_URL}/api/users/${userId}/meal-logs${params}`).then(res => res.data.data);
+    const apiUrl = await API_URL();
+    const rawResult = await axios.get(`${apiUrl}/api/users/${userId}/meal-logs${params}`).then(res => res.data.data);
     return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult : []
   }
   static async create(content: Partial<MealLog>): Promise<void> {
@@ -150,7 +158,8 @@ class MealLogDBModal {
       console.error('❌ MealLogDBModal: No user ID available for create');
       return;
     }
-    await axios.post(`${API_URL}/api/users/${userId}/meal-logs`, content).then(res => console.log('Inserted successfully: ', res.data))
+    const apiUrl = await API_URL();
+    await axios.post(`${apiUrl}/api/users/${userId}/meal-logs`, content).then(res => console.log('Inserted successfully: ', res.data))
                                                        .catch(err => console.log('Error inserting', err));
   }
 }
@@ -162,7 +171,8 @@ class WorkoutPlanExerciseDBModal {
                   : '';
     // Iterate over the filter object and append to params string
     console.log("WPE param", params)
-    const rawResult = await axios.get(`${API_URL}/api/workout-plan-exercises${params}`).then(res => res.data.data);
+    const apiUrl = await API_URL();
+    const rawResult = await axios.get(`${apiUrl}/api/workout-plan-exercises${params}`).then(res => res.data.data);
     return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult : []
   }
 }
@@ -174,8 +184,8 @@ class WorkoutPlanDBModal {
                   : '';
     // Iterate over the filter object and append to params string
   
-
-    const rawResult = await axios.get(`${API_URL}/api/workout-plans${params}`).then(res => res.data.data);
+    const apiUrl = await API_URL();
+    const rawResult = await axios.get(`${apiUrl}/api/workout-plans${params}`).then(res => res.data.data);
     console.log("Raw results for WorkoutPlan array: ", rawResult )
 
     return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult : []
@@ -183,7 +193,8 @@ class WorkoutPlanDBModal {
 
   static async insert(content: Partial<WorkoutPlan>): Promise<void>{
      
-    await axios.post(`${API_URL}/api/workout-plans`,content).then(res => console.log('Inserted successfully: ', res.data))
+    const apiUrl = await API_URL();
+    await axios.post(`${apiUrl}/api/workout-plans`,content).then(res => console.log('Inserted successfully: ', res.data))
                                                        .catch(err => console.log('Error inserting', err));
   }
 }
@@ -199,7 +210,8 @@ class GoalDBModal {
       console.error('❌ GoalDBModal: No user ID available');
       return [];
     }
-    const  rawResult = await axios.get(`${API_URL}/api/users/${userId}/goals${params}`).then(res => res.data.data);
+    const apiUrl = await API_URL();
+    const  rawResult = await axios.get(`${apiUrl}/api/users/${userId}/goals${params}`).then(res => res.data.data);
     return Array.isArray(rawResult) && rawResult.length > 0 ? rawResult : []
 
   }
@@ -216,7 +228,8 @@ class GoalDBModal {
       console.error('❌ GoalDBModal: No user ID available for update');
       return;
     }
-    await axios.put(`${API_URL}/api/users/${userId}/goals/${id}`, submit).then(res => console.log('Updated successfully: ', res.data))
+    const apiUrl = await API_URL();
+    await axios.put(`${apiUrl}/api/users/${userId}/goals/${id}`, submit).then(res => console.log('Updated successfully: ', res.data))
   }
 
   static async insert(content: Partial<Goal>): Promise<void>{
@@ -225,7 +238,8 @@ class GoalDBModal {
       console.error('❌ GoalDBModal: No user ID available for insert');
       return;
     }
-    await axios.post(`${API_URL}/api/users/${userId}/goals`,content).then(res => console.log('Inserted successfully: ', res.data))
+    const apiUrl = await API_URL();
+    await axios.post(`${apiUrl}/api/users/${userId}/goals`,content).then(res => console.log('Inserted successfully: ', res.data))
                                                             .catch(err => console.log('Error inserting', err));
   }
 }

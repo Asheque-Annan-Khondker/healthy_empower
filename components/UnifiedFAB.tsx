@@ -15,7 +15,7 @@ interface UnifiedFABProps {
 const UnifiedFAB: React.FC<UnifiedFABProps> = ({ 
   screenType = 'home', 
   onFoodAdded, 
-  onMealAdded 
+  onMealAdded
 }) => {
   console.log(`🔧 UnifiedFAB: Component mounted on ${screenType} screen`);
   

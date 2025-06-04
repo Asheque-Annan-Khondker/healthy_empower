@@ -202,7 +202,8 @@ export default function StepByStepSignUp() {
         
         try {
             // Create user account
-            const userResponse = await axios.post(`${API_URL}/api/users`, {
+            const apiUrl = await API_URL();
+            const userResponse = await axios.post(`${apiUrl}/api/users`, {
                 username,
                 email,
                 password,
@@ -218,7 +219,7 @@ export default function StepByStepSignUp() {
             await setUserId(userId);
             
             // Create health profile
-            await axios.post(`${API_URL}/api/users/${userId}/health-profile`, {
+            await axios.post(`${apiUrl}/api/users/${userId}/health-profile`, {
                 height: getHeightInCm(),
                 weight: getWeightInKg()
             });

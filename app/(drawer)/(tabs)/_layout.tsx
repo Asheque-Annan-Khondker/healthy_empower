@@ -1,11 +1,38 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
+import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { DrawerActions } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+// Custom header component for tab screens to match drawer style
+const TabHeader = ({ title, navigation }: { title: string, navigation: any }) => {
+  const insets = useSafeAreaInsets();
+  
+  return (
+    <View style={[styles.headerContainer, { paddingTop: insets.top + 10 }]}>
+      <View style={styles.headerContentContainer}>
+        <TouchableOpacity 
+          style={styles.menuButton}
+          onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+        >
+          <Ionicons name="menu" size={28} color="#FFFFFF" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{title}</Text>
+      </View>
+    </View>
+  );
+};
 
 export default function TabLayout() {
-  // Super simple version with achievement tab added
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs screenOptions={{ 
+      headerShown: true,
+      header: ({ navigation, route, options }) => (
+        <TabHeader title={options.title || 'Home'} navigation={navigation} />
+      )
+    }}>
       <Tabs.Screen
         name="index"
         options={{
@@ -44,3 +71,30 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    backgroundColor: '#D68D54',
+    // paddingTop is now dynamic based on safe area insets
+    paddingBottom: 15,
+    paddingHorizontal: 16,
+  },
+  headerContentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  menuButton: {
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    flex: 1,
+  },
+});

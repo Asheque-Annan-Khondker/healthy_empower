@@ -1,12 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Image,
-        Animated, Platform, StatusBar } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+        Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
-import { useNavigation } from '@react-navigation/native';
-import { DrawerActions } from '@react-navigation/native';
 import {AchievementDBModal} from "@/utils/dbFunctions";
 import {Achievement} from "@/utils/table.types";
 
@@ -200,7 +197,6 @@ const AchievementWall = () => {
 const completedCount = achievements.filter(a => a.completed).length;
 const completionPercentage = (completedCount / achievements.length) * 100;
 const totalAcorns = achievements.filter(a => a.completed).reduce((sum, item) => sum + item.xp, 0);
-const navigation = useNavigation();
 
 // For achievement details modal
 const [selectedAchievement, setSelectedAchievement] = useState(null);
@@ -216,24 +212,8 @@ const closeDetails = () => {
 };
 
 return (
-  <SafeAreaView style={[styles.container, styles.AndroidSafeArea]}>
-    {/* Updated header to match shop header style */}
-    <View style={styles.header}>
-      <View style={styles.headerContentContainer}>
-        <TouchableOpacity 
-          style={styles.menuButton}
-          onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
-        >
-          <Ionicons name="menu" size={28} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Achievements</Text>
-        <View style={styles.balanceContainer}>
-          <Text style={styles.balanceText}>{totalAcorns} 🌰</Text>
-        </View>
-      </View>
-    </View>
-    
-    {/* Original content below - with background color adjusted to not look like part of the header */}
+  <View style={styles.container}>
+    {/* Stats container moved to top */}
     <View style={styles.statsContainer}>
       <View style={styles.statItem}>
         <Text style={styles.statValue}>{completedCount}</Text>
@@ -389,7 +369,7 @@ return (
         </BlurView>
       </Animated.View>
     )}
-  </SafeAreaView>
+  </View>
 );
 };
 
@@ -397,51 +377,6 @@ const styles = StyleSheet.create({
 container: {
   flex: 1,
   backgroundColor: '#F8F8F8', // Slightly warmer background
-},
-// bascially SafeAreaView for android
-  AndroidSafeArea: {
-    flex: 1,
-    backgroundColor: "#F8F8F8",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
-  },
-// New header styles to match shop header
-header: {
-  backgroundColor: '#D68D54',
-  paddingTop: 70,
-  paddingBottom: 15,
-  paddingHorizontal: 16,
-  top: height-930 // hardcoded this cos i couldnt figue univeral method
-},
-headerContentContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-},
-menuButton: {
-  width: 44,
-  height: 44,
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-headerTitle: {
-  fontSize: 28,
-  fontWeight: 'bold',
-  color: '#FFFFFF',
-  flex: 1,
-  marginLeft: 8,
-},
-balanceContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  paddingHorizontal: 16,
-  paddingVertical: 8,
-  borderRadius: 20,
-},
-balanceText: {
-  fontSize: 16,
-  fontWeight: 'bold',
-  color: '#FFFFFF',
 },
 // Stats section - updated to clearly separate from header
 statsContainer: {

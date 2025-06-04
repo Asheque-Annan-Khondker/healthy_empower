@@ -126,7 +126,8 @@ export default function ProfileDetailsScreen() {
         
         try {
             // Make API call to backend signup endpoint
-            const response = await axios.post(`${API_URL}/api/users`, {
+            const apiUrl = await API_URL();
+            const response = await axios.post(`${apiUrl}/api/users`, {
                 username,
                 email,
                 password,

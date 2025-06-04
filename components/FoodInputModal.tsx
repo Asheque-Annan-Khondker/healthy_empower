@@ -11,6 +11,7 @@ import {
   Platform,
   Dimensions,
   BackHandler,
+  Modal,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -158,19 +159,25 @@ const FoodInputModal: React.FC<FoodInputModalProps> = ({
   if (!visible) return null;
 
   return (
-    <View style={styles.overlay}>
-      {/* Blur Background */}
-      <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]}>
-        <BlurView intensity={20} style={styles.blurView}>
-          <TouchableOpacity style={styles.backdropTouch} onPress={handleClose} />
-        </BlurView>
-      </Animated.View>
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="none"
+      onRequestClose={handleClose}
+    >
+      <View style={styles.overlay}>
+        {/* Blur Background */}
+        <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]}>
+          <BlurView intensity={20} style={styles.blurView}>
+            <TouchableOpacity style={styles.backdropTouch} onPress={handleClose} />
+          </BlurView>
+        </Animated.View>
 
-      {/* Modal Content */}
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
-      >
+        {/* Modal Content */}
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.keyboardView}
+        >
         <Animated.View
           style={[
             styles.modalContainer,
@@ -356,7 +363,8 @@ const FoodInputModal: React.FC<FoodInputModalProps> = ({
           </ScrollView>
         </Animated.View>
       </KeyboardAvoidingView>
-    </View>
+      </View>
+    </Modal>
   );
 };
 

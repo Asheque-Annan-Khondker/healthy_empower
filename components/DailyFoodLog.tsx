@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import { Card, Divider } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FoodDBModal, MealLogDBModal } from '@/utils/dbFunctions';
+import FoodEntryBottomSheet, { FoodEntryBottomSheetRef } from './FoodEntryBottomSheet';
 
 // Helper functions to manage food entries (in a real app, these would interact with a backend)
 const mockFoodEntries = [
@@ -148,11 +149,13 @@ function formatDate(date: Date) {
 
 interface DailyFoodLogProps {
   date: Date;
-  onAddPress: () => void;
   refreshTrigger?: number; // Add optional refresh trigger
+  onFoodAdded?: () => void; // Callback when food is added
 }
 
-const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, onAddPress, refreshTrigger }) => {
+const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, refreshTrigger, onFoodAdded }) => {
+  const foodEntryBottomSheetRef = useRef<FoodEntryBottomSheetRef>(null);
+  
   type FoodEntry = {
     id: string;
     name: string;
@@ -294,7 +297,7 @@ const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, onAddPress, refreshTr
           <Text style={styles.sectionTitle}>Daily Food Log</Text>
           <Text style={styles.caloriesText}>{totalCalories.toFixed(1)} calories</Text>
         </View>
-        <TouchableOpacity style={styles.addButton} onPress={onAddPress}>
+        <TouchableOpacity style={styles.addButton} onPress={() => foodEntryBottomSheetRef.current?.show()}>
           <MaterialIcons name="add" size={20} color="white" />
           <Text style={styles.addButtonText}>Add Food</Text>
         </TouchableOpacity>
@@ -326,14 +329,33 @@ const DailyFoodLog: React.FC<DailyFoodLogProps> = ({ date, onAddPress, refreshTr
       ) : foodEntries.length === 0 ? (
         renderEmptyState()
       ) : (
-        <FlatList
-          data={foodEntries}
-          renderItem={renderFoodItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContainer}
-          scrollEnabled={false} // Disable scrolling within this component
-        />
+        <ScrollView 
+          style={styles.scrollableList}
+          nestedScrollEnabled={true}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.listContainer}>
+            {foodEntries.map((item) => (
+              <View key={item.id}>
+                {renderFoodItem({ item })}
+              </View>
+            ))}
+          </View>
+        </ScrollView>
       )}
+
+      {/* Food Entry Bottom Sheet */}
+      <FoodEntryBottomSheet
+        ref={foodEntryBottomSheetRef}
+        onFoodAdded={() => {
+          setMonthlyCache(null); // Clear cache to trigger reload
+          onFoodAdded?.(); // Call parent callback if provided
+        }}
+        onMealAdded={() => {
+          setMonthlyCache(null); // Clear cache to trigger reload
+          onFoodAdded?.(); // Call parent callback if provided
+        }}
+      />
     </View>
   );
 };
@@ -439,6 +461,9 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 12,
+  },
+  scrollableList: {
+    paddingVertical: 8,
   },
   foodCard: {
     marginVertical: 6,

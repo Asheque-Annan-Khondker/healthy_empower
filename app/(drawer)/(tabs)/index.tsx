@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Dimensions, Text, View, ScrollView, TouchableOpacity, Modal, Image } from 'react-native';
 import { Searchbar } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { DrawerActions } from '@react-navigation/native';
 
 import DropdownMenu from '@/components/DropdownMenu';
 import SearchBarComponent from '@/components/SearchBarComponent';
@@ -35,7 +33,6 @@ const { height, width } = Dimensions.get('window');
 export default function Index() {
 const [searchQuery, setSearchQuery] = useState('');
 const [currentDate, setCurrentDate] = useState(new Date());
-const [isFoodModalVisible, setIsFoodModalVisible] = useState(false);
 const [refreshTrigger, setRefreshTrigger] = useState(0); // Add refresh trigger state
 const navigation = useNavigation();
 
@@ -61,39 +58,13 @@ const goToNextDay = () => {
   setCurrentDate(newDate);
 };
 
-// Handle Add Food button press
-const handleAddFood = () => {
-  setIsFoodModalVisible(true);
-};
-
-// Handle close food modal
-const handleCloseFood = () => {
-  setIsFoodModalVisible(false);
-};
-
 // Function to trigger refresh of food log
 const triggerFoodLogRefresh = () => {
   setRefreshTrigger(prev => prev + 1);
 };
 
 return (
-  <SafeAreaView style={styles.safeArea}>
-    <View style={styles.mainContainer}>
-
-      {/***********    HEADER    *********
-       * copied header code from other main screens */}
-      <View style={styles.header}>
-        <View style={styles.headerContentContainer}>
-          <TouchableOpacity 
-            style={styles.menuButton}
-            onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
-          >
-            <Ionicons name="menu" size={28} color="#FFFFFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Home</Text>
-        </View>
-      </View>
-
+    <SafeAreaView style={styles.safeArea}>
       {/* Scrollable content area */}
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
@@ -151,8 +122,8 @@ return (
         {/* Daily Food Log Section */}
         <DailyFoodLog 
           date={currentDate}
-          onAddPress={handleAddFood}
           refreshTrigger={refreshTrigger}
+          onFoodAdded={triggerFoodLogRefresh}
         />
 
         {/* Cards section */}
@@ -201,66 +172,6 @@ return (
       {/* Modal Fitness Form */}
       <ModalFitnessForm />
 
-      {/* Food Entry Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isFoodModalVisible}
-        onRequestClose={handleCloseFood}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Add Food Entry</Text>
-              <TouchableOpacity onPress={handleCloseFood}>
-                <FAIcon name="times" size={24} color="#3A2A1F" />
-              </TouchableOpacity>
-            </View>
-            
-            <FoodEntryForm 
-              onSave={async (foodEntry) => {
-                console.log('Food entry saved:', foodEntry);
-                
-                try {
-                  // First, create the food entry in the database
-                  await FoodDBModal.insert({
-                    name: foodEntry.name,
-                    calories: foodEntry.calories,
-                    protein: foodEntry.protein,
-                    carbs: foodEntry.carbs,
-                    fat: foodEntry.fat,
-                    serving_size: '1 serving',
-                    serving_unit_id: 1 // Default unit
-                  });
-                  
-                  // Get the created food to get its ID
-                  const createdFoods = await FoodDBModal.get({name: {eq: foodEntry.name}});
-                  if (createdFoods.length > 0) {
-                    const foodId = createdFoods[0].food_id;
-                    
-                    // Create a meal log entry
-                    await MealLogDBModal.create({
-                      food_id: foodId,
-                      meal_type: foodEntry.mealType,
-                      servings: 1,
-                      logged_at: new Date().toISOString()
-                    });
-                    
-                    console.log('✅ Food and meal log created successfully');
-                  }
-                } catch (error) {
-                  console.error('❌ Error saving food entry:', error);
-                }
-                
-                handleCloseFood();
-                triggerFoodLogRefresh(); // Trigger refresh after saving
-              }}
-              onCancel={handleCloseFood}
-            />
-          </View>
-        </View>
-      </Modal>
-      
       {/* Unified FAB System */}
       <UnifiedFAB 
         screenType="home"
@@ -273,19 +184,14 @@ return (
           triggerFoodLogRefresh(); // Trigger refresh when meal is added via FAB
         }}
       />
-    </View>
-  </SafeAreaView>
-);
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
 safeArea: {
   flex: 1,
   backgroundColor: '#FAF7F4',
-},
-mainContainer: {
-  flex: 1,
-  position: 'relative', // For positioning the fixed START button
 },
 scrollContent: {
   paddingHorizontal: 16,
@@ -589,29 +495,4 @@ saveButtonText: {
   fontSize: 16,
   fontWeight: 'bold',
 },
-header: {
-  backgroundColor: '#D68D54',
-  paddingTop: 70,
-  paddingBottom: 15,
-  paddingHorizontal: 16,
-  top: height-930 // hardcoded this cos i couldnt figue univeral method
-},
-headerContentContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-},
-menuButton: {
-  width: 44,
-  height: 44,
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-headerTitle: {
-  fontSize: 28, // Larger font size
-  fontWeight: 'bold',
-  color: '#FFFFFF', // White text
-  flex: 1,
-  marginLeft: 8,
-}
 });
