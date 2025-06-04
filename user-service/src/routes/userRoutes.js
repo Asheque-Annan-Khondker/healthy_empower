@@ -10,6 +10,7 @@ module.exports = (userController) => {
   router.delete('/:id', userController.deleteUser);
   router.patch('/:id/currency', userController.updateUserCurrency);
   router.get('/:id/currency', userController.getUserCurrency);
+  router.get('/:id/streak', userController.getUserStreak);
 
   return router;
 };

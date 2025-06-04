@@ -6,6 +6,11 @@ import { getUserId } from './authState';
 export interface WorkoutCompletionResponse {
   message: string;
   reward_earned: number;
+  streak_bonus: number;
+  total_reward: number;
+  current_streak: number;
+  longest_streak: number;
+  is_new_record: boolean;
   new_balance: number;
   workout_plan: string;
 }

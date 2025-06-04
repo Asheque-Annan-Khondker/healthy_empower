@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, AppState } from 'react-native';
 import { getUserCurrency } from '@/utils/currencyService';
+import { getUserStreak } from '@/utils/streakService';
 
 interface CurrencyStreakIndicatorProps {
-  streakDays?: number;
   refreshKey?: number;
 }
 
-const CurrencyStreakIndicator: React.FC<CurrencyStreakIndicatorProps> = ({ streakDays = 0, refreshKey = 0 }) => {
+const CurrencyStreakIndicator: React.FC<CurrencyStreakIndicatorProps> = ({ refreshKey = 0 }) => {
   const [currency, setCurrency] = useState<number | null>(null);
+  const [streakDays, setStreakDays] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCurrency();
+    fetchData();
     
     // Set up periodic refresh every 15 seconds
     const interval = setInterval(() => {
-      fetchCurrency();
+      fetchData();
     }, 15000);
 
     return () => {
@@ -27,7 +28,7 @@ const CurrencyStreakIndicator: React.FC<CurrencyStreakIndicatorProps> = ({ strea
   // Refresh when refreshKey changes (when screen comes into focus)
   useEffect(() => {
     if (refreshKey > 0) {
-      fetchCurrency();
+      fetchData();
     }
   }, [refreshKey]);
 
@@ -35,7 +36,7 @@ const CurrencyStreakIndicator: React.FC<CurrencyStreakIndicatorProps> = ({ strea
   useEffect(() => {
     const handleAppStateChange = (nextAppState: string) => {
       if (nextAppState === 'active') {
-        fetchCurrency();
+        fetchData();
       }
     };
 
@@ -45,39 +46,46 @@ const CurrencyStreakIndicator: React.FC<CurrencyStreakIndicatorProps> = ({ strea
     };
   }, []);
 
-  const fetchCurrency = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const balance = await getUserCurrency();
-      setCurrency(balance);
+      const [currencyData, streakData] = await Promise.all([
+        getUserCurrency(),
+        getUserStreak()
+      ]);
+      console.log('CurrencyStreakIndicator - Currency:', currencyData);
+      console.log('CurrencyStreakIndicator - Streak Data:', streakData);
+      setCurrency(currencyData);
+      setStreakDays(streakData.current_streak);
     } catch (err) {
-      console.error('Failed to fetch currency:', err);
+      console.error('Failed to fetch data:', err);
       setCurrency(0);
+      setStreakDays(0);
     } finally {
       setLoading(false);
     }
   };
 
-  // Public method to refresh currency
-  const refreshCurrency = async () => {
-    await fetchCurrency();
+  // Public method to refresh data
+  const refreshData = async () => {
+    await fetchData();
   };
 
   // Listen for currency updates
   useEffect(() => {
-    const handleCurrencyUpdate = () => {
-      fetchCurrency();
+    const handleDataUpdate = () => {
+      fetchData();
     };
 
-    // Add event listener for currency updates
+    // Add event listener for data updates
     const subscription = global.currencyUpdateListeners || [];
-    subscription.push(handleCurrencyUpdate);
+    subscription.push(handleDataUpdate);
     global.currencyUpdateListeners = subscription;
 
     return () => {
       // Remove listener on cleanup
       const listeners = global.currencyUpdateListeners || [];
-      const index = listeners.indexOf(handleCurrencyUpdate);
+      const index = listeners.indexOf(handleDataUpdate);
       if (index > -1) {
         listeners.splice(index, 1);
       }

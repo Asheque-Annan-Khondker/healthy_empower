@@ -1,5 +1,6 @@
 const db = require('../models');
 const { post, get } = require('../utils/universalDML');
+const { updateWorkoutStreak } = require('../utils/streakService');
 
 class WorkoutLogController {
     logWorkout = async (req, res) => {
@@ -218,14 +219,23 @@ class WorkoutLogController {
                 }
             }
 
-            // Award currency to the user
-            const reward = workoutPlan.reward || 10;
-            user.currency = user.currency + reward;
+            // Update streak and calculate bonuses
+            const streakInfo = await updateWorkoutStreak(user);
+            
+            // Award currency to the user (base reward + streak bonus)
+            const baseReward = workoutPlan.reward || 10;
+            const totalReward = baseReward + streakInfo.streakBonus;
+            user.currency = user.currency + totalReward;
             await user.save();
 
             res.status(200).json({
                 message: 'Workout plan completed successfully',
-                reward_earned: reward,
+                reward_earned: baseReward,
+                streak_bonus: streakInfo.streakBonus,
+                total_reward: totalReward,
+                current_streak: streakInfo.currentStreak,
+                longest_streak: streakInfo.longestStreak,
+                is_new_record: streakInfo.isNewRecord,
                 new_balance: user.currency,
                 workout_plan: workoutPlan.name
             });

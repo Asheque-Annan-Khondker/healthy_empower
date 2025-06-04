@@ -208,6 +208,33 @@ class UserController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  getUserStreak = async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const user = await db.User.findByPk(userId, {
+        attributes: ['user_id', 'username', 'current_streak', 'longest_streak', 'last_workout_date']
+      });
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const { getStreakMilestone } = require('../utils/streakService');
+      const milestone = getStreakMilestone(user.current_streak);
+
+      res.status(200).json({
+        id: user.user_id,
+        username: user.username,
+        current_streak: user.current_streak,
+        longest_streak: user.longest_streak,
+        last_workout_date: user.last_workout_date,
+        milestone: milestone
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 

@@ -104,7 +104,7 @@ return (
           />
         </View>
 
-        <CurrencyStreakIndicator streakDays={5} refreshKey={currencyRefreshKey} />
+        <CurrencyStreakIndicator refreshKey={currencyRefreshKey} />
   
         {/* Date header with navigation */}
         <View style={styles.dateHeaderContainer}>

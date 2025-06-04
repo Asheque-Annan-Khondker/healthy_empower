@@ -26,11 +26,17 @@ export default function GuideContent() {
         visible: boolean;
         workoutName: string;
         rewardEarned: number;
+        streakBonus: number;
+        currentStreak: number;
+        isNewRecord: boolean;
         newBalance: number;
     }>({
         visible: false,
         workoutName: '',
         rewardEarned: 0,
+        streakBonus: 0,
+        currentStreak: 0,
+        isNewRecord: false,
         newBalance: 0
     });
     const flatListRef = useRef<FlatList>(null);
@@ -133,6 +139,9 @@ export default function GuideContent() {
                 visible: true,
                 workoutName: result.workout_plan,
                 rewardEarned: result.reward_earned,
+                streakBonus: result.streak_bonus,
+                currentStreak: result.current_streak,
+                isNewRecord: result.is_new_record,
                 newBalance: result.new_balance
             });
         } catch (error) {
@@ -151,6 +160,9 @@ export default function GuideContent() {
             visible: false,
             workoutName: '',
             rewardEarned: 0,
+            streakBonus: 0,
+            currentStreak: 0,
+            isNewRecord: false,
             newBalance: 0
         });
         router.push('/(drawer)/(guide)/guideSelection');
@@ -351,6 +363,9 @@ export default function GuideContent() {
                 onClose={closeCompletionModal}
                 workoutName={completionModal.workoutName}
                 rewardEarned={completionModal.rewardEarned}
+                streakBonus={completionModal.streakBonus}
+                currentStreak={completionModal.currentStreak}
+                isNewRecord={completionModal.isNewRecord}
                 newBalance={completionModal.newBalance}
             />
         </SafeAreaView>

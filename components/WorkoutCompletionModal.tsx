@@ -8,6 +8,9 @@ interface WorkoutCompletionModalProps {
   onClose: () => void;
   workoutName: string;
   rewardEarned: number;
+  streakBonus?: number;
+  currentStreak?: number;
+  isNewRecord?: boolean;
   newBalance: number;
 }
 
@@ -16,6 +19,9 @@ export const WorkoutCompletionModal: React.FC<WorkoutCompletionModalProps> = ({
   onClose,
   workoutName,
   rewardEarned,
+  streakBonus = 0,
+  currentStreak = 0,
+  isNewRecord = false,
   newBalance
 }) => {
   const scaleAnim = React.useRef(new Animated.Value(0)).current;
@@ -63,12 +69,29 @@ export const WorkoutCompletionModal: React.FC<WorkoutCompletionModalProps> = ({
             <Text style={styles.workoutText}>You completed</Text>
             <Text style={styles.workoutName}>{workoutName}</Text>
             
+            {/* Streak Display */}
+            {currentStreak > 0 && (
+              <View style={styles.streakContainer}>
+                <Text style={styles.streakText}>
+                  🔥 {currentStreak} Day Streak!
+                </Text>
+                {isNewRecord && (
+                  <Text style={styles.newRecordText}>🎉 New Record!</Text>
+                )}
+              </View>
+            )}
+            
             <View style={styles.rewardContainer}>
               <Text style={styles.rewardText}>You earned</Text>
               <View style={styles.currencyContainer}>
                 <Text style={styles.rewardAmount}>+{rewardEarned}</Text>
                 <Text style={styles.chestnutIcon}>🌰</Text>
               </View>
+              {streakBonus > 0 && (
+                <View style={styles.bonusContainer}>
+                  <Text style={styles.bonusText}>Streak Bonus: +{streakBonus} 🌰</Text>
+                </View>
+              )}
             </View>
             
             <View style={styles.balanceContainer}>
@@ -123,7 +146,22 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     color: 'white',
-    marginBottom: 30,
+    marginBottom: 20,
+  },
+  streakContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  streakText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 5,
+  },
+  newRecordText: {
+    fontSize: 14,
+    color: '#FFE55C',
+    fontWeight: '600',
   },
   rewardContainer: {
     alignItems: 'center',
@@ -150,6 +188,18 @@ const styles = StyleSheet.create({
   },
   chestnutIcon: {
     fontSize: 28,
+  },
+  bonusContainer: {
+    marginTop: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    borderRadius: 15,
+  },
+  bonusText: {
+    fontSize: 14,
+    color: 'white',
+    fontWeight: '600',
   },
   balanceContainer: {
     backgroundColor: 'rgba(0, 0, 0, 0.2)',
