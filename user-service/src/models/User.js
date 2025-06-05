@@ -65,6 +65,18 @@ module.exports = (sequelizeInstance) => {
     last_workout_date: {
       type: DataTypes.DATEONLY,
       allowNull: true
+    },
+    double_acorn_equipped: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      comment: '0 for not equipped, 1 for equipped'
+    },
+    costume_selected: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'Regular',
+      comment: 'Name of the currently equipped costume'
     }
   }, {
     tableName: 'users',

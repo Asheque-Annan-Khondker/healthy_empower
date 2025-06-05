@@ -13,6 +13,9 @@ module.exports = (userController) => {
   router.patch('/:id/currency', userController.updateUserCurrency);
   router.get('/:id/currency', userController.getUserCurrency);
   router.get('/:id/streak', userController.getUserStreak);
+  router.get('/:id/costume', userController.getUserCostume);
+  router.patch('/:id/costume', userController.updateUserCostume);
+  router.post('/:id/costume/purchase', userController.purchaseCostume);
 
   return router;
 };

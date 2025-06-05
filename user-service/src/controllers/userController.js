@@ -302,6 +302,89 @@ class UserController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  getUserCostume = async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const user = await db.User.findByPk(userId, {
+        attributes: ['user_id', 'username', 'costume_selected']
+      });
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      res.status(200).json({
+        user_id: user.user_id,
+        username: user.username,
+        costume_selected: user.costume_selected || 'Regular'
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  updateUserCostume = async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const { costume_selected } = req.body;
+
+      if (!costume_selected) {
+        return res.status(400).json({ error: 'Costume name is required' });
+      }
+
+      const user = await db.User.findByPk(userId);
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      user.costume_selected = costume_selected;
+      await user.save();
+
+      res.status(200).json({ 
+        message: 'Costume updated successfully',
+        costume_selected: user.costume_selected 
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  purchaseCostume = async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const { costume_name, price } = req.body;
+
+      if (!costume_name || !price) {
+        return res.status(400).json({ error: 'Costume name and price are required' });
+      }
+
+      const user = await db.User.findByPk(userId);
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Check if user has enough currency
+      if (user.currency < price) {
+        return res.status(400).json({ error: 'Insufficient currency' });
+      }
+
+      // Deduct currency and equip costume
+      user.currency = user.currency - price;
+      user.costume_selected = costume_name;
+      await user.save();
+
+      res.status(200).json({ 
+        message: 'Costume purchased and equipped successfully',
+        costume_selected: user.costume_selected,
+        remaining_currency: user.currency
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 

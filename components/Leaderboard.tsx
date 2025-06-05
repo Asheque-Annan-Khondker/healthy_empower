@@ -4,6 +4,7 @@ import { Surface } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLeaderboard, LeaderboardEntry, LeaderboardType } from '@/utils/leaderboardService';
+import { ProfileAvatar } from './ProfileAvatar';
 
 const Leaderboard: React.FC = () => {
   const [leaderboardData, setLeaderboardData] = React.useState<LeaderboardEntry[]>([]);
@@ -56,9 +57,11 @@ const Leaderboard: React.FC = () => {
       <View style={styles.podiumColumn} key={user.id}>
         {/* User Info */}
         <View style={styles.podiumUserInfo}>
-          <Image 
-            source={require('../assets/images/squirrel_flex.png')} 
-            style={[styles.podiumAvatar, position === 0 && styles.winnerAvatar]}
+          <ProfileAvatar 
+            userId={user.id}
+            size={position === 0 ? "large" : "medium"}
+            borderColor={position === 0 ? "#FFD700" : "#D68D54"}
+            borderWidth={position === 0 ? 3 : 2}
           />
           <Text style={[styles.podiumUsername, position === 0 && styles.winnerUsername]}>
             {user.username}
@@ -112,13 +115,14 @@ const Leaderboard: React.FC = () => {
             )}
           </View>
           
-          <Image 
-            source={require('../assets/images/squirrel_flex.png')} 
-            style={[
-              styles.avatar, 
-              isCurrentUser && styles.currentUserAvatar,
-              isTopThree && styles.topThreeAvatar
-            ]}
+          <ProfileAvatar 
+            userId={item.id}
+            size="medium"
+            borderColor={
+              isCurrentUser ? "#4CAF50" : 
+              isTopThree ? "#D68D54" : "#E8E8E8"
+            }
+            borderWidth={isCurrentUser ? 3 : isTopThree ? 2 : 2}
           />
           
           <View style={styles.userInfo}>
@@ -344,21 +348,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
-  podiumAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: '#D68D54',
-    marginBottom: 5,
-  },
-  winnerAvatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    borderWidth: 3,
-    borderColor: '#FFD700',
-  },
   crown: {
     fontSize: 16,
     marginTop: -5,
@@ -514,27 +503,6 @@ const styles = StyleSheet.create({
   rankEmoji: {
     fontSize: 12,
     marginTop: 2,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginLeft: 10,
-    borderWidth: 2,
-    borderColor: '#E8E8E8',
-  },
-  topThreeAvatar: {
-    borderColor: '#D68D54',
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-  },
-  currentUserAvatar: {
-    borderColor: '#4CAF50',
-    borderWidth: 3,
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
   },
   userInfo: {
     flex: 1,

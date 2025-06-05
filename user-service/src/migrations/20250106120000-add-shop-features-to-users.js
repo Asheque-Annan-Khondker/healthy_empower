@@ -14,7 +14,7 @@ module.exports = {
     await queryInterface.addColumn('users', 'costume_selected', {
       type: Sequelize.STRING,
       allowNull: false,
-      defaultValue: 'Regular Squirrel',
+      defaultValue: 'Regular',
       comment: 'Name of the currently equipped costume'
     });
   },

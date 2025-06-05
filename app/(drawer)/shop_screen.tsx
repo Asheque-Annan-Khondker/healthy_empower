@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, 
-        Button, Alert, Dimensions } from 'react-native';
+        Button, Alert, Dimensions, Image } from 'react-native';
 import { PaperProvider as Provider, Dialog, Portal} from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,6 +8,14 @@ import TestSquare from '@/components/anime_square';
 import Modal from 'react-native-modal';
 import CurrencyStreakIndicator from '@/components/CurrencyStreakIndicator';
 import { getUserCurrency, subtractCurrency } from '@/utils/currencyService';
+import { getCostumeImage, purchaseCostume, updateUserCostume } from '@/utils/costumeService';
+import { 
+  regular_squirrel, 
+  fitness_squirrel, 
+  tennis_squirrel, 
+  construction_squirrel, 
+  doctor_squirrel 
+} from '@/assets/images';
 
 const { height, width } = Dimensions.get('window');
 
@@ -74,47 +82,42 @@ export default function ShopScreen() {
       items: [
         {
           id: 3,
-          name: 'Regular Squirrel',
+          name: 'Regular',
           price: 100,
           description: 'The classic look! Simple, natural, and always in style. Perfect for squirrels who love the basics.',
-          iconName: 'leaf',
           isCostume: true,
           rarity: 'common',
           isEquipped: true
         },
         {
           id: 4,
-          name: 'Fitness Squirrel',
+          name: 'Fitness',
           price: 350,
           description: 'Get pumped with this athletic outfit! Complete with workout gear and motivational energy.',
-          iconName: 'fitness',
           isCostume: true,
           rarity: 'common'
         },
         {
           id: 5,
-          name: 'Tennis Squirrel',
+          name: 'Tennis',
           price: 1200,
           description: 'Serve up some style! This ultra-rare tennis outfit includes a racket, visor, and championship attitude. Court royalty!',
-          iconName: 'tennisball',
           isCostume: true,
           rarity: 'legendary'
         },
         {
           id: 6,
-          name: 'Construction Squirrel',
+          name: 'Construction',
           price: 600,
           description: 'Build your way to fitness! This hardworking outfit features a hard hat, tool belt, and construction expertise.',
-          iconName: 'construct',
           isCostume: true,
           rarity: 'epic'
         },
         {
           id: 7,
-          name: 'Doctor Squirrel',
+          name: 'Doctor',
           price: 800,
           description: 'Prescribe yourself some health! This professional medical outfit includes stethoscope and healing wisdom.',
-          iconName: 'medical',
           isCostume: true,
           rarity: 'rare'
         }
@@ -136,19 +139,25 @@ export default function ShopScreen() {
       return;
     } else {
       try {
-        // Update currency on backend
-        const newBalance = await subtractCurrency(item.price);
-        setBalance(newBalance);
+        if (item.isCostume) {
+          // Purchase and equip costume
+          await purchaseCostume(item.name, item.price);
+          Alert.alert("Costume Equipped!", `You are now wearing the ${item.name} costume!`);
+        } else {
+          // Update currency on backend for powerups
+          const newBalance = await subtractCurrency(item.price);
+          setBalance(newBalance);
+          
+          // Update item counts
+          if (item.name === "Streak Freeze") {
+            setStreakFreezeCount(prev => prev + 1);
+          } else if (item.name === "Double Acorn Buff") {
+            setDoubleAcornCount(prev => prev + 1);
+          }
+        }
         
         // Trigger currency refresh in the indicator
         setCurrencyRefreshKey(prev => prev + 1);
-        
-        // Update item counts
-        if (item.name === "Streak Freeze") {
-          setStreakFreezeCount(prev => prev + 1);
-        } else if (item.name === "Double Acorn Buff") {
-          setDoubleAcornCount(prev => prev + 1);
-        }
       } catch (error) {
         console.error('Failed to purchase item:', error);
         Alert.alert("Purchase failed. Please try again.");
@@ -281,8 +290,12 @@ export default function ShopScreen() {
           
           <View style={styles.costumeHeader}>
             <View style={styles.costumeIconContainer}>
-              <View style={[styles.costumeIcon, { backgroundColor: rarity.bg }]}>
-                <Ionicons name={item.iconName} size={40} color={rarity.text} />
+              <View style={[styles.costumeImageContainer, { borderColor: rarity.border }]}>
+                <Image 
+                  source={getCostumeImage(item.name)}
+                  style={styles.costumeImage}
+                  resizeMode="contain"
+                />
                 {item.isEquipped && (
                   <View style={styles.equippedIcon}>
                     <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
@@ -914,14 +927,24 @@ const styles = StyleSheet.create({
     marginRight: 16,
     position: 'relative',
   },
-  costumeIcon: {
+  costumeImageContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    backgroundColor: '#FFFFFF',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  costumeImage: {
     width: 70,
     height: 70,
     borderRadius: 35,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(0,0,0,0.1)',
   },
   rarityBadge: {
     position: 'absolute',
