@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Dimensions, Text, View, ScrollView, TouchableOpacity, Modal, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, Dimensions, Text, View, ScrollView, TouchableOpacity, Modal, Image, AppState } from 'react-native';
 import { Searchbar } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { DrawerActions } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from 'expo-router';
 
 import DropdownMenu from '@/components/DropdownMenu';
 import SearchBarComponent from '@/components/SearchBarComponent';
@@ -12,6 +10,7 @@ import SlidingToggleButton from '@/components/SlidingToggleButton';
 import CheckButton from '@/components/CheckButton';
 import {ProgressBar} from '@/components/ProgressBar';
 import CalendarPicker from '@/components/CalendarPicker';
+import { FoodDBModal, MealLogDBModal } from '@/utils/dbFunctions';
 
 // Components
 
@@ -21,23 +20,32 @@ import DailyFoodLog from '@/components/DailyFoodLog';
 import FoodEntryForm from '@/components/FoodEntryForm';
 import CurrencyStreakIndicator from '@/components/CurrencyStreakIndicator';
 import { FAIcon } from '@/utils/getIcon';
+import UnifiedFAB from '@/components/UnifiedFAB';
 
 // Assets
-import bannerImg from '@/assets/images/yoga.png';
-import yogaStudio from '@/assets/images/yogastudio.png';
-import walkingTrack from '@/assets/images/walkingtrack.png';
-import gymSession from '@/assets/images/gym.png';
+const bannerImg = require('../../../assets/images/yoga.png');
+const yogaStudio = require('../../../assets/images/yogastudio.png');
+const walkingTrack = require('../../../assets/images/walkingtrack.png');
+const gymSession = require('../../../assets/images/gym.png');
 
 const { height, width } = Dimensions.get('window');
 
 export default function Index() {
 const [searchQuery, setSearchQuery] = useState('');
 const [currentDate, setCurrentDate] = useState(new Date());
-const [isFoodModalVisible, setIsFoodModalVisible] = useState(false);
+const [refreshTrigger, setRefreshTrigger] = useState(0); // Add refresh trigger state
+const [currencyRefreshKey, setCurrencyRefreshKey] = useState(0); // Add currency refresh trigger
 const navigation = useNavigation();
 
+// Refresh currency when screen comes into focus
+useFocusEffect(
+  React.useCallback(() => {
+    setCurrencyRefreshKey(prev => prev + 1);
+  }, [])
+);
+
 // Format the date as DD/MM/YYYY
-const formatDate = (date) => {
+const formatDate = (date: Date) => {
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const year = date.getFullYear();
@@ -58,34 +66,13 @@ const goToNextDay = () => {
   setCurrentDate(newDate);
 };
 
-// Handle Add Food button press
-const handleAddFood = () => {
-  setIsFoodModalVisible(true);
-};
-
-// Handle close food modal
-const handleCloseFood = () => {
-  setIsFoodModalVisible(false);
+// Function to trigger refresh of food log
+const triggerFoodLogRefresh = () => {
+  setRefreshTrigger(prev => prev + 1);
 };
 
 return (
-  <SafeAreaView style={styles.safeArea}>
-    <View style={styles.mainContainer}>
-
-      {/***********    HEADER    *********
-       * copied header code from other main screens */}
-      <View style={styles.header}>
-        <View style={styles.headerContentContainer}>
-          <TouchableOpacity 
-            style={styles.menuButton}
-            onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
-          >
-            <Ionicons name="menu" size={28} color="#FFFFFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Home</Text>
-        </View>
-      </View>
-
+    <SafeAreaView style={styles.safeArea}>
       {/* Scrollable content area */}
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
@@ -111,13 +98,13 @@ return (
             <Text style={styles.welcomeSubtitle}>Let's continue your fitness journey</Text>
           </View>
           <Image 
-            source={require('@/assets/images/squirrel_flex.png')} 
+            source={require('../../../assets/images/squirrel_flex.png')} 
             style={styles.logoImage}
             resizeMode="contain"
           />
         </View>
 
-        <CurrencyStreakIndicator chestnuts={250} streakDays={5} />
+        <CurrencyStreakIndicator refreshKey={currencyRefreshKey} />
   
         {/* Date header with navigation */}
         <View style={styles.dateHeaderContainer}>
@@ -143,7 +130,8 @@ return (
         {/* Daily Food Log Section */}
         <DailyFoodLog 
           date={currentDate}
-          onAddPress={handleAddFood}
+          refreshTrigger={refreshTrigger}
+          onFoodAdded={triggerFoodLogRefresh}
         />
 
         {/* Cards section */}
@@ -192,47 +180,26 @@ return (
       {/* Modal Fitness Form */}
       <ModalFitnessForm />
 
-      {/* Food Entry Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isFoodModalVisible}
-        onRequestClose={handleCloseFood}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Add Food Entry</Text>
-              <TouchableOpacity onPress={handleCloseFood}>
-                <FAIcon name="times" size={24} color="#3A2A1F" />
-              </TouchableOpacity>
-            </View>
-            
-            <FoodEntryForm 
-              onSave={(foodEntry) => {
-                console.log('Food entry saved:', foodEntry);
-                // Here you would typically save the food entry to your database
-                // For now, we'll just close the modal
-                handleCloseFood();
-              }}
-              onCancel={handleCloseFood}
-            />
-          </View>
-        </View>
-      </Modal>
-    </View>
-  </SafeAreaView>
-);
+      {/* Unified FAB System */}
+      <UnifiedFAB 
+        screenType="home"
+        onFoodAdded={() => {
+          console.log('Food added from home screen');
+          triggerFoodLogRefresh(); // Trigger refresh when food is added via FAB
+        }}
+        onMealAdded={() => {
+          console.log('Meal added from home screen');
+          triggerFoodLogRefresh(); // Trigger refresh when meal is added via FAB
+        }}
+      />
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
 safeArea: {
   flex: 1,
   backgroundColor: '#FAF7F4',
-},
-mainContainer: {
-  flex: 1,
-  position: 'relative', // For positioning the fixed START button
 },
 scrollContent: {
   paddingHorizontal: 16,
@@ -536,29 +503,4 @@ saveButtonText: {
   fontSize: 16,
   fontWeight: 'bold',
 },
-header: {
-  backgroundColor: '#D68D54',
-  paddingTop: 70,
-  paddingBottom: 15,
-  paddingHorizontal: 16,
-  top: height-930 // hardcoded this cos i couldnt figue univeral method
-},
-headerContentContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-},
-menuButton: {
-  width: 44,
-  height: 44,
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-headerTitle: {
-  fontSize: 28, // Larger font size
-  fontWeight: 'bold',
-  color: '#FFFFFF', // White text
-  flex: 1,
-  marginLeft: 8,
-}
 });

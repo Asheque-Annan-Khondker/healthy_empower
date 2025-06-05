@@ -1,41 +1,52 @@
 import { FoodMacros } from '@/utils/table.types';
 import React from 'react';
+import { LineChart } from 'react-native-gifted-charts';
+import { View, Text } from 'react-native';
 
-
-interface DPoint {
-  x: number;
-  [key: string]: number;
+interface DataPoint {
+  value: number;
+  label?: string;
 }
 
 interface CustomChartProps {
-  data: DPoint[];
-  xKey: string;
-  yKey: string[];
+  data: DataPoint[];
+  type?: 'line' | 'bar';
+  width?: number;
+  height?: number;
 }
-// input: {{key: [], key2: []}, range x, range y 
-export default function CustomChart({data, xKey, yKey}: CustomChartProps){
-    return (
-        <CartesianChart
-            data={data}
-            xKey={xKey}
-            yKeys={yKey}
-        >
-        {({points, yKey}) => (
-          <>
-            {yKey.map((key, index) => (
-              <Line
-                key={index}
-                points={points[key]}
-                strokeWidth={3}
-               
-              />
-            ))}
-          </>
-        )}
-        
 
-    </CartesianChart>
-    )
+export default function CustomChart({ 
+  data, 
+  type = 'line', 
+  width = 300, 
+  height = 200 
+}: CustomChartProps) {
+  // Handle empty data
+  if (!data || data.length === 0) {
+    return (
+      <View style={{ padding: 20, alignItems: 'center' }}>
+        <Text>No data available</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ padding: 10 }}>
+      <LineChart
+        data={data}
+        width={width}
+        height={height}
+        curved
+        thickness={3}
+        color="#5acdff"
+        hideDataPoints={false}
+        spacing={50}
+        backgroundColor="#FFFFFF"
+        rulesColor="#E0E0E0"
+        rulesThickness={1}
+      />
+    </View>
+  );
 }
 
 

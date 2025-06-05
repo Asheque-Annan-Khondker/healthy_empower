@@ -5,11 +5,20 @@ import { router, useNavigation } from "expo-router";
 import { View, Image, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { logout, getCurrentUser } from "@/components/utils/authUtils";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { logout } from "@/components/utils/authUtils";
+import { getCurrentUser } from "@/utils/authState";
 import React, { useState, useEffect } from 'react';
 
 // Custom drawer item component
-const DrawerItem = ({ icon, label, onPress, active = false }) => (
+interface DrawerItemProps {
+  icon: React.ReactNode;
+  label: string;
+  onPress: () => void;
+  active?: boolean;
+}
+
+const DrawerItem = ({ icon, label, onPress, active = false }: DrawerItemProps) => (
   <TouchableOpacity 
     style={[styles.drawerItem, active && styles.drawerItemActive]} 
     onPress={onPress}
@@ -22,13 +31,14 @@ const DrawerItem = ({ icon, label, onPress, active = false }) => (
 );
 
 // Custom drawer content component
-const CustomDrawerContent = (props) => {
-  const [userData, setUserData] = useState(null);
+const CustomDrawerContent = (props: any) => {
+  const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeItem, setActiveItem] = useState('/');
+  const insets = useSafeAreaInsets();
 
   // Helper for getting icon color based on active state
-  const getIconColor = (route) => activeItem === route ? '#D68D54' : '#3A2A1F';
+  const getIconColor = (route: string) => activeItem === route ? '#D68D54' : '#3A2A1F';
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -46,20 +56,20 @@ const CustomDrawerContent = (props) => {
     loadUserData();
   }, []);
 
-  const handleNavigation = (route) => {
+  const handleNavigation = (route: string) => {
     setActiveItem(route);
-    router.navigate(route);
+    (router as any).navigate(route);
     props.navigation.closeDrawer();
   };
 
   return (
     <View style={styles.container}>
-      {/* Header with profile section */}
+      {/* Extended gradient header that includes safe area */}
       <LinearGradient
         colors={['#D68D54', '#B25B28']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.header}
+        style={[styles.headerWithSafeArea, { paddingTop: insets.top + 20 }]}
       >
         <View style={styles.avatarContainer}>
           <Image
@@ -96,12 +106,7 @@ const CustomDrawerContent = (props) => {
           onPress={() => handleNavigation('/(drawer)/settings')}
           active={activeItem === '/(drawer)/settings'}
         />
-        <DrawerItem
-          icon={<Ionicons name="bug-outline" size={22} color={getIconColor('/(drawer)/debugScreen')} />}
-          label="Debug"
-          onPress={() => handleNavigation('/(drawer)/debugScreen')}
-          active={activeItem === '/(drawer)/debugScreen'}
-        />
+        
 
         {/************************** Start-Up Guides section ***********************************************************/}
         <View style={styles.sectionContainer}>
@@ -141,12 +146,12 @@ const CustomDrawerContent = (props) => {
           active={activeItem === '/(drawer)/(guide)/guideSelection'}
         />
 
-        {/* 
+        {        /* 
         <DrawerItem
-          icon={<Ionicons name="list-outline" size={22} color={getIconColor('/(drawer)/ProfileSettings')} />}
+          icon={<Ionicons name="list-outline" size={22} color={getIconColor('/(drawer)/profileSettings')} />}
           label="Profile Settings Screen"
-          onPress={() => handleNavigation('/(drawer)/ProfileSettings')}
-          active={activeItem === '/(drawer)/ProfileSettings'}
+          onPress={() => handleNavigation('/(drawer)/profileSettings')}
+          active={activeItem === '/(drawer)/profileSettings'}
         />
         */}
       
@@ -154,7 +159,7 @@ const CustomDrawerContent = (props) => {
 
       {/* Logout button */}
       <TouchableOpacity 
-        style={styles.logoutButton}
+        style={[styles.logoutButton, { marginBottom: Math.max(insets.bottom, 20) }]}
         onPress={() => logout()}
       >
         <Ionicons name="log-out-outline" size={22} color="#FFFFFF" />
@@ -165,7 +170,13 @@ const CustomDrawerContent = (props) => {
 };
 
 // Custom header component with gradient
-const CustomHeader = ({ title, navigation, route }) => {
+interface CustomHeaderProps {
+  title: string;
+  navigation: any;
+  route: any;
+}
+
+const CustomHeader = ({ title, navigation, route }: CustomHeaderProps) => {
   // Check if we're on the home screen
   const isHomeScreen = route?.name === "(tabs)";
   
@@ -234,7 +245,7 @@ export default function DrawerLayout() {
         name="(tabs)" 
         options={{ 
           title: 'Home',
-          //headerShown: false, // Explicitly hide header for home screen
+          headerShown: false, // Hide header for tab screens - they handle their own headers
         }}
       />
       <Drawer.Screen 
@@ -249,12 +260,7 @@ export default function DrawerLayout() {
           title: "Settings",
         }} 
       />
-      <Drawer.Screen 
-        name="debugScreen" 
-        options={{ 
-          title: "Debug",
-        }} 
-      />
+
       <Drawer.Screen 
         name="(guide)/BeginnerGuide" 
         options={{ 
@@ -280,7 +286,7 @@ export default function DrawerLayout() {
         }} 
       />
       <Drawer.Screen 
-        name="ProfileSettings" 
+        name="profileSettings" 
         options={{ 
           title: 'Profile Settings',
           headerShown: false,
@@ -327,7 +333,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAF7F4',
   },
   header: {
-    paddingTop: 50,
+    paddingTop: 20,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  headerWithSafeArea: {
     paddingBottom: 20,
     paddingHorizontal: 20,
     alignItems: 'center',

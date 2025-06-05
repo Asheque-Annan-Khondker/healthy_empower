@@ -4,6 +4,8 @@
     "jsx": "react",
     "strict": true,
     "strictNullChecks": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "paths": {
       "@/*": [
         "*"

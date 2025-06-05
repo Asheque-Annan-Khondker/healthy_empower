@@ -1,184 +1,245 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import * as React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, FlatList } from 'react-native';
 import { Surface } from 'react-native-paper';
-import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getLeaderboard, LeaderboardEntry, LeaderboardType } from '@/utils/leaderboardService';
 
-// Mock data with more normal names
-const mockData = [
-  { id: '1', username: 'Ashe', streakDays: 142, acorns: 10200, avatar: require('../assets/images/squirrel_flex.png') },
-  { id: '2', username: 'Safal', streakDays: 138, acorns: 9800, avatar: require('../assets/images/squirrel_flex.png') },
-  { id: '3', username: 'Jon', streakDays: 135, acorns: 8600, avatar: require('../assets/images/squirrel_flex.png') },
-  { id: '4', username: 'Khang', streakDays: 130, acorns: 8100, avatar: require('../assets/images/squirrel_flex.png') },
-  { id: '5', username: 'Syed', streakDays: 128, acorns: 7800, avatar: require('../assets/images/squirrel_flex.png') },
-  { id: '6', username: 'Emma', streakDays: 125, acorns: 7500, avatar: require('../assets/images/squirrel_flex.png') },
-  { id: '7', username: 'Liam', streakDays: 120, acorns: 7200, avatar: require('../assets/images/squirrel_flex.png') },
-  { id: '8', username: 'Olivia', streakDays: 115, acorns: 6900, avatar: require('../assets/images/squirrel_flex.png') },
-  { id: '9', username: 'Noah', streakDays: 110, acorns: 6500, avatar: require('../assets/images/squirrel_flex.png') },
-  { id: '10', username: 'Sophia', streakDays: 105, acorns: 6100, avatar: require('../assets/images/squirrel_flex.png') },
-];
+const Leaderboard: React.FC = () => {
+  const [leaderboardData, setLeaderboardData] = React.useState<LeaderboardEntry[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState<LeaderboardType>('currency');
+  const [currentUserId, setCurrentUserId] = React.useState<number | null>(null);
 
-// Current user
-const currentUser = {
-  id: '5',
-  username: 'Syed',
-  streakDays: 128,
-  acorns: 7800,
-  avatar: require('../assets/images/squirrel_flex.png')
-};
+  React.useEffect(() => {
+    getCurrentUser();
+    fetchLeaderboard();
+  }, [activeTab]);
 
-const Leaderboard = () => {
-  const [activeTab, setActiveTab] = useState('acorns'); // Default to acorns tab to match the mockup
-  
-  // Sort data based on active tab
-  const sortedData = [...mockData].sort((a, b) => {
-    if (activeTab === 'streaks') {
-      return b.streakDays - a.streakDays;
-    } else {
-      return b.acorns - a.acorns;
+  const getCurrentUser = async () => {
+    try {
+      const userDataString = await AsyncStorage.getItem('userData');
+      if (userDataString) {
+        const userData = JSON.parse(userDataString);
+        setCurrentUserId(userData.id);
+      }
+    } catch (error) {
+      console.error('Error getting current user:', error);
     }
-  });
-  
-  // Top 3 users for podium
-  const topThree = sortedData.slice(0, 3);
-  
-  // Remaining users for the list (starting from 4th position)
-  const remainingUsers = sortedData.slice(3);
-  
-  // Render regular list item
-  const renderItem = ({ item, index }) => {
-    const rank = index + 4; // +4 because we're starting from 4th position
-    const isCurrentUser = item.id === currentUser.id;
+  };
+
+  const fetchLeaderboard = async () => {
+    try {
+      setLoading(true);
+      setError(false);
+      const data = await getLeaderboard(activeTab, 20, true);
+      setLeaderboardData(data || []);
+    } catch (err) {
+      console.error('Failed to fetch leaderboard:', err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderPodiumItem = (user: LeaderboardEntry, position: number) => {
+    const podiumColors = {
+      0: '#FFD700', // Gold for 1st
+      1: '#C0C0C0', // Silver for 2nd  
+      2: '#CD7F32', // Bronze for 3rd
+    };
+
+    const medals = ['🥇', '🥈', '🥉'];
+
+    return (
+      <View style={styles.podiumColumn} key={user.id}>
+        {/* User Info */}
+        <View style={styles.podiumUserInfo}>
+          <Image 
+            source={require('../assets/images/squirrel_flex.png')} 
+            style={[styles.podiumAvatar, position === 0 && styles.winnerAvatar]}
+          />
+          <Text style={[styles.podiumUsername, position === 0 && styles.winnerUsername]}>
+            {user.username}
+          </Text>
+          <Text style={[styles.podiumScore, position === 0 && styles.winnerScore]}>
+            {activeTab === 'currency' ? `${user.currency.toLocaleString()} 🌰` : `${user.current_streak} 🔥`}
+          </Text>
+        </View>
+        
+        {/* Podium Block */}
+        <View style={[
+          styles.podiumBlock,
+          { backgroundColor: podiumColors[position] },
+          position === 0 && styles.firstPlace,
+          position === 1 && styles.secondPlace,
+          position === 2 && styles.thirdPlace,
+        ]}>
+          <Text style={styles.podiumNumber}>{user.rank}</Text>
+          <Text style={styles.podiumMedal}>{medals[position]}</Text>
+        </View>
+      </View>
+    );
+  };
+
+  const renderListItem = ({ item }: { item: LeaderboardEntry }) => {
+    const isCurrentUser = item.id === currentUserId;
+    const isTopThree = item.rank <= 3;
     
     return (
-      <Surface style={[styles.itemCard, isCurrentUser && styles.currentUserCard]}>
-        <View style={styles.cardContent}>
-          <View style={styles.rankBadge}>
-            <Text style={styles.rankText}>{rank}</Text>
-          </View>
-          <Image source={item.avatar} style={styles.avatarSmall} />
-          <Text style={styles.username}>{item.username}</Text>
-          <View style={styles.scoreContainer}>
-            <Text style={styles.scoreValue}>
-              {activeTab === 'streaks' ? item.streakDays : item.acorns}
+      <Surface 
+        style={[
+          styles.listItem, 
+          isCurrentUser && styles.currentUserItem,
+          isTopThree && styles.topThreeListItem
+        ]} 
+        elevation={isCurrentUser ? 4 : (isTopThree ? 2 : 1)}
+      >
+        <View style={styles.listItemContent}>
+          <View style={styles.rankContainer}>
+            <Text style={[
+              styles.rankText, 
+              isCurrentUser && styles.currentUserRankText,
+              isTopThree && styles.topThreeRankText
+            ]}>
+              {item.rank}
             </Text>
-            <Text style={styles.scoreUnit}>🌰</Text>
+            {isTopThree && (
+              <Text style={styles.rankEmoji}>
+                {item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : '🥉'}
+              </Text>
+            )}
+          </View>
+          
+          <Image 
+            source={require('../assets/images/squirrel_flex.png')} 
+            style={[
+              styles.avatar, 
+              isCurrentUser && styles.currentUserAvatar,
+              isTopThree && styles.topThreeAvatar
+            ]}
+          />
+          
+          <View style={styles.userInfo}>
+            <Text style={[
+              styles.usernameText, 
+              isCurrentUser && styles.currentUserUsername,
+              isTopThree && styles.topThreeUsername
+            ]}>
+              {item.username} {isCurrentUser && '(You)'}
+            </Text>
+            <Text style={styles.streakText}>
+              {activeTab === 'currency' ? `🔥 ${item.current_streak}` : `${item.currency.toLocaleString()} 🌰`}
+            </Text>
+          </View>
+          
+          <View style={styles.valueContainer}>
+            <Text style={[
+              styles.valueText, 
+              isCurrentUser && styles.currentUserValueText,
+              isTopThree && styles.topThreeValueText
+            ]}>
+              {activeTab === 'currency' ? item.currency.toLocaleString() : item.current_streak}
+            </Text>
+            <Text style={styles.valueIcon}>
+              {activeTab === 'currency' ? '🌰' : '🔥'}
+            </Text>
           </View>
         </View>
       </Surface>
     );
   };
-  
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#D68D54" />
+        <Text style={styles.loadingText}>Loading podium...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Failed to load leaderboard</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={fetchLeaderboard}>
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const topThree = leaderboardData.slice(0, 3);
+
   return (
     <View style={styles.container}>
-      {/* Tabs */}
-      <View style={styles.tabs}>
-        <TouchableOpacity 
-          style={[styles.tab, activeTab === 'streaks' && styles.activeTab]}
-          onPress={() => setActiveTab('streaks')}
-        >
-          <FontAwesome 
-            name="fire" 
-            size={18} 
-            color={activeTab === 'streaks' ? '#D68D54' : '#9B8579'} 
-          />
-          <Text style={[styles.tabText, activeTab === 'streaks' && styles.activeTabText]}>
-            Streaks
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.tab, activeTab === 'acorns' && styles.activeTab]}
-          onPress={() => setActiveTab('acorns')}
-        >
-          <Text style={{ fontSize: 18, marginRight: 6 }}>🌰</Text>
-          <Text style={[styles.tabText, activeTab === 'acorns' && styles.activeTabText]}>
-            Acorns
-          </Text>
-        </TouchableOpacity>
-      </View>
-      
-      {/* Podium section */}
-      <View style={styles.podiumSection}>
-        {/* Podium layout */}
-        <View style={styles.podiumLayout}>
-          {/* Users on podium */}
-          <View style={styles.usersRow}>
-            {/* Second place */}
-            <View style={styles.userPodiumItem}>
-              <View style={styles.userAvatarContainer}>
-                <Image source={topThree[1]?.avatar} style={styles.avatarMedium} />
-                <View style={styles.medalBadge}>
-                  <Text style={{ fontSize: 14 }}>🥈</Text>
-                </View>
-              </View>
-              <Text style={styles.podiumUsername}>{topThree[1]?.username}</Text>
-              <Text style={styles.podiumScore}>
-                {activeTab === 'streaks' ? topThree[1]?.streakDays : topThree[1]?.acorns}
-                <Text style={{ fontSize: 14 }}>🌰</Text>
-              </Text>
-            </View>
-            
-            {/* First place */}
-            <View style={styles.userPodiumItem}>
-              <View style={styles.crownContainer}>
-                <Text style={{ fontSize: 20 }}>👑</Text>
-              </View>
-              <View style={[styles.userAvatarContainer, styles.firstPlaceAvatar]}>
-                <Image source={topThree[0]?.avatar} style={styles.avatarLarge} />
-                <View style={[styles.medalBadge, styles.firstPlaceMedal]}>
-                  <Text style={{ fontSize: 14 }}>🏆</Text>
-                </View>
-              </View>
-              <Text style={[styles.podiumUsername, styles.firstPlaceUsername]}>{topThree[0]?.username}</Text>
-              <Text style={[styles.podiumScore, styles.firstPlaceScore]}>
-                {activeTab === 'streaks' ? topThree[0]?.streakDays : topThree[0]?.acorns}
-                <Text style={{ fontSize: 14 }}>🌰</Text>
-              </Text>
-            </View>
-            
-            {/* Third place */}
-            <View style={styles.userPodiumItem}>
-              <View style={styles.userAvatarContainer}>
-                <Image source={topThree[2]?.avatar} style={styles.avatarMedium} />
-                <View style={styles.medalBadge}>
-                  <Text style={{ fontSize: 14 }}>🥉</Text>
-                </View>
-              </View>
-              <Text style={styles.podiumUsername}>{topThree[2]?.username}</Text>
-              <Text style={styles.podiumScore}>
-                {activeTab === 'streaks' ? topThree[2]?.streakDays : topThree[2]?.acorns}
-                <Text style={{ fontSize: 14 }}>🌰</Text>
-              </Text>
-            </View>
-          </View>
-          
-          {/* Podium stands */}
-          <View style={styles.podiumStands}>
-            <View style={[styles.podiumStand, styles.secondPlaceStand]}>
-              <Text style={styles.podiumRank}>2</Text>
-            </View>
-            <View style={[styles.podiumStand, styles.firstPlaceStand]}>
-              <Text style={styles.podiumRank}>1</Text>
-            </View>
-            <View style={[styles.podiumStand, styles.thirdPlaceStand]}>
-              <Text style={styles.podiumRank}>3</Text>
-            </View>
-          </View>
+      {/* Header */}
+      <View style={styles.header}>
+        {/* Tab Selector */}
+        <View style={styles.tabContainer}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'currency' && styles.activeTab]}
+            onPress={() => setActiveTab('currency')}
+          >
+            <Text style={[styles.tabText, activeTab === 'currency' && styles.activeTabText]}>
+              💰 Acorns
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'streaks' && styles.activeTab]}
+            onPress={() => setActiveTab('streaks')}
+          >
+            <Text style={[styles.tabText, activeTab === 'streaks' && styles.activeTabText]}>
+              🔥 Streaks
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
-      
-      {/* Rankings list */}
-      <View style={styles.rankingsList}>
-        <Text style={styles.rankingsHeaderText}>Rankings</Text>
-        <FlatList
-          data={remainingUsers}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
+
+      {/* Podium Display */}
+      {topThree.length >= 3 && (
+        <View style={styles.podiumContainer}>
+          <View style={styles.podium}>
+            {/* 2nd Place (Left) */}
+            {renderPodiumItem(topThree[1], 1)}
+            {/* 1st Place (Center) */}
+            {renderPodiumItem(topThree[0], 0)}
+            {/* 3rd Place (Right) */}
+            {renderPodiumItem(topThree[2], 2)}
+          </View>
+        </View>
+      )}
+
+      {/* Divider */}
+      {topThree.length >= 3 && leaderboardData.length > 0 && (
+        <View style={styles.dividerContainer}>
+          <View style={styles.dividerLine} />
+          <View style={styles.dividerLine} />
+        </View>
+      )}
+
+      {/* Full Leaderboard */}
+      {leaderboardData.length > 0 && (
+        <View style={styles.leaderboardContainer}>
+          <FlatList
+            data={leaderboardData}
+            renderItem={renderListItem}
+            keyExtractor={(item) => item.id.toString()}
+            style={styles.list}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
+      )}
+
+      {topThree.length < 3 && (
+        <View style={styles.noDataContainer}>
+          <Text style={styles.noDataText}>Not enough champions yet!</Text>
+          <Text style={styles.noDataSubtext}>Keep working out to claim your spot! 💪</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -186,261 +247,340 @@ const Leaderboard = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f4f0',
+    backgroundColor: '#FAF7F4',
   },
-  tabs: {
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FAF7F4',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#9B8579',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FAF7F4',
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: '#D68D54',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  retryButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  header: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#3A2A1F',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  tabContainer: {
     flexDirection: 'row',
-    margin: 16,
-    backgroundColor: 'white',
-    borderRadius: 24,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    backgroundColor: 'rgba(214, 141, 84, 0.1)',
+    borderRadius: 25,
     padding: 4,
   },
   tab: {
     flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
     borderRadius: 20,
+    alignItems: 'center',
   },
   activeTab: {
-    backgroundColor: 'rgba(214, 141, 84, 0.1)',
+    backgroundColor: '#D68D54',
+    shadowColor: '#D68D54',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
   tabText: {
+    fontSize: 14,
     fontWeight: '600',
     color: '#9B8579',
-    marginLeft: 6,
-    fontSize: 15,
   },
   activeTabText: {
-    color: '#D68D54',
+    color: 'white',
   },
-  podiumSection: {
-    margin: 16,
-    backgroundColor: '#f2e7de',
-    borderRadius: 12,
-    padding: 16,
-    paddingTop: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+  podiumContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 10,
+    marginTop: -10,
   },
-  podiumLayout: {
+  podium: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    height: 180,
+    width: '85%',
+    marginHorizontal: 20,
+  },
+  podiumColumn: {
+    flex: 1,
     alignItems: 'center',
   },
-  usersRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-    width: '100%',
+  podiumUserInfo: {
+    alignItems: 'center',
     marginBottom: 10,
   },
-  userPodiumItem: {
-    alignItems: 'center',
-    marginHorizontal: 10,
-    position: 'relative',
-  },
-  userAvatarContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    marginBottom: 8,
-  },
-  firstPlaceAvatar: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+  podiumAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     borderWidth: 2,
+    borderColor: '#D68D54',
+    marginBottom: 5,
+  },
+  winnerAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 3,
     borderColor: '#FFD700',
   },
-  avatarMedium: {
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-  },
-  avatarLarge: {
-    width: 55,
-    height: 55,
-    borderRadius: 27.5,
-  },
-  medalBadge: {
-    position: 'absolute',
-    bottom: -5,
-    right: -5,
-    backgroundColor: 'white',
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1,
-  },
-  firstPlaceMedal: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-  },
-  crownContainer: {
-    position: 'absolute',
-    top: -20,
-    left: '50%',
-    marginLeft: -15,
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10,
+  crown: {
+    fontSize: 16,
+    marginTop: -5,
+    marginBottom: 3,
   },
   podiumUsername: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#3A2A1F',
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  firstPlaceUsername: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 'bold',
-    color: '#D68D54',
+    color: '#3A2A1F',
+    textAlign: 'center',
+    marginBottom: 3,
+  },
+  winnerUsername: {
+    fontSize: 15,
+    color: '#FFD700',
+    fontWeight: '800',
   },
   podiumScore: {
+    fontSize: 12,
+    color: '#D68D54',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  winnerScore: {
     fontSize: 14,
+    color: '#FFD700',
+    fontWeight: '800',
+  },
+  podiumBlock: {
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  firstPlace: {
+    height: 80,
+  },
+  secondPlace: {
+    height: 60,
+  },
+  thirdPlace: {
+    height: 45,
+  },
+  podiumNumber: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  podiumMedal: {
+    fontSize: 16,
+    marginTop: 2,
+  },
+  noDataContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+  },
+  noDataText: {
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#3A2A1F',
+    textAlign: 'center',
     marginBottom: 8,
   },
-  firstPlaceScore: {
-    fontSize: 18,
-    color: '#D68D54',
+  noDataSubtext: {
+    fontSize: 16,
+    color: '#9B8579',
+    textAlign: 'center',
   },
-  podiumStands: {
+  // Divider Styles
+  dividerContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-    width: '100%',
-  },
-  podiumStand: {
-    width: 50,
     alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 15,
-    borderTopLeftRadius: 6,
-    borderTopRightRadius: 6,
+    paddingHorizontal: 30,
+    paddingVertical: 20,
+    marginTop: 10,
   },
-  firstPlaceStand: {
-    height: 50,
-    backgroundColor: '#D68D54',
-    elevation: 3,
-  },
-  secondPlaceStand: {
-    height: 35,
-    backgroundColor: '#c0c0c0',
-    elevation: 2,
-  },
-  thirdPlaceStand: {
-    height: 25,
-    backgroundColor: '#cd7f32',
-    elevation: 1,
-  },
-  podiumRank: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  rankingsList: {
+  dividerLine: {
     flex: 1,
-    backgroundColor: 'white',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingTop: 16,
-    paddingHorizontal: 16,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    marginTop: 6,
+    height: 1,
+    backgroundColor: 'rgba(214, 141, 84, 0.3)',
   },
-  rankingsHeaderText: {
+  dividerTextContainer: {
+    backgroundColor: '#FAF7F4',
+    paddingHorizontal: 15,
+  },
+  dividerText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#3A2A1F',
-    marginBottom: 12,
-    marginLeft: 4,
+    color: '#D68D54',
+    textAlign: 'center',
+  },
+  // Leaderboard List Styles
+  leaderboardContainer: {
+    flex: 1,
+    paddingHorizontal: 16,
   },
   list: {
+    flex: 1,
+  },
+  listContent: {
     paddingBottom: 20,
   },
-  itemCard: {
-    marginBottom: 8,
+  listItem: {
+    marginVertical: 3,
     borderRadius: 12,
-    backgroundColor: '#f8f4f0',
-    overflow: 'hidden',
+    backgroundColor: 'white',
   },
-  currentUserCard: {
+  topThreeListItem: {
     borderWidth: 1,
-    borderColor: '#D68D54',
-    backgroundColor: 'rgba(214, 141, 84, 0.05)',
+    borderColor: 'rgba(214, 141, 84, 0.3)',
+    backgroundColor: '#FFF9F5',
   },
-  cardContent: {
+  currentUserItem: {
+    borderWidth: 2,
+    borderColor: '#4CAF50',
+    backgroundColor: '#F1F8E9',
+  },
+  listItemContent: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
   },
-  rankBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#f2e7de',
-    justifyContent: 'center',
+  rankContainer: {
+    width: 35,
     alignItems: 'center',
-    marginRight: 12,
   },
   rankText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#D68D54',
+  },
+  topThreeRankText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#B8651A',
+  },
+  currentUserRankText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#4CAF50',
+  },
+  rankEmoji: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginLeft: 10,
+    borderWidth: 2,
+    borderColor: '#E8E8E8',
+  },
+  topThreeAvatar: {
+    borderColor: '#D68D54',
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+  },
+  currentUserAvatar: {
+    borderColor: '#4CAF50',
+    borderWidth: 3,
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+  },
+  userInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  usernameText: {
+    fontSize: 15,
     fontWeight: 'bold',
     color: '#3A2A1F',
-    fontSize: 14,
   },
-  avatarSmall: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    marginRight: 12,
+  topThreeUsername: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#B8651A',
   },
-  username: {
-    flex: 1,
-    fontWeight: '500',
-    color: '#3A2A1F',
+  currentUserUsername: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#4CAF50',
   },
-  scoreContainer: {
+  streakText: {
+    fontSize: 11,
+    color: '#666',
+    marginTop: 2,
+  },
+  valueContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  scoreValue: {
+  valueText: {
+    fontSize: 15,
     fontWeight: 'bold',
     color: '#D68D54',
-    fontSize: 16,
     marginRight: 4,
   },
-  scoreUnit: {
+  topThreeValueText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#B8651A',
+  },
+  currentUserValueText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#4CAF50',
+  },
+  valueIcon: {
     fontSize: 14,
   },
 });

@@ -1,6 +1,6 @@
 const { Op } = require('sequelize');
 const db = require('../models');
-const get = require('../utils/universalGet');
+const { post, get } = require('../utils/universalDML');
 
 class FoodController {
   // Get all foods with pagination and search
@@ -35,6 +35,7 @@ class FoodController {
     }
   }
   get = get(db.Food, [{ model: db.UnitOfMeasurement }])
+  create = post(db.Food)
   // Get food by ID
   getFoodById = async (req, res) => {
     try {

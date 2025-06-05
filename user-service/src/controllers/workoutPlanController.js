@@ -1,5 +1,5 @@
 const db = require('../models');
-const get = require('../utils/universalGet');
+const { post, get } = require('../utils/universalDML');
 
 class WorkoutPlanController { 
 

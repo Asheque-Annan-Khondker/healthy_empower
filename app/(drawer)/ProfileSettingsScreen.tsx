@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { DrawerActions } from '@react-navigation/native';
 import { API_URL } from '@/constants/DBAPI';
 import axios from 'axios';
-import { getCurrentUser } from '@/components/utils/authUtils';
+import { getCurrentUser } from '@/utils/authState';
 
 const { height, width } = Dimensions.get('window');
 
@@ -40,8 +40,9 @@ const ProfileSettingsScreen = () => {
             // Get user ID from stored user data or fetch by email
             let userId = user.id;
             if (!userId) {
+                const apiUrl = await API_URL();
                 const userByEmailResponse = await axios.get(
-                    `${API_URL}/api/users/by-email?email=${encodeURIComponent(user.email)}`
+                    `${apiUrl}/api/users/by-email?email=${encodeURIComponent(user.email)}`
                 );
                 userId = userByEmailResponse.data.id;
             }
@@ -58,12 +59,13 @@ const ProfileSettingsScreen = () => {
     const fetchUserData = async (userId) => {
         try {
             // Fetch user data first
-            const userResponse = await axios.get(`${API_URL}/api/users/${userId}`);
+            const apiUrl = await API_URL();
+            const userResponse = await axios.get(`${apiUrl}/api/users/${userId}`);
             setUserData(userResponse.data);
             
             // Try to fetch health profile separately
             try {
-                const healthResponse = await axios.get(`${API_URL}/api/users/${userId}/health-profile`);
+                const healthResponse = await axios.get(`${apiUrl}/api/users/${userId}/health-profile`);
                 setHealthProfile(healthResponse.data);
             } catch (healthErr) {
                 if (healthErr.response?.status === 404) {

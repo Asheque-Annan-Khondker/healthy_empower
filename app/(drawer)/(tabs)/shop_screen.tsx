@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, 
-        Button, Alert, Platform, StatusBar, Dimensions } from 'react-native';
+        Button, Alert, Dimensions } from 'react-native';
 import { PaperProvider as Provider, Dialog, Portal} from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { DrawerActions } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TestSquare from '@/components/anime_square';
 import Modal from 'react-native-modal';
+import UnifiedFAB from '@/components/UnifiedFAB';
 
 const { height, width } = Dimensions.get('window');
 
@@ -17,7 +16,6 @@ export default function ShopScreen() {
   const [streakFreezeCount, setStreakFreezeCount] = useState(5);
   const [timerBoostQuantity, setTimerBoostQuantity] = useState(0);
   const [doubleXPQuantity, setDoubleXPQuantity] = useState(0);
-  const navigation = useNavigation();
 
   // Shop items grouped by category
   // Shop items grouped by category
@@ -184,26 +182,18 @@ export default function ShopScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.container, styles.AndroidSafeArea]}>
-      {/** Header in the style of Achievements screen */}
-      <View style={styles.header}>
-        <View style={styles.headerContentContainer}>
-          <TouchableOpacity 
-            style={styles.menuButton}
-            onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
-          >
-            <Ionicons name="menu" size={28} color="#FFFFFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Shop</Text>
-          <View style={styles.balanceContainer}>
-            <Text style={styles.balanceText}>{balance} 🌰</Text>
-          </View>
-        </View>
-      </View>
+    <SafeAreaView style={styles.container}>
       {/** Main scroll view  */}
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {shopSections.map(renderShopSection)}
       </ScrollView>
+      
+      {/* Unified FAB System */}
+      <UnifiedFAB 
+        screenType="shop"
+        onFoodAdded={() => console.log('Food added from shop screen')}
+        onMealAdded={() => console.log('Meal added from shop screen')}
+      />
     </SafeAreaView>
   );
 }
@@ -212,50 +202,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F8F8',
-  },
-  // bascially SafeAreaView for android
-  AndroidSafeArea: {
-    flex: 1,
-    backgroundColor: "#F8F8F8",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
-  },
-  header: {
-    backgroundColor: '#D68D54',
-    paddingTop: 70,
-    paddingBottom: 15,
-    paddingHorizontal: 16,
-    top: height-930 // hardcoded this cos i couldnt figue univeral method
-  },
-  headerContentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  menuButton: {
-    width: 44,
-    height: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 28, // Larger font size
-    fontWeight: 'bold',
-    color: '#FFFFFF', // White text
-    flex: 1,
-    marginLeft: 8,
-  },
-  balanceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)', // Semi-transparent white
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  balanceText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFFFFF', // White text
   },
   scrollView: {
     flex: 1,

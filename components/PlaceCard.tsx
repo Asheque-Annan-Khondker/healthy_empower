@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { RewardBadge } from './RewardBadge';
 
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -27,6 +28,7 @@ interface PlaceCardProps {
   leftBottomText: string;
   tag: string;
   image: any;
+  reward?: number;
   onPress?: () => void;
 }
 
@@ -36,6 +38,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   leftBottomText,
   tag,
   image,
+  reward,
   onPress
 }) => {
   return (
@@ -59,9 +62,14 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
 
       {/* Right side - Content */}
       <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
-          {title}
-        </Text>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+            {title}
+          </Text>
+          {reward && (
+            <RewardBadge reward={reward} size="small" style={styles.rewardBadge} />
+          )}
+        </View>
         
         <View style={styles.row}>
           <MaterialIcons name="location-on" size={16} color={COLORS.textSecondary} />
@@ -160,12 +168,22 @@ const styles = StyleSheet.create({
     padding: 14,
     justifyContent: 'space-between',
   },
+  titleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
   title: {
     fontSize: 16,
     fontWeight: 'bold',
     color: COLORS.text,
-    marginBottom: 8,
     letterSpacing: 0.3,
+    flex: 1,
+    marginRight: 8,
+  },
+  rewardBadge: {
+    alignSelf: 'flex-start',
   },
   row: {
     flexDirection: 'row',

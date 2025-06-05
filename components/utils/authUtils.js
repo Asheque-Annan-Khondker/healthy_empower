@@ -1,11 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from 'expo-router';
+import { clearUserId } from '@/utils/authState';
 
 export const logout = async () => {
     try {
         await AsyncStorage.removeItem('authToken');
         await AsyncStorage.removeItem('refreshToken');
         await AsyncStorage.removeItem('userData'); 
+        
+        // Clear user ID from centralized auth state
+        await clearUserId();
 
         router.replace('/signin');
     } catch (error) {
@@ -24,14 +28,4 @@ export const isAuthenticated = async () => {
         console.error("couldnt check auth", error); 
         return false; 
     }
-}; 
-
-export const getCurrentUser = async () => {
-    try {
-        const userData = await AsyncStorage.getItem('userData');
-        return userData ? JSON.parse(userData) : null; 
-    } catch (error) {
-        console.error('Error getting user data:', error);
-        return null; 
-    }
-}
+};

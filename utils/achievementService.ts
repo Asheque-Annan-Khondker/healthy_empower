@@ -10,14 +10,14 @@ export async function getAchievements(): Promise<Achievement[]>{
         `)
     //map results to achievement type
     return results.map(row=>({
-    id: row.id
-    title: row.title
-    desc: row.description
-    icon: row.icon
-    category: row.category
-    completed: row.completed
-    progress: row.progress
-    completion_date: row.completion_date
+    id: row.id,
+    title: row.title,
+    desc: row.description,
+    icon: row.icon,
+    category: row.category,
+    completed: row.completed,
+    progress: row.progress,
+    completion_date: row.completion_date,
     xp: row.xp
     }))
 

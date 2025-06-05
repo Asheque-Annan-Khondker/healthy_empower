@@ -9,66 +9,45 @@ import BottomSheet, {BottomSheetView} from "@gorhom/bottom-sheet";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { RewardBadge } from '@/components/RewardBadge';
 
 // Updated WorkoutPlan interface to match backend model
-interface Exercise {
-  exercise_id: number;
-  name: string;
-  description?: string;
-  type: string;
-  measurement_type: string;
-  difficulty_level?: string;
-  target_muscle_group?: string;
-  WorkoutPlanExercise?: {
-    sets?: number;
-    reps_targets?: number;
-    duration?: number;
-  };
-}
 
-interface WorkoutPlan {
-  plan_id: number;
-  name: string;
-  description: string;
-  difficulty_level: string;
-  created_at: string;
-  Exercises?: Exercise[];
-}
-
-import { WorkoutPlanDBModal } from '@/utils/dbFunctions';
+import { WorkoutPlan, Exercise,  } from '@/utils/table.types';
+import { ExerciseDBModal, WorkoutPlanDBModal } from '@/utils/dbFunctions';
 
 export default function GuideSelection() {
   const [guideList, setGuideList] = useState<WorkoutPlan[]>([]);
-  const [selectedGuide, setSelectedGuide] = useState<WorkoutPlan | null>(null);
+  const [selectedGuide, setSelectedGuide] = useState<WorkoutPlan>();
   const [selectedPlanExercises, setSelectedPlanExercises] = useState<Exercise[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingExercises, setIsLoadingExercises] = useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   async function fetchData(){
-    setIsLoading(true);
     try {
+    setIsLoading(true);
       const response = await WorkoutPlanDBModal.get();
-      if (Array.isArray(response) && response.length > 0) {
-        setGuideList(response);
-      } else {
-        console.warn("No workout plans returned from API");
+      setGuideList(response);
+    }
+      catch (error) {
+        console.error("Error fetching workout plans:", error);
         setGuideList([]);
       }
-    } catch (error) {
-      console.error("Error fetching guides:", error);
-    } finally {
-      setIsLoading(false);
-    }
+      finally{
+        setIsLoading(false)
+      }
+
   }
 
   // Function to fetch exercises for a specific plan
   async function fetchPlanDetails(planId: number) {
     setIsLoadingExercises(true);
     try {
-      const planDetails = await WorkoutPlanDBModal.getById(planId);
-      if (planDetails && planDetails.Exercises) {
-        setSelectedPlanExercises(planDetails.Exercises);
+      const planDetails = await WorkoutPlanDBModal.get({plan_id: planId});
+      const exercises = await(await Promise.all(planDetails.map(info => ExerciseDBModal.get({exercise_id: {eq: info.exercise_id}})))).flat()
+      if (planDetails && exercises) {
+        setSelectedPlanExercises(exercises);
       } else {
         setSelectedPlanExercises([]);
       }
@@ -115,13 +94,19 @@ export default function GuideSelection() {
     }
   }
 
+
   const handleSheetChanges = useCallback((index: number)=>{
     console.log(`SheetChanges: ${index}`);
   }, [])
 
   const renderModal = () => (
     <View style={styles.modalContainer}>
-      <Text style={styles.modalTitle}>{selectedGuide?.name}</Text>
+      <View style={styles.modalHeader}>
+        <Text style={styles.modalTitle}>{selectedGuide?.name}</Text>
+        {selectedGuide?.reward && (
+          <RewardBadge reward={selectedGuide.reward} size="medium" />
+        )}
+      </View>
       <View style={styles.difficultyBadge}>
         <Text style={styles.difficultyText}>Difficulty: {selectedGuide?.difficulty_level}</Text>
       </View>
@@ -201,6 +186,7 @@ export default function GuideSelection() {
                   leftBottomText="20-30 min"
                   tag={guide.difficulty_level || "Beginner"} 
                   image={require('@/assets/images/yoga.png')}
+                  reward={guide.reward}
                 />
               </TouchableOpacity>
             ))}
@@ -273,11 +259,18 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 10,
+  },
   modalTitle: {
     fontSize: 22,
     fontWeight: 'bold',
     color: '#3A2A1F',
-    marginBottom: 10,
+    flex: 1,
+    marginRight: 12,
   },
   difficultyBadge: {
     alignSelf: 'flex-start',
